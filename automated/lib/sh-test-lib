@@ -234,7 +234,7 @@ install_deps() {
         info_msg "Installing ${pkgs}"
         dist_name
         case "${dist}" in
-          debian|ubuntu)
+          debian|ubuntu|dip)
             last_apt_time=/tmp/apt-get-updated.last
             apt_cache_time=21600 # 6 hours
             # Only run apt-get update if it hasn't been run in $apt_cache_time seconds

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2019 Schneider Electric
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: UART Loopback
+    description: "...
+                     ..."
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - debian
+        - ubuntu
+        - fedora
+        - centos
+        - openembedded
+    scope:
+        - uart
+    devices:
+        - rzn1d
+        - soca9
+
+params:
+        UART0: "/dev/ttyUSB0"
+        UART1: "/dev/ttyS1"
+        YKUSHPORT: 1
+        SKIP_INSTALL: "True"
+
+run:
+    steps:
+        - cd ./automated/linux/uart-loopback
+        - ./uart-loopback.sh -s "${SKIP_INSTALL}" -uart0 "${UART0}" -uart1 "${UART1}" -y "${YKUSHPORT}"
+        - ../../utils/send-to-lava.sh ./output/result.txt

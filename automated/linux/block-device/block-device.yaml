@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2019 Schneider Electric
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: Block Device Test
+    description: "...
+                     ..."
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - debian
+        - ubuntu
+        - fedora
+        - centos
+        - openembedded
+    scope:
+        - blkdev
+    devices:
+        - rzn1d
+        - soca9
+
+params:
+        DEVICE: "/dev/sda"
+        YKUSHPORT: 2
+        FORMAT_DEVICE: "True"
+        SKIP_INSTALL: "True"
+
+run:
+    steps:
+        - cd ./automated/linux/block-device
+        - ./block-device.sh -s "${SKIP_INSTALL}" -d "${DEVICE}" -y "${YKUSHPORT}" -f "${FORMAT_DEVICE}"
+        - ../../utils/send-to-lava.sh ./output/result.txt

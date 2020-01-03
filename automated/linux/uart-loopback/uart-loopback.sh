@@ -162,6 +162,7 @@ wait_for_device () {
 		sleep 0.5
 	done
 	echo "failed"
+	echo "uart-loopback fail" >> "${RESULT_FILE}"
 	exit 1
 }
 

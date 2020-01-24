@@ -29,6 +29,7 @@ skiplist:
       - x15
       - dragonboard-410c
       - rzn1d
+      - soca9
       - qemu_x86_64
       - qemu_arm64
       - qemu_arm
@@ -51,6 +52,7 @@ skiplist:
       - x15
       - dragonboard-410c
       - rzn1d
+      - soca9
       - qemu_x86_64
       - qemu_arm64
       - qemu_arm
@@ -74,6 +76,7 @@ skiplist:
       - juno-r2
       - dragonboard-410c
       - rzn1d
+      - soca9
       - qemu_arm64
       - nxp-ls2088
     branches:
@@ -189,6 +192,7 @@ skiplist:
       - hi6220-hikey
       - dragonboard-410c
       - rzn1d
+      - soca9
       - nxp-ls2088
     branches:
       - all
@@ -218,6 +222,7 @@ skiplist:
     boards:
       - dragonboard-410c
       - rzn1d
+      - soca9
       - nxp-ls2088
     branches:
       - all
@@ -232,6 +237,7 @@ skiplist:
     boards:
       - dragonboard-410c
       - rzn1d
+      - soca9
       - hi6220-hikey
       - juno-r2
       - qemu_arm64
@@ -250,6 +256,7 @@ skiplist:
     boards:
       - dragonboard-410c
       - rzn1d
+      - soca9
       - nxp-ls2088
     branches:
       - all
@@ -284,6 +291,7 @@ skiplist:
     boards:
       - dragonboard-410c
       - rzn1d
+      - soca9
       - nxp-ls2088
     branches:
       - all

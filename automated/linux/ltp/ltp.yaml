@@ -19,7 +19,7 @@ metadata:
 params:
     # LTP version
     LTP_VERSION: 20190115
-    TST_CMDFILES: syscalls,mm,math,timers,fcntl-locktests,ipc,fsx,fs,hugetlb,io,nptl,pty,containers,fs_bind,filecaps,connectors
+    TST_CMDFILES: syscalls,mm,math,fcntl-locktests,ipc,fsx,fs,hugetlb,io,nptl,pty,containers,fs_bind,filecaps,connectors
 
     # SKIPFILE can be a filename from dir ./automated/linux/ltp/, an http URL,
     # or a skipgen style yaml file.

@@ -1,0 +1,21 @@
+metadata:
+    name: meminfo
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Schneider Electric cryptotest"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - oe
+    scope:
+        - functional
+    devices:
+        - rzn1d
+
+parameters:
+    CRYPTO_DEVICE: '/dev/cryptotest'
+
+run:
+    steps:
+        - cd ./automated/linux/cryptotest
+        - ./cryptotest.sh -c "${CRYPTO_DEVICE}"
+        - ../../utils/send-to-lava.sh ./output/result.txt

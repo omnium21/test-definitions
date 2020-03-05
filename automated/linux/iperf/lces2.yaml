@@ -1,0 +1,148 @@
+job_name: lces2-iperf
+timeouts:
+  job:
+    minutes: 60
+  action:
+    minutes: 3
+  connection:
+    minutes: 5
+priority: medium
+visibility: public
+
+metadata:
+  iperf-version: v3
+
+protocols:
+  lava-multinode:
+    roles:
+      server:
+        device_type: rzn1d
+        count: 1
+        timeout:
+          minutes: 30
+      client:
+        device_type: rzn1d
+        count: 1
+        timeout:
+          minutes: 30
+
+actions:
+
+####################
+# Deploy QSPI images
+####################
+- deploy:
+    namespace: dfu-firmware
+    role:
+      - server
+      - client
+    to: tmpfs
+    images:
+      sf_fsbl:
+        image_arg: --alt sf_fsbl --download {sf_fsbl}
+        url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/rzn1d-snarc-fsbl-fip-linaro-rel-2019.09-warrior.2-rc1-5-g7b14672.spkg
+      sf_trustedfw:
+        image_arg: --alt sf_trustedfw --download {sf_trustedfw}
+        url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/optee/optee-os-linaro-rel-2019.09-warrior.2-rc1-5-g7b14672.itb
+      sf_uboot0:
+        image_arg: --alt sf_uboot0 --download {sf_uboot0}
+        url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/ubootfitImage-linaro-rel-2019.09-warrior.2-rc1-5-g7b14672-rzn1d.itb
+      sf_uboot1:
+        image_arg: --alt sf_uboot1 --download {sf_uboot1}
+        url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/ubootfitImage-linaro-rel-2019.09-warrior.2-rc1-5-g7b14672-rzn1d.itb
+- command:
+    namespace: dfu-firmware
+    role:
+      - server
+      - client
+    name: set_boot_to_nand
+- boot:
+    namespace: dfu-firmware
+    role:
+      - server
+      - client
+    method: dfu
+    timeout:
+      minutes: 10
+- command:
+    namespace: test
+    role:
+      - server
+      - client
+    name: set_boot_to_qspi
+
+###############
+# TFTP/NFS
+###############
+- deploy:
+    namespace: test-nfs
+    role:
+      - server
+      - client
+    timeout:
+      minutes: 15
+    to: tftp
+    os: oe
+    kernel:
+      url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/zImage--4.9.215+git0+bee8587291-r4.0-rzn1-snarc-20200303124623.bin
+      type: zimage
+    dtb:
+      url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/rzn1d400-snarc-bestla--4.9.215+git0+bee8587291-r4.0-rzn1-snarc-20200303124623.dtb
+    nfsrootfs:
+      url: https://snapshots.linaro.org/openembedded/schneider/rmh-warrior-4.9/rzn1d/39/dip/dip-image-dev-rzn1-snarc-linaro-rel-2019.09-warrior.2-rc1-5-g7b14672-39.rootfs.tar.bz2
+      compression: bz2
+- boot:
+    namespace: test-nfs
+    connection-namespace: dfu-firmware
+    timeout:
+      minutes: 20
+    method: u-boot
+    commands:
+    - setenv autoload no
+    - dhcp
+    - dhcp
+    - env print
+    - setenv serverip {SERVER_IP}
+    - tftp {KERNEL_ADDR} {KERNEL}
+    - tftp {DTB_ADDR} {DTB}
+    - setenv bootargs 'console=ttyS0,115200n8 root=/dev/nfs rw nfsroot={NFS_SERVER_IP}:{NFSROOTFS},tcp,hard,intr,vers=3
+      rootwait coherent_pool=2M ip=dhcp'
+    - '{BOOTX}'
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+    prompts:
+    - 'root@snarc-soca9:'
+    - 'root@rzn1-snarc:'
+
+- test:
+    role:
+    - server
+    timeout:
+      minutes: 30
+    definitions:
+    - repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      from: git
+      path: automated/linux/iperf/iperf-server.yaml
+      name: iperf3-test
+      parameters:
+        SERVER_ETHERNET_DEVICE: eth1
+
+- test:
+    role:
+    - client
+    timeout:
+      minutes: 30
+    definitions:
+    - repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      from: git
+      path: automated/linux/iperf/iperf-client.yaml
+      name: iperf3-test
+      parameters:
+        AFFINITY: "-A 0"
+        REVERSE: "-R"
+        # The MSG ID and KEY should be the same as the ones sent by lava-send above
+        MSG_ID: server-ready
+        MSG_KEY: ipaddr

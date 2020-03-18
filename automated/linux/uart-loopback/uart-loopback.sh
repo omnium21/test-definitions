@@ -172,7 +172,7 @@ loopback_test() {
 
 	echo "Testing data transfer from ${UART0} to ${UART1}" | tee "${logfile}"
 	./test-uart-loopback.sh "${UART0}" "${UART1}" | tee -a "${logfile}"
-	sed -i 's/\.//g' "${logfile}"
+	sed -i -e 's#\.##g' -e 's#/#-#g' "${logfile}"
 	grep -e "pass" -e "fail" "${logfile}" >> "${RESULT_FILE}"
 }
 

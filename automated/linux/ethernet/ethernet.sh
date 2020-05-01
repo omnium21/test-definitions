@@ -86,7 +86,7 @@ if_up() {
 		echo "Bringing interface ${interface} up"
 		ifconfig "${interface}" up
 		wait_for_if_up ${interface} 2>&1 > /dev/null
-		#exit_on_fail "ethernet-${interface}-state-UP"
+		exit_on_fail "ethernet-${interface}-state-UP"
 	fi
 	ip addr show "${interface}"
 

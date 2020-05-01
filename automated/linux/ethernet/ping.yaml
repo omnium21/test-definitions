@@ -33,5 +33,5 @@ params:
 run:
     steps:
         - cd automated/linux/ethernet
-        - ./ethernet.sh -s "${SKIP_INSTALL}" -i "${INTERFACE}"
+        - ./ping.sh -s "${SKIP_INSTALL}" -i "${INTERFACE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

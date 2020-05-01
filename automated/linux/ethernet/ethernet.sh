@@ -71,7 +71,7 @@ wait_for_if_up() {
 
 	retries=0
 	max_retries=100
-	while [ $(if_state ${interface}) = "down" ] && [ "$((retries++))" -lt "${max_retries}" ]; do
+	while if_state ${interface} && [ "$((retries++))" -lt "${max_retries}" ]; do
 		sleep 0.1
 	done
 	if_state ${interface} && return -1

@@ -74,7 +74,7 @@ wait_for_if_up() {
 	while [ $(if_state ${interface}) = "down" ] && [ "$((retries++))" -lt "${max_retries}" ]; do
 		sleep 0.1
 	done
-	[ $(if_state ${interface}) = "down" ] && return -1
+	if_state ${interface} && return -1
 	return 0
 }
 
@@ -82,8 +82,7 @@ if_up() {
 	local interface
 	interface=$1
 
-	state=$(if_state ${interface})
-	if [ "${state}" = "down" ]; then
+	if if_state ${interface} ; then
 		echo "Bringing interface ${interface} up"
 		ifconfig "${interface}" up
 		wait_for_if_up ${interface} 2>&1 > /dev/null

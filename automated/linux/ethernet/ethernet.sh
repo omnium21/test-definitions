@@ -32,23 +32,13 @@ create_out_dir "${OUTPUT}"
 pkgs="net-tools"
 install_deps "${pkgs}" "${SKIP_INSTALL}"
 
-# Print all network interface status
-ip addr
-
-echo ""
-echo "Current Interface"
-# Print given network interface status
-ip addr show "${INTERFACE}"
-
-
-
 if_state() {
 	local interface
 	local if_info
 	local state
 	local ret
 
-	interface=${1}
+	interface="${1}"
 	ret=0
 
 	if_info=$(ip addr show "${SWITCH_IF}" | grep -a2 "state DOWN" | tail -1 )
@@ -59,7 +49,6 @@ if_state() {
 		state=up
 		ret=1
 	fi
-	echo "${state}"
 	return "${ret}"
 }
 
@@ -67,52 +56,55 @@ wait_for_if_up() {
 	local interface
 	local state
 
-	interface=${1}
+	interface="${1}"
 
 	retries=0
 	max_retries=100
-	while if_state ${interface} && [ "$((retries++))" -lt "${max_retries}" ]; do
+	while if_state "${interface}" && [ "$((retries++))" -lt "${max_retries}" ]; do
 		sleep 0.1
 	done
-	if_state ${interface} && return -1
+	if_state "${interface}" && return -1
 	return 0
 }
 
 if_up() {
 	local interface
-	interface=$1
+	interface="${1}"
 
-	if if_state ${interface} ; then
+	if if_state "${interface}" ; then
 		echo "Bringing interface ${interface} up"
 		ifconfig "${interface}" up
-		wait_for_if_up ${interface} 2>&1 > /dev/null
+		wait_for_if_up "${interface}" 2>&1 > /dev/null
 		exit_on_fail "ethernet-${interface}-state-UP"
 	fi
-	ip addr show "${interface}"
+}
 
-	# DELME
-	if_state ${interface} || echo interface $interface is up
-	if_state ${interface} && echo interface $interface is down
-	if_state ${interface}
-	ret=$?
+delete_this_function() { # TODO
+	local interface
+	interface="${1}"
+
+	if_state "${interface}" || echo "interface ${interface} is up"
+	if_state "${interface}" && echo "interface ${interface} is down"
+	if_state "${interface}"
+	ret="$?"
 	if [ "${ret}" -eq "0" ]; then
-		echo interface $interface is down
+		echo "interface ${interface} is down"
 	else
-		echo interface $interface is up
+		echo "interface ${interface} is up"
 	fi
 
 	ret=$?
-	if if_state ${interface} ; then
-		echo interface $interface is down
+	if if_state "${interface}" ; then
+		echo "interface ${interface} is down"
 	else
-		echo interface $interface is up
+		echo "interface ${interface} is up"
 	fi
-	# finsihed playing
 }
 
 ping_test() {
 	local interface
-	interface=$1
+	interface="${1}"
+
 	# Get IP address of a given interface
 	IP_ADDR=$(ip addr show "${interface}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
 
@@ -126,10 +118,27 @@ ping_test() {
 	# Run the test
 	run_test_case "ping -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
 }
-#ping_test "${INTERFACE}"
+
+
+
+
+
+
+# Print all network interface status
+ip addr
+
+echo ""
+echo "Current state of interface unser test"
+# Print given network interface status
+ip addr show "${INTERFACE}"
 
 if [ -n "${SWITCH_IF}" ]; then
 	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
 	ip addr show "${SWITCH_IF}"
 	if_up "${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
 fi
+
+#delete_this_function ${SWITCH_IF}
+
+ping_test "${INTERFACE}"

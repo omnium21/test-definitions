@@ -11,15 +11,16 @@ export RESULT_FILE
 INTERFACE="eth0"
 
 usage() {
-    echo "Usage: $0 [-i <ethernet-interface> -s <true|false>]" 1>&2
+    echo "Usage: $0 [-i <ethernet-interface> -w <switch-interface> -s <true|false>]" 1>&2
     exit 1
 }
 
-while getopts "s:i:" o; do
+while getopts "s:i:w:" o; do
   case "$o" in
     s) SKIP_INSTALL="${OPTARG}" ;;
     # Ethernet interface
     i) INTERFACE="${OPTARG}" ;;
+    w) SWITCH_IF="${OPTARG}" ;;
     *) usage ;;
   esac
 done
@@ -33,17 +34,75 @@ install_deps "${pkgs}" "${SKIP_INSTALL}"
 
 # Print all network interface status
 ip addr
+
+echo ""
+echo "Current Interface"
 # Print given network interface status
 ip addr show "${INTERFACE}"
 
-# Get IP address of a given interface
-IP_ADDR=$(ip addr show "${INTERFACE}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
 
-[ -n "${IP_ADDR}" ]
-exit_on_fail "ethernet-ping-state-UP" "ethernet-ping-route"
 
-# Get default Route IP address of a given interface
-ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+if_state() {
+	local if_info
 
-# Run the test
-run_test_case "ping -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
+	if_info=$(ip addr show "${SWITCH_IF}" | grep -a2 "state DOWN" | tail -1 )
+
+	if [ -n "${if_info}" ]; then
+		state=down
+	else
+		state=up
+	fi
+	echo "${state}"
+}
+
+wait_for_if_up() {
+	local interface
+	local state
+
+	interface=${1}
+
+	retries=0
+	max_retries=50
+	while [ $(if_state ${interface}) = "down" ] && [ "$((retries++))" -lt "${max_retries}" ]; do
+		sleep 0.1
+	done
+	[ $(if_state ${interface}) = "down" ] && return -1
+	return 0
+}
+
+sleep 1 # TODO - perhaps we should wait for the state to go UP?
+
+if [ -n "${SWITCH_IF}" ]; then
+	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+
+	state=$(if_state ${SWITCH_IF})
+	echo "port ${SWITCH_IF} is ${state}"
+
+	if [ "${state}" = "down" ]; then
+		echo "Bringing interface ${SWITCH_IF} up"
+		ifconfig "${SWITCH_IF}" up
+		wait_for_if_up ${SWITCH_IF} 2>&1 > /dev/null
+		exit_on_fail "ethernet-${SWITCH_IF}-state-UP"
+	fi
+	ip addr show "${SWITCH_IF}"
+fi
+
+
+ping_test() {
+	local interface
+	interface=$1
+	# Get IP address of a given interface
+	IP_ADDR=$(ip addr show "${interface}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
+
+	echo IP_ADDR=$IP_ADDR
+	[ -n "${IP_ADDR}" ]
+	exit_on_fail "ethernet-ping-state-UP" "ethernet-ping-route"
+
+	# Get default Route IP address of a given interface
+	ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+
+	# Run the test
+	run_test_case "ping -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
+}
+#ping_test "${INTERFACE}"

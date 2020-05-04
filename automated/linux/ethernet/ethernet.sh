@@ -36,20 +36,18 @@ if_state() {
 	local interface
 	local if_info
 	local state
-	local ret
 
 	interface="${1}"
-	ret=0
+	state=0 # zero is down, 1 is up
 
-	if_info=$(ip addr show "${SWITCH_IF}" | grep -a2 "state DOWN" | tail -1 )
+	if_info=$(ip addr show "${interface}" | grep -a2 "state DOWN" | tail -1 )
 
-	if [ -n "${if_info}" ]; then
-		state=down
-	else
-		state=up
-		ret=1
+	if [ -z "${if_info}" ]; then
+		state=1
 	fi
-	return "${ret}"
+
+	echo "if_up: interface ${interface} is in state ${state}"
+	return "${state}"
 }
 
 wait_for_if_up() {
@@ -79,6 +77,9 @@ if_up() {
 	fi
 }
 
+################################################################################
+# A test function checking different ways to call if_state
+################################################################################
 delete_this_function() { # TODO
 	local interface
 	interface="${1}"
@@ -100,6 +101,25 @@ delete_this_function() { # TODO
 		echo "interface ${interface} is up"
 	fi
 }
+################################################################################
+
+
+dhcp(){
+	local interface
+	interface="${1}"
+
+	# Get IP address of a given interface
+	IP_ADDR=$(ip addr show "${interface}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
+
+	echo IP_ADDR=$IP_ADDR
+	if [ -z "${IP_ADDR}" ]; then
+		echo "There is no IP address, let's get one..."
+		udhcpc -i "${interface}"
+	fi
+}
+
+
+
 
 ping_test() {
 	local interface
@@ -116,7 +136,7 @@ ping_test() {
 	ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
 
 	# Run the test
-	run_test_case "ping -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
+	run_test_case "ping -I ${interface} -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
 }
 
 
@@ -127,11 +147,6 @@ ping_test() {
 # Print all network interface status
 ip addr
 
-echo ""
-echo "Current state of interface unser test"
-# Print given network interface status
-ip addr show "${INTERFACE}"
-
 if [ -n "${SWITCH_IF}" ]; then
 	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
 	ip addr show "${SWITCH_IF}"
@@ -141,4 +156,18 @@ fi
 
 #delete_this_function ${SWITCH_IF}
 
+
+echo ""
+echo "Current state of interface ${INTERFACE}"
+# Print given network interface status
+ip addr show "${INTERFACE}"
+
+#delete_this_function "${INTERFACE}"
+if_up "${INTERFACE}"
+#delete_this_function "${INTERFACE}"
+
+dhcp "${INTERFACE}"
+
+
+echo "Setup complete. Now do some testing..."
 ping_test "${INTERFACE}"

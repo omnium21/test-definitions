@@ -1,0 +1,32 @@
+metadata:
+    name: TB18
+    format: "Manual Test Definition 1.0"
+    description: "TB18: ttyGS0 to ttyACM0"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "on the target"
+        - "cat /dev/ttyGS0"
+        - " "
+        - "on the host"
+        - "echo hello > /dev/ttyACM0"
+        - " "
+        - "on the host"
+        - "cat /dev/ttyACM0"
+        - " "
+        - "on the target"
+        - "echo test > /dev/ttyGS0"
+
+    expected:
+        - "skip on lces2"
+        - "Data transferred OK on SoCA9"

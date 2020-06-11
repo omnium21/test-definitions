@@ -1,0 +1,91 @@
+metadata:
+    name: TC36
+    format: "Manual Test Definition 1.0"
+    description: "TC36: GPIO LED Use Case 1"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "# soca9: ok"
+        - "d1grn=1952 # D1 green"
+        - "d1red=1953 # D1 red"
+        - "d3grn=1954 # D3 green"
+        - "d3red=1955 # D3 red"
+        - " "
+        - "function led_enable()"
+        - "{"
+        - "	local led=$1"
+        - "	cd /sys/class/gpio/"
+        - "	echo ${led} > export"
+        - "	echo \"out\" > gpio${led}/direction"
+        - "}"
+        - " "
+        - "function led_set()"
+        - "{"
+        - "	local led=$1"
+        - "	local value=$2"
+        - "	echo $value > gpio${led}/value"
+        - "	sleep 0.5"
+        - "}"
+        - " "
+        - "function led_disable()"
+        - "{"
+        - "	local led=$1"
+        - "	cd /sys/class/gpio/"
+        - "	echo ${led} > unexport"
+        - "}"
+        - " "
+        - "led_enable ${d1grn}"
+        - "led_enable ${d1red}"
+        - "led_enable ${d3grn}"
+        - "led_enable ${d3red}"
+        - " "
+        - "# D1 green/orange/red"
+        - "led_set ${d1grn} 255"
+        - "led_set ${d1red} 255"
+        - "led_set ${d1grn} 0"
+        - "led_set ${d1red} 0"
+        - " "
+        - "# D3 green/orange/red"
+        - "led_set ${d3grn} 255"
+        - "led_set ${d3red} 255"
+        - "led_set ${d3grn} 0"
+        - "led_set ${d3red} 0"
+        - " "
+        - "led_disable ${d1grn}"
+        - "led_disable ${d1red}"
+        - "led_disable ${d3grn}"
+        - "led_disable ${d3red}"
+        - " "
+        - "#lces2: ok"
+        - "# Sumo & Warrior:"
+        - " "
+        - "function led_test()"
+        - "{"
+        - "	local led=$1"
+        - "	echo none > $led/trigger"
+        - "	echo 255  > $led/brightness"
+        - "	sleep 1"
+        - "	echo 0    > $led/brightness"
+        - "	sleep 1"
+        - "	echo 255  > $led/brightness"
+        - "	sleep 1"
+        - "	echo 0    > $led/brightness"
+        - "}"
+        - "led_test /sys/class/leds/pl_gpio13 # LED D3 (Red LED)"
+        - "led_test /sys/class/leds/pl_gpio14 # LED D3 (Green LED)"
+        - "led_test /sys/class/leds/pl_gpio17 # LED D1 (Green LED)"
+        - "led_test /sys/class/leds/pl_gpio18 # LED D1 (Red LED)"
+
+    expected:
+        - "LEDs light up with correct colours"

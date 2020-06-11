@@ -1,0 +1,212 @@
+metadata:
+  # name key is needed by test-runner
+  name: se-test-plan
+  description: Scheieder Electric base test plan
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  # format key is needed by test-runner
+  format: Linaro Test Plan v2
+
+tests:
+  automated:
+    - path: automated/linux/smoke/smoke.yaml
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      timeout: 900
+  manual:
+    - path: manual/se/tc1.yaml
+    - path: manual/se/tc2.yaml
+    - path: manual/se/tc3.yaml
+    - path: manual/se/tc4.yaml
+    - path: manual/se/tc5.yaml
+    - path: manual/se/tc6.yaml
+    - path: manual/se/tc7.yaml
+    - path: manual/se/tc8.yaml
+    - path: manual/se/tc9.yaml
+    - path: manual/se/tc10.yaml
+    - path: manual/se/tc11.yaml
+    - path: manual/se/tc12.yaml
+    - path: manual/se/tc13.yaml
+    - path: manual/se/tc14.yaml
+    - path: manual/se/tc15.yaml
+    - path: manual/se/tc16.yaml
+    - path: manual/se/tc17.yaml
+    - path: manual/se/tc18.yaml
+    - path: manual/se/tc19.yaml
+    - path: manual/se/tc20.yaml
+    - path: manual/se/tc21.yaml
+    - path: manual/se/tc22.yaml
+    - path: manual/se/tc23.yaml
+    - path: manual/se/tc24.yaml
+    - path: manual/se/tc25.yaml
+    - path: manual/se/tc26.yaml
+    - path: manual/se/tc27.yaml
+    - path: manual/se/tc28.yaml
+    - path: manual/se/tc29.yaml
+    - path: manual/se/tc30.yaml
+    - path: manual/se/tc31.yaml
+    - path: manual/se/tc32.yaml
+    - path: manual/se/tc33.yaml
+    - path: manual/se/tc34.yaml
+    - path: manual/se/tc35.yaml
+    - path: manual/se/tc36.yaml
+    - path: manual/se/tc37.yaml
+    - path: manual/se/tc38.yaml
+    - path: manual/se/tc39.yaml
+    - path: manual/se/tc40.yaml
+    - path: manual/se/tc41.yaml
+    - path: manual/se/tc42.yaml
+    - path: manual/se/tc43.yaml
+    - path: manual/se/tc44.yaml
+    - path: manual/se/tc45.yaml
+    - path: manual/se/tc46.yaml
+    - path: manual/se/tc47.yaml
+    - path: manual/se/tc48.yaml
+    - path: manual/se/tc49.yaml
+    - path: manual/se/tc50.yaml
+
+    - path: manual/se/tb1-j17.yaml
+    - path: manual/se/tb2-j17.yaml
+    - path: manual/se/tb3-j17.yaml
+    - path: manual/se/tb4-j17.yaml
+    - path: manual/se/tb5-j17.yaml
+    - path: manual/se/tb6-j17.yaml
+    - path: manual/se/tb7-j17.yaml
+    - path: manual/se/tb8-j17.yaml
+    - path: manual/se/tb9-j17.yaml
+
+    - path: manual/se/tb1-j21.yaml
+    - path: manual/se/tb2-j21.yaml
+    - path: manual/se/tb3-j21.yaml
+    - path: manual/se/tb4-j21.yaml
+    - path: manual/se/tb5-j21.yaml
+    - path: manual/se/tb6-j21.yaml
+    - path: manual/se/tb7-j21.yaml
+    - path: manual/se/tb8-j21.yaml
+    - path: manual/se/tb9-j21.yaml
+
+    - path: manual/se/tb1-j22.yaml
+    - path: manual/se/tb2-j22.yaml
+    - path: manual/se/tb3-j22.yaml
+    - path: manual/se/tb4-j22.yaml
+    - path: manual/se/tb5-j22.yaml
+    - path: manual/se/tb6-j22.yaml
+    - path: manual/se/tb7-j22.yaml
+    - path: manual/se/tb8-j22.yaml
+    - path: manual/se/tb9-j22.yaml
+
+    - path: manual/se/tb1-j23.yaml
+    - path: manual/se/tb2-j23.yaml
+    - path: manual/se/tb3-j23.yaml
+    - path: manual/se/tb4-j23.yaml
+    - path: manual/se/tb5-j23.yaml
+    - path: manual/se/tb6-j23.yaml
+    - path: manual/se/tb7-j23.yaml
+    - path: manual/se/tb8-j23.yaml
+    - path: manual/se/tb9-j23.yaml
+
+    - path: manual/se/tb1-j24.yaml
+    - path: manual/se/tb2-j24.yaml
+    - path: manual/se/tb3-j24.yaml
+    - path: manual/se/tb4-j24.yaml
+    - path: manual/se/tb5-j24.yaml
+    - path: manual/se/tb6-j24.yaml
+    - path: manual/se/tb7-j24.yaml
+    - path: manual/se/tb8-j24.yaml
+    - path: manual/se/tb9-j24.yaml
+
+    - path: manual/se/tb1-j17-mtu1508.yaml
+    - path: manual/se/tb2-j17-mtu1508.yaml
+    - path: manual/se/tb3-j17-mtu1508.yaml
+    - path: manual/se/tb4-j17-mtu1508.yaml
+    - path: manual/se/tb5-j17-mtu1508.yaml
+    - path: manual/se/tb6-j17-mtu1508.yaml
+    - path: manual/se/tb7-j17-mtu1508.yaml
+    - path: manual/se/tb8-j17-mtu1508.yaml
+    - path: manual/se/tb9-j17-mtu1508.yaml
+
+    - path: manual/se/tb1-j21-mtu1508.yaml
+    - path: manual/se/tb2-j21-mtu1508.yaml
+    - path: manual/se/tb3-j21-mtu1508.yaml
+    - path: manual/se/tb4-j21-mtu1508.yaml
+    - path: manual/se/tb5-j21-mtu1508.yaml
+    - path: manual/se/tb6-j21-mtu1508.yaml
+    - path: manual/se/tb7-j21-mtu1508.yaml
+    - path: manual/se/tb8-j21-mtu1508.yaml
+    - path: manual/se/tb9-j21-mtu1508.yaml
+
+    - path: manual/se/tb1-j22-mtu1508.yaml
+    - path: manual/se/tb2-j22-mtu1508.yaml
+    - path: manual/se/tb3-j22-mtu1508.yaml
+    - path: manual/se/tb4-j22-mtu1508.yaml
+    - path: manual/se/tb5-j22-mtu1508.yaml
+    - path: manual/se/tb6-j22-mtu1508.yaml
+    - path: manual/se/tb7-j22-mtu1508.yaml
+    - path: manual/se/tb8-j22-mtu1508.yaml
+    - path: manual/se/tb9-j22-mtu1508.yaml
+
+    - path: manual/se/tb1-j23-mtu1508.yaml
+    - path: manual/se/tb2-j23-mtu1508.yaml
+    - path: manual/se/tb3-j23-mtu1508.yaml
+    - path: manual/se/tb4-j23-mtu1508.yaml
+    - path: manual/se/tb5-j23-mtu1508.yaml
+    - path: manual/se/tb6-j23-mtu1508.yaml
+    - path: manual/se/tb7-j23-mtu1508.yaml
+    - path: manual/se/tb8-j23-mtu1508.yaml
+    - path: manual/se/tb9-j23-mtu1508.yaml
+
+    - path: manual/se/tb1-j24-mtu1508.yaml
+    - path: manual/se/tb2-j24-mtu1508.yaml
+    - path: manual/se/tb3-j24-mtu1508.yaml
+    - path: manual/se/tb4-j24-mtu1508.yaml
+    - path: manual/se/tb5-j24-mtu1508.yaml
+    - path: manual/se/tb6-j24-mtu1508.yaml
+    - path: manual/se/tb7-j24-mtu1508.yaml
+    - path: manual/se/tb8-j24-mtu1508.yaml
+    - path: manual/se/tb9-j24-mtu1508.yaml
+
+    - path: manual/se/tb10.yaml
+    - path: manual/se/tb11.yaml
+
+    - path: manual/se/tb12.yaml
+    - path: manual/se/tb13.yaml
+    - path: manual/se/tb14.yaml
+    - path: manual/se/tb15.yaml
+    - path: manual/se/tb16.yaml
+    - path: manual/se/tb17.yaml
+    - path: manual/se/tb18.yaml
+    - path: manual/se/tb19.yaml
+    - path: manual/se/tb20.yaml
+    - path: manual/se/tb21.yaml
+    - path: manual/se/tb22.yaml
+    - path: manual/se/tb23.yaml
+    - path: manual/se/tb24.yaml
+    - path: manual/se/tb25.yaml
+    - path: manual/se/tb26.yaml
+    - path: manual/se/tb27.yaml
+    - path: manual/se/tb28.yaml
+    - path: manual/se/tb29.yaml
+    - path: manual/se/tb30.yaml
+    - path: manual/se/tb31.yaml
+    - path: manual/se/tb32.yaml
+    - path: manual/se/tb33.yaml
+    - path: manual/se/tb34.yaml
+    - path: manual/se/tb35.yaml
+    - path: manual/se/tb36.yaml
+    - path: manual/se/tb37.yaml
+    - path: manual/se/tb38.yaml
+    - path: manual/se/tb39.yaml
+    - path: manual/se/tb40.yaml
+    - path: manual/se/tb41.yaml
+
+    - path: manual/se/mbedtls.yaml
+    - path: manual/se/mbedtls-internal.yaml
+    - path: manual/se/lynis.yaml

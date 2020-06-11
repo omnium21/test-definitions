@@ -1,0 +1,22 @@
+metadata:
+    name: TC34
+    format: "Manual Test Definition 1.0"
+    description: "TC34: USB Ethernet adapter"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Test script got1Mnew not available"
+
+    expected:
+        - "skip"

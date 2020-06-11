@@ -1,0 +1,22 @@
+metadata:
+    name: TB28
+    format: "Manual Test Definition 1.0"
+    description: "TB28: UART loopback"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Runs in LAVA"
+
+    expected:
+        - "skip"

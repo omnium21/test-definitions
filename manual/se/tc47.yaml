@@ -1,0 +1,22 @@
+metadata:
+    name: TC47
+    format: "Manual Test Definition 1.0"
+    description: "TC47: zscaler"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "zscaler not available outside SE"
+
+    expected:
+        - "skip"

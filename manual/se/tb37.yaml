@@ -1,0 +1,22 @@
+metadata:
+    name: TB37
+    format: "Manual Test Definition 1.0"
+    description: "TB37: Read/Write I2C EEPROM"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Run tc22"
+
+    expected:
+        - "Same results as tc22"

@@ -1,0 +1,44 @@
+metadata:
+    name: TC24
+    format: "Manual Test Definition 1.0"
+    description: "TC24: SPI EEPROM (FRAM)"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "# 4.9:"
+        - "FRAM=/sys/bus/spi/devices/spi32766.0/eeprom"
+        - "# 4.19:"
+        - "FRAM=/sys/bus/spi/devices/spi0.0/eeprom"
+        - " "
+        - "#lces2: ok"
+        - "# 4.9:"
+        - "FRAM=/sys/bus/spi/devices/spi32766.1/eeprom"
+        - "# 4.19:"
+        - "FRAM=/sys/bus/spi/devices/spi0.1/eeprom"
+        - " "
+        - "cd test-scripts"
+        - ". ./check_devices.sh"
+        - "device_exists $FRAM"
+        - " "
+        - "dd if=/dev/zero of=$FRAM count=16 bs=1"
+        - "cat $FRAM | hexdump -v -C | head -5"
+        - "echo \" SPI EEPROM test\" > $FRAM"
+        - "cat $FRAM | hexdump -v -C | head -5"
+        - " "
+        - "# Then run the SPI test case script"
+        - "FRAM=$FRAM ./spi/test-spi-fram.sh"
+
+    expected:
+        - "SPI test returns pass"

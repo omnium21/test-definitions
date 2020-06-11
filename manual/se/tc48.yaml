@@ -1,0 +1,29 @@
+metadata:
+    name: TC48
+    format: "Manual Test Definition 1.0"
+    description: "TC48: Flash and Boot UBI image"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: skip"
+        - "#lces2: ok"
+        - " "
+        - "# from u-boot - make sure there is nothing in nand"
+        - "nand erase.chip"
+        - " "
+        - "# Boot from SD card"
+        - "# Use Linux to flash the UBI image and boot it"
+        - "ubiformat /dev/mtd1 -f dip-image-rzn1-snarc*.rootfs.ubi"
+
+    expected:
+        - "Board boots from UBI image"

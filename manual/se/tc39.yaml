@@ -1,0 +1,34 @@
+metadata:
+    name: TC39
+    format: "Manual Test Definition 1.0"
+    description: "TC30: Watchdog timer"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "watchdog -t 20 -T 30 /dev/watchdog"
+        - "ps -ef | grep watch | grep -v grep"
+        - "# check the watchdogs are created"
+        - "# Example output:"
+        - "#   root@rzn1-snarc:~# ps -ef | grep watch | grep -v grep"
+        - "#   root        31     2  0 16:44 ?        00:00:00 [watchdogd]"
+        - "#   root       330     1  0 16:51 ?        00:00:00 watchdog -t 20 -T 30 /dev/watchdog"
+        - " "
+        - "# Kill the program, check it goes away, but the [watchdogd] entry stays"
+        - "process=$(ps -ef | grep watch | grep -v \"grep\" | tail -1 | awk '{print $2}')"
+        - "echo ${process}"
+        - "kill ${process}"
+        - "ps -ef | grep watch | grep -v grep"
+
+    expected:
+        - "Watchdog processes are started and terminated"

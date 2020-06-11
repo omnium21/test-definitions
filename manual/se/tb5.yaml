@@ -1,0 +1,23 @@
+metadata:
+    name: TB5
+    format: "Manual Test Definition 1.0"
+    description: "TB5: 100M Half duplex AutoNeg OFF"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "ethtool -s ${eth} speed 100 duplex half autoneg off"
+        - "ethtool ${eth} ; ifconfig ${eth}"
+
+    expected:
+        - "ping from the host continues to respond"

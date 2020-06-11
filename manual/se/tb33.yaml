@@ -1,0 +1,25 @@
+metadata:
+    name: TB33
+    format: "Manual Test Definition 1.0"
+    description: "TB33: MTD iozone"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "cd ${mnt}"
+        - "iozone -e -s 40M"
+        - "cd"
+        - "umount ${mnt}"
+
+    expected:
+        - "iozone completes without errors"

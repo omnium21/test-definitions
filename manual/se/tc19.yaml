@@ -1,0 +1,37 @@
+metadata:
+    name: TC19
+    format: "Manual Test Definition 1.0"
+    description: "TC19: Real Time Clock"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - '# soca9: skip'
+        - '# lces2: ok'
+        - ' '
+        - '# example of setting  hwclock'
+        - '# hwclock --set --date="2015-12-31 23:59:55" --localtime'
+        - ' '
+        - '# Run this command sequence, the watch the time tick over from from 2015 to 2016'
+        - ' '
+        - 'hwclock --set --date="2015-12-31 23:59:55" --localtime ; while [ true ]; do hwclock; sleep 10; done'
+        - 'reboot'
+        - '# check date and time after reboot'
+        - 'hwclock'
+        - 'date'
+        - ' '
+        - '# Set the hwclock back to match the system time'
+        - 'hwclock -w'
+
+    expected:
+        - 'clock is set to the specified values and overflows correctly'

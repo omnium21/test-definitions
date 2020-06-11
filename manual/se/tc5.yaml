@@ -1,0 +1,23 @@
+metadata:
+    name: TC5
+    format: "Manual Test Definition 1.0"
+    description: "TC5: ce_count"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "ce_count is not available"
+        - "This test should be skipped"
+
+    expected:
+        - "skip"

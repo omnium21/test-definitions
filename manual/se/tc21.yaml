@@ -1,0 +1,27 @@
+metadata:
+    name: TC21
+    format: "Manual Test Definition 1.0"
+    description: "TC21: I2C detect"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "dev=0"
+        - "#lces2: ok"
+        - "dev=1"
+        - " "
+        - "i2cdetect -y -r ${dev}"
+
+    expected:
+        - "I2C device detected"

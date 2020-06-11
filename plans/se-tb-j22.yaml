@@ -1,0 +1,74 @@
+metadata:
+  # name key is needed by test-runner
+  name: se-tb-j22
+  description: Scheieder Electric base test plan
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  # format key is needed by test-runner
+  format: Linaro Test Plan v2
+
+tests:
+  manual:
+    - path: manual/se/tb1-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual

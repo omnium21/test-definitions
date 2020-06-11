@@ -1,0 +1,32 @@
+metadata:
+    name: TC22
+    format: "Manual Test Definition 1.0"
+    description: "TC22: Read/Write I2C EEPROM"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "# soca9: ok"
+        - "EEPROM=/sys/bus/i2c/devices/0-0050/eeprom"
+        - "# lces2: ok"
+        - "EEPROM=/sys/bus/i2c/devices/1-0050/eeprom"
+        - " "
+        - "dd if=/dev/urandom of=${TMPFILE} bs=1 count=64"
+        - "dd if=${TMPFILE} of=${EEPROM}"
+        - "dd if=${EEPROM} of=${TMPFILE}.read bs=1 count=64"
+        - "cmp ${TMPFILE} ${TMPFILE}.read"
+        - "if [ $? -eq 0 ]; then  echo pass; else echo fail; fi"
+        - "time cat ${EEPROM} | od -x"
+
+    expected:
+        - "pass is displayed on the terminal"

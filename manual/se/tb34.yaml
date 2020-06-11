@@ -1,0 +1,38 @@
+metadata:
+    name: TB34
+    format: "Manual Test Definition 1.0"
+    description: "TB34: ubiattach"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "soca9:"
+        - "dev=/dev/mtd0"
+        - "mib=480"
+        - "#lces2:"
+        - "dev=/dev/mtd1"
+        - "mib=237"
+        - " "
+        - "mnt=/mnt/ubifs"
+        - "ubiformat -y ${dev}"
+        - " "
+        - "#  Attach MTD device:"
+        - "ubiattach -p ${dev}"
+        - "# Create an 485MiB volume on UBI dev. 0:"
+        - "ubimkvol /dev/ubi0 -N ubifs_vol -s ${mib}MiB"
+        - "mkdir -p ${mnt}"
+        - "# Mount partition:"
+        - "mount -t ubifs /dev/ubi0_0 ${mnt}"
+
+    expected:
+        - "ubi partition mounted"

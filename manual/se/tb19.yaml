@@ -1,0 +1,23 @@
+metadata:
+    name: TB19
+    format: "Manual Test Definition 1.0"
+    description: "TB19: MMC device exists"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "This tests runs in LAVA"
+
+    expected:
+        - "pass"
+

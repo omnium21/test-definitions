@@ -1,0 +1,26 @@
+metadata:
+    name: TC17
+    format: "Manual Test Definition 1.0"
+    description: "TC17: CPU Core Clock"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "# soca9: skip"
+        - "# lces2: ok"
+        - " "
+        - "SCP a clone of the test scripts repo to the board"
+        - "bash ~/test-scripts/test-cpu-freq.sh"
+
+    expected:
+        - "Test reports pass"

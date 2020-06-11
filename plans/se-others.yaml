@@ -1,0 +1,23 @@
+metadata:
+  # name key is needed by test-runner
+  name: se-test-plan
+  description: Scheieder Electric base test plan
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  # format key is needed by test-runner
+  format: Linaro Test Plan v2
+
+tests:
+  manual:
+    - path: manual/se/mbedtls-upstream.yaml
+    - path: manual/se/mbedtls.yaml
+    - path: manual/se/mbedtls-internal.yaml
+    - path: manual/se/lynis.yaml

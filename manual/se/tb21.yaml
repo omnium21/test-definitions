@@ -1,0 +1,27 @@
+metadata:
+    name: TB21
+    format: "Manual Test Definition 1.0"
+    description: "TB21: timer devices exist"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "soca9:"
+        - "clk=timer0"
+        - "lces2:"
+        - "clk=rzn1-timer1:2"
+        - " "
+        - "cat /proc/timer_list | grep ${clk}"
+
+    expected:
+        - "timers exist"

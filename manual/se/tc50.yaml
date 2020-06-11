@@ -1,0 +1,23 @@
+metadata:
+    name: TC50
+    format: "Manual Test Definition 1.0"
+    description: "TC50: Boot Matrix"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "flash the UBI images, SD cards, etc. and test they boot"
+        - "This is tested in LAVA"
+
+    expected:
+        - "All combinations boot"

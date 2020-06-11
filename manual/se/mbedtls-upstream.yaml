@@ -1,0 +1,32 @@
+metadata:
+    name: mbedtls
+    format: "Manual Test Definition 1.0"
+    description: "Run the mbedtls test suite"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "# On the host:"
+        - "git clone --recursive https://github.com/ARMmbed/mbedtls.git -b development"
+        - "git checkout 5f0ccd5a3"
+        - "cp -aR mbedtls.git ${rootfs-path}/data/"
+        - " "
+        - "# Commits used"
+        - "# For 2019.09-warrior.1"
+        - "mbedtls:"
+        - "5f0ccd5a3  2019-11-25  Merge pull request #2931 from piotr-now/memory-info              [Jaeden Amero]  (HEAD -> mbedtls-check)"
+        - " "
+        - "On the target:"
+        - "make && make check"
+
+    expected:
+        - "Expect all tests to pass"

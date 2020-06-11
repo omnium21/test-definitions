@@ -1,0 +1,23 @@
+metadata:
+    name: TC2
+    format: "Manual Test Definition 1.0"
+    description: "TC2: boot SD card with release candidate images"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Boot the board from the SD card using the 'linux_sd' command in U-Boot"
+        - "Log in at the prompt"
+
+    expected:
+        - "The board should boot normally and the user is able to log in"

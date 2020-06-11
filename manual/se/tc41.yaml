@@ -1,0 +1,37 @@
+metadata:
+    name: TC41
+    format: "Manual Test Definition 1.0"
+    description: "TC41: DHCP IP Address"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "ipaddr=192.168.1.171"
+        - "dev=eth1   # eth0 incdicates freja dtb"
+        - "#lces2: ok"
+        - "dev=eth1"
+        - "ipaddr=192.168.1.170"
+        - " "
+        - "ifconfig ${dev}"
+        - "ifconfig ${dev} down"
+        - "ifconfig ${dev} ${ipaddr} up"
+        - "ifconfig ${dev}"
+        - " "
+        - "dhclient -r ${dev}"
+        - "ifconfig ${dev}"
+        - " "
+        - "ifconfig ${dev} down"
+
+    expected:
+        - "IP addresses are assigned"

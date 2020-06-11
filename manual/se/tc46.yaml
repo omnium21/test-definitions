@@ -1,0 +1,22 @@
+metadata:
+    name: TC46
+    format: "Manual Test Definition 1.0"
+    description: "TC46: Password reuse"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Tested in TC44"
+
+    expected:
+        - "Same results as TC44"

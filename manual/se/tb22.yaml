@@ -1,0 +1,24 @@
+metadata:
+    name: TB22
+    format: "Manual Test Definition 1.0"
+    description: "TB22: available clocksource"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "cat /sys/devices/system/clocksource/clocksource0/available_clocksource"
+
+
+    expected:
+        - "SoCA9 has timer1"
+        - "LCES2 has rzn1_timer_clocksource"

@@ -1,0 +1,24 @@
+metadata:
+    name: TC32
+    format: "Manual Test Definition 1.0"
+    description: "TC32: QSPI mtd_debug"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: skip"
+        - "#lces2: ok"
+        - "time mtd_debug  read $QSPI_MTD 0 0x830000 /tmp/a"
+
+    expected:
+        - " "

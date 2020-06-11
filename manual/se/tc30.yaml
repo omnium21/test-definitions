@@ -1,0 +1,45 @@
+metadata:
+    name: TC30
+    format: "Manual Test Definition 1.0"
+    description: "TC30: USB RNDIS fping"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: skip"
+        - "#lces2: ok"
+        - " "
+        - "NR_PKTS=10"
+        - " "
+        - "# run tc.29, then from host machine:"
+        - "# large:"
+        - "start=64501"
+        - "end=65000"
+        - "for (( bytes=${start}; bytes<=${end}; bytes++ )); do"
+        - "	let iters_left=${end}-${bytes}"
+        - "	echo \"bytes=${bytes} (${iters_left} iterations left)\""
+        - "	fping $targetip -c $NR_PKTS -b ${bytes} -o"
+        - "done"
+        - " "
+        - "# small:"
+        - "start=1"
+        - "end=15"
+        - "for (( bytes=${start}; bytes<=${end}; bytes++ )); do"
+        - "	echo bytes=${bytes}"
+        - "	fping $targetip -c $NR_PKTS -b ${bytes} -o"
+        - "done"
+        - " "
+        - "sudo ifconfig ${hostif} down"
+
+    expected:
+        - "fping returns without failures"

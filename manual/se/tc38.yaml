@@ -1,0 +1,22 @@
+metadata:
+    name: TC38
+    format: "Manual Test Definition 1.0"
+    description: "TC38: GPIO Input"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "TC37 runs the tests needed for this testcase"
+
+    expected:
+        - "Same results as TC37"

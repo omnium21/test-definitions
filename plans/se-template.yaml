@@ -1,0 +1,17 @@
+metadata:
+  name: se-template
+  description: Scheider Electric template
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  format: Linaro Test Plan v2
+
+tests:
+  manual:

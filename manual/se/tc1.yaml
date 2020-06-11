@@ -1,0 +1,23 @@
+metadata:
+    name: TC1
+    format: "Manual Test Definition 1.0"
+    description: "TC1: Flash SD cards from the CI binaries"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Download the binaries from the release candidate CI snapshot"
+        - "Flash them to SD card"
+
+    expected:
+        - "The board should boot normally and the user is able to log in"

@@ -1,0 +1,148 @@
+metadata:
+  name: se-auto
+  description: Scheider Electric Automated Test Plan
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  format: Linaro Test Plan v2
+
+tests:
+  automated:
+
+    - name: files-exist
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/files-exist/files-exist.yaml
+      parameters:
+        SKIP_INSTALL: true
+        EXTRA_FILES: '/etc/os-release'
+
+    - name: ethernet
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/ethernet/ethernet.yaml
+      parameters:
+        INTERFACE: eth1
+
+    - name: meminfo
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/meminfo/meminfo.yaml
+
+    - name: badblocks
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/badblocks/badblocks.yaml
+      parameters:
+        SKIP_INSTALL: True
+
+    - name: memtester
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/memtester/memtester.yaml
+      parameters:
+        SKIP_INSTALL: True
+
+    - name: uart-loopback-forward
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/uart-loopback/uart-loopback.yaml
+      parameters:
+        SKIP_INSTALL: 'true'
+        UART0: /dev/ttyUSB0
+        UART1: /dev/ttyS1
+        YKUSHPORT: 1
+
+    - name: uart-loopback-reverse
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/uart-loopback/uart-loopback.yaml
+      parameters:
+        SKIP_INSTALL: 'true'
+        UART0: /dev/ttyS1
+        UART1: /dev/ttyUSB0
+        YKUSHPORT: 1
+
+    - name: block-device-sda
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/block-device/block-device.yaml
+      parameters:
+        SKIP_INSTALL: 'true'
+        DEVICE: /dev/sda
+        YKUSHPORT: 2
+
+    - name: device-read-perf
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/device-read-perf/device-read-perf.yaml
+      parameters:
+        SKIP_INSTALL: 'true'
+        DEVICE: "sda mmcblk0"
+
+    - name: cryptotest
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/cryptotest/cryptotest.yaml
+      parameters:
+        SKIP_INSTALL: true
+
+    - name: docker-hello-world
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/docker/docker.yaml
+      parameters:
+        IMAGE: "hello-world"
+        SKIP_INSTALL: True
+
+    - name: docker
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/docker/docker.yaml
+      parameters:
+        IMAGE: "arm32v7/ubuntu"
+        SKIP_INSTALL: True
+
+    - name: optee-xtest
+      from: git
+      history: false
+      repository: https://github.com/omnium21/test-definitions.git
+      branch: linaro
+      path: automated/linux/optee/optee-xtest.yaml
+
+
+
+
+
+

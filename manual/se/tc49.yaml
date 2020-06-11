@@ -1,0 +1,29 @@
+metadata:
+    name: TC49
+    format: "Manual Test Definition 1.0"
+    description: "TC49: Boot on INIT_RAM_FS"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: skip"
+        - "#lces2: ok"
+        - " "
+        - "# On target, at u-boot prompt"
+        - "dfu"
+        - " "
+        - "# On Host, flash the initramfs image"
+        - "dfu-util -a n_fs1 -D zImage-initramfs-rzn1-snarc.bin"
+
+    expected:
+        - "Board boots from flashed initramfs"

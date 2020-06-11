@@ -1,0 +1,36 @@
+metadata:
+    name: mbedtls-internal
+    format: "Manual Test Definition 1.0"
+    description: "Run the internal mbedtls test suite"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "You may need to rebase to the latest se/mbedtls-2.16 branch"
+        - " "
+        - "git clone ssh://git@dev-private-git.linaro.org/schneider/mbedtls.git -b rmh-2.16.8"
+        - "git log --oneline -1"
+        - "e3f460832  2020-03-10  enable trustm"
+        - " "
+        - "scp -r ryan@192.168.1.11:/linaro/schneider/g.l.o/mbedtls ."
+        - "cd mbedtls"
+        - "mkdir build"
+        - "cd build"
+        - "cmake -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DENABLE_PROGRAMS=ON -DENABLE_TESTING=ON -DENABLE_HW_TRUSTM_SUPPORT=ON -Wno-dev CMAKE_BUILD_TYPE=CheckFull .."
+        - "make"
+        - "make test"
+
+    expected:
+        - "# Expect all tests to pass, except for these failures:"
+        - "63/73 Test #63: pkwrite-suite ....................***Failed    0.36 sec"
+        - "73/73 Test #73: x509write-suite ..................***Failed   30.52 sec"
+

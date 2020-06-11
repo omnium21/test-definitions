@@ -1,0 +1,87 @@
+metadata:
+    name: mbedtls
+    format: "Manual Test Definition 1.0"
+    description: "Run the mbedtls test suite"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "You may need to rebase to the latest se/mbedtls-2.16 branch"
+        - " "
+        - "git clone ssh://git@dev-private-git.linaro.org/schneider/mbedtls.git -b rmh-2.16.8"
+        - "git log --oneline -1"
+        - "e3f460832  2020-03-10  enable trustm"
+        - " "
+        - "scp -r ryan@192.168.1.11:/linaro/schneider/g.l.o/mbedtls ."
+        - "cd mbedtls"
+        - "mkdir build"
+        - "cd build"
+        - "cmake -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DENABLE_PROGRAMS=ON -DENABLE_TESTING=ON -DENABLE_HW_TRUSTM_SUPPORT=ON -Wno-dev .."
+        - "make"
+        - " "
+        - "# note: make takes a long time, 10 minutes or more?"
+        - "# You should have all these files to be able to run the test:"
+        - "ls -al \\"
+        - "./tests/test_suite_pk_sks \\"
+        - "./tests/test_suite_pk_sks.datax \\"
+        - "./tests/data_files/sks_parsePEM_2.key \\"
+        - "./tests/data_files/sks_parsePEM_1.key \\"
+        - "./tests/data_files/sks_parsePEM_3.key"
+        - " "
+        - "# First time when using a new trustm module"
+        - "# note: the app came from an email from Milan. I have it in my tools repo:"
+        - "./trustm_configure sample-activate"
+        - " "
+        - "# To run the tests, do this"
+        - "cd tests"
+        - "./test_suite_pk_sks"
+
+    expected:
+        - "Example output:"
+        - " "
+        - "root@rzn1-snarc:~/mbedtls/build/tests# ./test_suite_pk_sks"
+        - "PK_SKS #1 unknown sks handler ..................................... PASS"
+        - "PK_SKS #2 self_test sks handler ................................... PASS"
+        - "PK_SKS #3 invalid sks name ........................................ PASS"
+        - "PK_SKS #4 Write SKS PEM file (bad handler) ........................ PASS"
+        - "PK_SKS #5 Write SKS PEM file (too long sks name) .................. PASS"
+        - "PK_SKS #6 Write SKS PEM file (check simple descriptor) ............ PASS"
+        - "PK_SKS #7 Write SKS PEM file (check big key id) ................... PASS"
+        - "PK_SKS #8 Parse SKS key descriptor (Simple descriptor) ............ PASS"
+        - "PK_SKS #9 Parse SKS key descriptor (Null descriptor) .............. PASS"
+        - "PK_SKS #10 Parse SKS key descriptor (No delimiter) ................ PASS"
+        - "PK_SKS #11 Parse SKS key descriptor (Trail delimiter) ............. PASS"
+        - "PK_SKS #12 Parse SKS key descriptor (Trim delimiter) .............. PASS"
+        - "PK_SKS #13 Parse SKS key descriptor (Only delimiter) .............. PASS"
+        - "PK_SKS #14 Parse SKS key descriptor (Invalid integer type) ........ PASS"
+        - "PK_SKS #15 Parse SKS key descriptor (Invalid integer format) ...... PASS"
+        - "PK_SKS #16 Parse SKS key descriptor (Unknown SKS handler) ......... PASS"
+        - "PK_SKS #17 Parse SKS key descriptor (One digit key ID) ............ PASS"
+        - "PK_SKS #18 Parse SKS key descriptor (Simple int key ID) ........... PASS"
+        - "PK_SKS #19 Parse SKS key descriptor (Long int key ID) ............. PASS"
+        - "PK_SKS #20 Parse SKS PEM file sks_parsePEM_1.key .................. PASS"
+        - "PK_SKS #21 Parse SKS PEM file sks_parsePEM_2.key .................. PASS"
+        - "PK_SKS #22 Parse SKS PEM file sks_parsePEM_3.key .................. PASS"
+        - "TrustM verify sks handler ......................................... PASS"
+        - "TrustM ECC-Genuine ................................................ PASS"
+        - "TrustM ECC-Machine keypair (gen) .................................. PASS"
+        - "TrustM ECC-Machine keypair (default) .............................. PASS"
+        - "TrustM #3 ECC-Machine pubkey (default) ............................ PASS"
+        - "TrustM #4 Sign/verify ECC-Machine ................................. PASS"
+        - "TrustM #5 SKS generated CSR with ECC-Machine ...................... PASS"
+        - "TrustM #6 Parse SKS PEM key format (Genuine) ...................... PASS"
+        - "TrustM #7 Parse SKS PEM key format (Machine ECC) .................. PASS"
+        - " "
+        - "----------------------------------------------------------------------------"
+        - " "
+        - "PASSED (31 / 31 tests (0 skipped))"
+

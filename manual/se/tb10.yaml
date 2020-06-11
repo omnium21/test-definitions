@@ -1,0 +1,27 @@
+metadata:
+    name: TB10
+    format: "Manual Test Definition 1.0"
+    description: "TB10: Repeat TB1..9 for additional ethernet ports"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "repeat TB1..TB9 for eth2 (J21), lan0 (J22), lan1 (J23) and lan2 (J24)"
+        - "J17 and J21 = eth1 on lces2"
+        - "J17 = eth1 on soca9"
+        - "J21 = eth2 on soca9"
+        - "bring up eth0 to test lan0, lan1 and lan2"
+        - "ifconfig eth0 up"
+
+    expected:
+        - "eth0 comes up"

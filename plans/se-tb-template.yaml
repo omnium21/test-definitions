@@ -1,0 +1,72 @@
+metadata:
+  name: se-tb-jnn
+  description: Scheider Electric ethernet
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  format: Linaro Test Plan v2
+
+tests:
+  manual:
+    - path: manual/se/tb1-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-jnn.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-jnn-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual

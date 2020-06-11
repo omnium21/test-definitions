@@ -1,0 +1,22 @@
+metadata:
+    name: TB39
+    format: "Manual Test Definition 1.0"
+    description: "TB39: SPI EEPROM (FRAM)" 
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Run tc24"
+
+    expected:
+        - "Same result as tc24"

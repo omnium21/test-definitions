@@ -1,0 +1,99 @@
+metadata:
+    name: TC44
+    format: "Manual Test Definition 1.0"
+    description: "TC44: Password Change"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - 'passwd root'
+        - 'P@ssword-2'
+        - ' '
+        - 'useradd passtest'
+        - 'passwd passtest << EOF'
+        - 'passWd1!'
+        - 'passWd1!'
+        - 'passWd1!'
+        - 'EOF'
+        - ' '
+        - 'cp -r ~/test-scripts/ /home/passtest/'
+        - 'logout'
+        - ' '
+        - '# log in as user passtest'
+        - '# Run "passwd" with this sequence of passwords:'
+        - 'newpassword="passWd1!"'
+        - 'passwd << EOF'
+        - '${newpassword}'
+        - '${newpassword}'
+        - '${newpassword}'
+        - '${newpassword}'
+        - '${newpassword}'
+        - '${newpassword}'
+        - '${newpassword}'
+        - 'EOF'
+        - ' '
+        - '# Look for this error, it is expected and means the test has passed:'
+        - '"passwd: password unchanged"'
+        - ' '
+        - '# List of newpasswords'
+        - '# Look for success:'
+        - '# "password updated successfully"'
+        - 'newpassword="passWd1!"'
+        - 'oldpassword=${newpassword}; newpassword="u7F8A:e="; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="6rY9bN~)"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="!qIS2{h3"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="])Qoh24I"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="66%U-Hpa"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="33uCl/D@"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="y0T8<n}U"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="PnD]r9&5"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="F6N&3{ub"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="Z[0>aT0v"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - ' '
+        - '# Then try again with password "passWd1!"'
+        - '# This should fail'
+        - '# Look for these errors:'
+        - '#   Password has been already used. Choose another.'
+        - '#   passwd: Authentication token manipulation error'
+        - '#   passwd: password unchanged'
+        - ' '
+        - 'failpassword="passWd1!"'
+        - 'passwd << EOF'
+        - '${newpassword}'
+        - '${failpassword}'
+        - '${failpassword}'
+        - '${failpassword}'
+        - '${failpassword}'
+        - '${failpassword}'
+        - '${failpassword}'
+        - 'EOF'
+        - ' '
+        - '# Then try again with these passwords:'
+        - 'oldpassword=${newpassword}; newpassword="J7\$4J[gq"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="48}h=TL88l"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - 'oldpassword=${newpassword}; newpassword="Ytr56mp$"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - ' '
+        - '# Then try again with password "passWd1!"'
+        - '# This should pass'
+        - 'oldpassword=${newpassword}; newpassword="passWd1!"; ./test-password-change.sh "${oldpassword}" "${newpassword}"'
+        - ' '
+        - ' '
+        - ' '
+        - '# Once the test has finished:'
+        - 'logout'
+        - ' '
+        - '# login as root, password should be P@ssword-2 but might be passWd1!'
+        - 'passwd -d root'
+
+    expected:
+        - "Passwords are changed or rejected at the correct points"

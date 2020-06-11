@@ -1,0 +1,42 @@
+metadata:
+    name: TC29
+    format: "Manual Test Definition 1.0"
+    description: "TC29: USB RNDIS"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Connect a USB cable from J9 USB OTG on the board to a host PC"
+        - " "
+        - "#soca9: skip"
+        - "#lces2: ok"
+        - " "
+        - "# From host machine:"
+        - "script -a <log file location>/host-00n.log"
+        - "hostif=usb0"
+        - "hostif=enp0s29u1u2u4u3 # on 'x220' laptop"
+        - "hostif=enp0s20f0u5u2u2 # on 'bld' desktop machine"
+        - "hostif=enp0s20f0u3u2u2 # on 'bld' desktop machine with LCES2 board 2"
+        - "targetip=10.0.0.35 # original test used 192.168.1.35, but that clashes with my network setup"
+        - " "
+        - "sudo ifconfig ${hostif} down"
+        - "sudo ifconfig ${hostif} ${targetip} up"
+        - "sudo ifconfig ${hostif}"
+        - " "
+        - "for n in 1 1 1500; do"
+        - "	echo \"n: $n\""
+        - "	ping -c 5 -s $n  -I ${hostif} ${targetip}"
+        - "done"
+
+    expected:
+        - "ping returns without failures"

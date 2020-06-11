@@ -1,0 +1,22 @@
+metadata:
+    name: TB27
+    format: "Manual Test Definition 1.0"
+    description: "TB27: CAN Bus"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Hardware not available"
+
+    expected:
+        - "skip"

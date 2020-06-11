@@ -1,0 +1,27 @@
+metadata:
+    name: TC31
+    format: "Manual Test Definition 1.0"
+    description: "TC31: QSPI"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9:"
+        - "QSPI_MTD=/dev/mtd2"
+        - "#lces2: ok"
+        - "QSPI_MTD=/dev/mtd9"
+        - " "
+        - "dd if=/dev/urandom of=/tmp/random bs=1M count=1 && time flashcp -v /tmp/random $QSPI_MTD"
+
+    expected:
+        - "flashcp completes without errors"

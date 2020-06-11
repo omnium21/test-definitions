@@ -1,0 +1,345 @@
+metadata:
+  # name key is needed by test-runner
+  name: se-tb
+  description: Scheieder Electric base test plan
+  os: openembedded
+  devices:
+    - lces2
+    - soca9
+  maintainer:
+    - ryan.harkinlinaro.org
+  approver:
+    - ryan.harkin@linaro.org
+  owner:
+    - ryan.harkin@linaro.org
+  # format key is needed by test-runner
+  format: Linaro Test Plan v2
+
+tests:
+  manual:
+    - path: manual/se/tb1-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j23.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j24.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j17-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j21-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j22-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j23-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb1-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb2-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb3-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb4-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb5-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb6-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb7-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb8-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb9-j24-mtu1508.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb10.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb11.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+
+    - path: manual/se/tb17.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb18.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb21.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb22.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb31.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb32.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb33.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb34.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb35.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb36.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
+    - path: manual/se/tb38.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual

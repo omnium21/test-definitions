@@ -1,0 +1,44 @@
+metadata:
+    name: TC37
+    format: "Manual Test Definition 1.0"
+    description: "TC37: GPIO input"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "# Sumo 4.9"
+        - "sw3=384"
+        - "sw4=385"
+        - "# Warrior 4.19"
+        - "sw3=1920"
+        - "sw4=1921"
+        - " "
+        - "#lces2: ok"
+        - "sw3=461"
+        - "# sw4 is not routed as a GPIO like this"
+        - " "
+        - "# buttons on SoCA9 are SW3 and SW4"
+        - "sw=${sw3}"
+        - "# or"
+        - "sw=${sw4}"
+        - " "
+        - "echo ${sw} > /sys/class/gpio/export"
+        - "echo in > /sys/class/gpio/gpio${sw}/direction"
+        - "cat /sys/class/gpio/gpio${sw}/value"
+        - " "
+        - "echo 1 > /sys/class/gpio/gpio${sw}/active_low"
+        - "cat /sys/class/gpio/gpio${sw}/value"
+
+    expected:
+        - "The GPIO value read correctly when the button is pressed or not"

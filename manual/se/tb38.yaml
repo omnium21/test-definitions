@@ -1,0 +1,22 @@
+metadata:
+    name: TB38
+    format: "Manual Test Definition 1.0"
+    description: "TB38: temperature sensor"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "cat /sys/class/hwmon/hwmon0/temp1_input"
+
+    expected:
+        - "value read from the temperature input"

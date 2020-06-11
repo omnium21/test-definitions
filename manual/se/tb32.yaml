@@ -1,0 +1,50 @@
+metadata:
+    name: TB32
+    format: "Manual Test Definition 1.0"
+    description: "TB32: MTD flash"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "num=0 # for NAND"
+        - "num=2 # for NOR"
+        - "#lces2: ok"
+        - "num=9"
+        - " "
+        - "dev=/dev/mtd${num}"
+        - "blk=/dev/mtdblock${num}"
+        - "mnt=/mnt/jffs2"
+        - "tmp=/tmp/file.dat"
+        - " "
+        - "flash_erase -j ${dev} 0 0"
+        - "# Create a folder in which flash partition will be mounted:"
+        - "mkdir ${mnt}"
+        - "# Mount NOR Flash jffs2 partition"
+        - "mount -t jffs2 ${blk} ${mnt}"
+        - "cd ${mnt}"
+        - "dd if=/dev/urandom of=${tmp} bs=1K count=512"
+        - "md5sum ${tmp}"
+        - "cp ${tmp} ${mnt}"
+        - "sync"
+        - "cd"
+        - "umount ${mnt}"
+        - "reboot"
+        - "# set env vars from above"
+        - "ls ${mnt}"
+        - "mount -t jffs2 ${blk} ${mnt}"
+        - "md5sum ${mnt}/file.dat"
+
+    expected:
+        - "no unpexpected errors reported"
+        - "md5sums match"

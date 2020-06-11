@@ -1,0 +1,33 @@
+metadata:
+    name: Lynis
+    format: "Manual Test Definition 1.0"
+    description: "Generate Lynis report"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "lynis audit system"
+        - "Check the output of the commands"
+        - "Save the logs and add to the release bundle and report"
+        - "/var/log/lynis.log"
+        - "/var/log/lynis-report.dat"
+        - "BOARD=soca9"
+        - "BOARD=lces2"
+        - "KERNEL_VERSION=4.9"
+        - "KERNEL_VERSION=4.19"
+        - "scp /var/log/lynis.log ryan@192.168.1.11:/linaro/schneider/release/2019.09-warrior.2/logs/lynis.log.${BOARD}-${KERNEL_VERSION}"
+        - "scp /var/log/lynis-report.dat ryan@192.168.1.11:/linaro/schneider/release/2019.09-warrior.2/logs/lynis-report.dat.${BOARD}-${KERNEL_VERSION}"
+
+    expected:
+        - "Log files are generated and saved for the release report."
+

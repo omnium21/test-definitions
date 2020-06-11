@@ -1,0 +1,28 @@
+metadata:
+    name: TC35
+    format: "Manual Test Definition 1.0"
+    description: "TC35: Large ping"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "targetip=192.168.1.71"
+        - "#lces2: ok"
+        - "targetip=192.168.1.108"
+        - " "
+        - "#On the development host:"
+        - "ping  -c 500 -s 32768 ${targetip}"
+
+    expected:
+        - "ping returns without errors"

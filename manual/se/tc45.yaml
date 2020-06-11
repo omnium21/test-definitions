@@ -1,0 +1,43 @@
+metadata:
+    name: TC45
+    format: "Manual Test Definition 1.0"
+    description: "TC45: SSH"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - 'Assign an IP address if networking configured'
+        - 'udhcpc -i eth1'
+        - ' '
+        - "make sure dropbear isn't running"
+        - 'systemctl stop   dropbear.socket; systemctl status dropbear.socket'
+        - ' '
+        - '# Attempt to SSH into the board'
+        - '# This should fail.'
+        - ' '
+        - '# In file /etc/default/dropbear'
+        - '# Replace `DROPBEAR_EXTRA_ARGS="-w"` with `DROPBEAR_EXTRA_ARGS=`'
+        - "sed -i 's/\"-w\"/\"\"/g' /etc/default/dropbear"
+        - ' '
+        - '# Start dropbear'
+        - 'systemctl start  dropbear.socket; systemctl status dropbear.socket'
+        - ' '
+        - '# Attempt to SSH into the board'
+        - '# This should pass.'
+        - '# Check who is connected'
+        - 'systemctl status dropbear.socket'
+
+
+    expected:
+        - "remote users are able to SSH into the board"
+        - "systemctl shows users connecting and disconnecting"

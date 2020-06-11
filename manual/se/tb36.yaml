@@ -1,0 +1,33 @@
+metadata:
+    name: TB36
+    format: "Manual Test Definition 1.0"
+    description: "TB36: dmatest"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "channels=(0 1 2 3 4 5)"
+        - "modprobe dmatest"
+        - "#"
+        - "#lces2: ok"
+        - "channels=(2 3 4 5 6 7)"
+        - "#"
+        - "echo > /sys/module/dmatest/parameters/channel"
+        - "echo 2000      > /sys/module/dmatest/parameters/timeout"
+        - "echo 1000      > /sys/module/dmatest/parameters/iterations"
+        - "echo 1         > /sys/module/dmatest/parameters/run"
+        - "#"
+        - "for channel in ${channels[@]}; do echo dma0chan${channel} > /sys/module/dmatest/parameters/channel; echo 1 > /sys/module/dmatest/parameters/run ; sleep 5 ; done"
+
+    expected:
+        - "no errors reported"

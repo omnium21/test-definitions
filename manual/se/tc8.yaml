@@ -1,0 +1,27 @@
+metadata:
+    name: TC8
+    format: "Manual Test Definition 1.0"
+    description: "TC8: u-boot mtest"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - none
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "On SoCA9, run the following command:"
+        - "mtest 0 1befffff 0 10"
+        - ""
+        - "On LCES2, run the following commands:"
+        - "mtest 80000000 87bfffff"
+        - "mtest 88a00000 8fdfffff"
+
+    expected:
+        - "Each mtest command should return with the following string:"
+        - "Tested 16 iteration(s) with 0 errors"

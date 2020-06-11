@@ -1,0 +1,22 @@
+metadata:
+    name: TC18
+    format: "Manual Test Definition 1.0"
+    description: "TC18: UDL Timer"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "sleep 10"
+
+    expected:
+        - "Sleep happens for 10 seconds, timed with a stopwatch"

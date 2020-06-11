@@ -1,0 +1,45 @@
+metadata:
+    name: TC26
+    format: "Manual Test Definition 1.0"
+    description: "TC26: NAND MTD Read/Write"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "PART=0"
+        - "#lces2: ok"
+        - "PART=1"
+        - "sumfile=~/tc26.md5"
+        - "rm ${sumfile}*"
+        - " "
+        - "./test-mtd-write.sh ${PART} 512  | tail -1 | cut -d \" \" -f 1 | tee ${sumfile}"
+        - "# note checksum output"
+        - "reboot"
+        - " "
+        - "#soca9:"
+        - "PART=0"
+        - "#lces2:"
+        - "PART=1"
+        - " "
+        - " "
+        - "sumfile=~/tc26.md5"
+        - "./test-mtd-read.sh ${PART}  | tail -1 | cut -d \" \" -f 1 | tee ${sumfile}.read"
+        - "# verify checksum matches one from the write test"
+        - " "
+        - "cat ${sumfile}*"
+        - "cmp ${sumfile}*"
+        - "if [ $? -eq 0 ]; then  echo pass; else echo fail; fi"
+
+    expected:
+        - "Test echos pass"

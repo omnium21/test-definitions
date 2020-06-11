@@ -1,0 +1,28 @@
+metadata:
+    name: TB31
+    format: "Manual Test Definition 1.0"
+    description: "TB31: Watchdog"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "TODO: copy wd-test*.deb from lces2 build to soca9 board"
+
+        - " "
+        - "wdt_driver_test 5 4 1 # this should never reboot, CTRL-C to exit after about 1 min"
+        - "wdt_driver_test 5 6 0 # this should reboot after 5 secs"
+        - "wdt_driver_test 5 6 1 # this should reboot after 5 secs"
+
+    expected:
+        - "reboots happen only when expected"
+

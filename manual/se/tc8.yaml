@@ -1,0 +1,23 @@
+metadata:
+    name: TC8
+    format: "Manual Test Definition 1.0"
+    description: "TC8: u-boot mtest"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - none
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "This test does not run on either LCES2 or SoCA9"
+        - "At the u-boot command prompt, enter the following command"
+        - "mtest"
+
+    expected:
+        - "Skip this test"

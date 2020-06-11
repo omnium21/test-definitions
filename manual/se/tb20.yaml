@@ -1,0 +1,22 @@
+metadata:
+    name: TB20
+    format: "Manual Test Definition 1.0"
+    description: "TB20: MMC card partitions detected"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "This tests runs in LAVA"
+
+    expected:
+        - "pass"

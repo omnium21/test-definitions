@@ -1,0 +1,49 @@
+metadata:
+    name: TC25
+    format: "Manual Test Definition 1.0"
+    description: "TC25: NAND Controller"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "#soca9: ok"
+        - "NAND_MTD=/dev/mtd0"
+        - "#lces2: ok"
+        - "NAND_MTD=/dev/mtd1"
+        - " "
+        - "USB_DEV=/dev/sda1"
+        - " "
+        - "device_exists $NAND_MTD"
+        - "device_exists $USB_DEV"
+        - " "
+        - "# This might fail if there are bad blocks on the NAND"
+        - "#dd if=/dev/urandom of=/tmp/random bs=1M count=10 && time flashcp -v /tmp/random $NAND_MTD"
+        - " "
+        - "flash_erase $NAND_MTD 0 0"
+        - " "
+        - "# This is a more reliable/realistic test because it skips bad blocks"
+        - "dd if=/dev/urandom of=/tmp/random bs=1M count=10 && time nandwrite $NAND_MTD /tmp/random"
+        - " "
+        - "# mount the USB stick first"
+        - "mnt=/mnt/usb"
+        - "mkdir -p ${mnt}"
+        - "mount ${USB_DEV} ${mnt}"
+        - " "
+        - "nanddump -l 10485760 ${NAND_MTD} > ${mnt}/nand.bin"
+        - " "
+        - "ls -al /tmp/random ${mnt}/nand.bin"
+        - "md5sum /tmp/random ${mnt}/nand.bin"
+        - "umount ${mnt}"
+
+    expected:
+        - "md5sums match"

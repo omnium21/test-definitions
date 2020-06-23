@@ -1,0 +1,56 @@
+metadata:
+    name: TB1-J23
+    format: "Manual Test Definition 1.0"
+    description: "TB1-J23: assign IP address"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "For SoCA9"
+        - "targetip=192.168.1.71"
+        - "For LCES2"
+        - "targetip=192.168.1.108"
+        - " "
+        - "LCES2 ports: J17=eth1, J21=eth1, J22=lan0, J23=lan1, J24=lan2"
+        - "SoCA9 ports: J17=eth1, J21=eth2, J22=lan0, J23=lan1, J24=lan2"
+        - " "
+        - "Set 'eth' variable for the port being tested"
+        - "eth=eth1"
+        - "eth=eth2 # soca9 only"
+        - "eth=lan0"
+        - "eth=lan1"
+        - "eth=lan2"
+        - " "
+        - "# For tb11 only"
+        - "ifconfig $eth mtu 1508"
+        - " "
+        - "Once the variables are assigned, these are the test steps:"
+        - " "
+        - "If testing lan0, lan1 or lan2"
+        - "ifconfig eth0 up"
+        - " "
+        - "ifconfig $eth ${targetip} up"
+        - "ifconfig $eth"
+        - "dhclient -r $eth"
+        - "ifconfig $eth"
+        - "dhclient $eth"
+        - "ifconfig $eth"
+        - "ethtool ${eth}"
+        - "ethtool -s ${eth} speed 100 duplex full autoneg off"
+        - "ethtool ${eth} ; ifconfig ${eth}"
+        - "dhclient -r $eth"
+        - "ifconfig $eth ${targetip} up"
+        - "ifconfig $eth"
+
+    expected:
+        - "IP addresses are assigned correctly"

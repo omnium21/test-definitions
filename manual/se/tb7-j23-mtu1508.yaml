@@ -1,0 +1,23 @@
+metadata:
+    name: TB7-J23-MTU1508
+    format: "Manual Test Definition 1.0"
+    description: "TB7-J23-MTU1508: AutoNeg ON"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "ethtool -s ${eth} autoneg on"
+        - "ethtool ${eth} ; ifconfig ${eth}"
+
+    expected:
+        - "ping from the host continues to respond"

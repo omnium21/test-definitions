@@ -1,0 +1,22 @@
+metadata:
+    name: TB4-J24-MTU1508
+    format: "Manual Test Definition 1.0"
+    description: "TB4-J24-MTU1508: reconnect ethernet cable"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "plug ethernet cable back in while ping is running on host"
+
+    expected:
+        - "ping starts responding"

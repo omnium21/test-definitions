@@ -1,0 +1,26 @@
+metadata:
+    name: TB9-J24
+    format: "Manual Test Definition 1.0"
+    description: "TB9-J24: Connectivity via a switch"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "Connect taget to a switch"
+        - " "
+        - "After the test"
+        - "Take the i/f down so we can continue the tests with other i/fs"
+        - "ifconfig ${eth} down && ifconfig ${eth}"
+
+    expected:
+        - "ping from the host continues to respond"

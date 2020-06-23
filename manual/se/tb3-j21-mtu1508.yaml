@@ -1,0 +1,22 @@
+metadata:
+    name: TB3-J21-MTU1508
+    format: "Manual Test Definition 1.0"
+    description: "TB3-J21-MTU1508: disconnect ethernet cable"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "pull ethernet cablle while pinging from host"
+
+    expected:
+        - "ping times out once cable removed"

@@ -1,0 +1,22 @@
+metadata:
+    name: TB2-J17
+    format: "Manual Test Definition 1.0"
+    description: "TB2-J17: ping"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "ping ${targetip}"
+
+    expected:
+        - "ping returns successfully each time"

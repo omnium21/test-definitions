@@ -1,0 +1,31 @@
+metadata:
+    name: TB8-J24
+    format: "Manual Test Definition 1.0"
+    description: "TB8-J24: Bulk Data Transfer"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - openembedded
+    scope:
+        - functional
+    devices:
+        - lces2
+        - soca9
+    environment:
+        - manual-test
+
+run:
+    steps:
+        - "From the host"
+        - "rm /linaro/tmp/1Gfile.${board}"
+        - " "
+        - "From target: (note, it's ok to run dd once and skip for subsequent runs, so long as you remember to delete the file from the host)"
+        - "dd if=/dev/urandom of=1Gfile bs=1M count=1024"
+        - "scp 1Gfile ryan@192.168.1.11:/linaro/tmp/1Gfile.${board}"
+        - "md5sum 1Gfile"
+        - " "
+        - "From host"
+        - "ls -al /linaro/tmp/1Gfile.${board} ; md5sum /linaro/tmp/1Gfile.${board}"
+
+    expected:
+        - "md5sum of the file on the target and host match"

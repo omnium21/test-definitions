@@ -18,6 +18,14 @@ metadata:
 tests:
   manual:
     - path: manual/se/mbedtls-upstream.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
     - path: manual/se/mbedtls.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
     - path: manual/se/mbedtls-internal.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual
     - path: manual/se/lynis.yaml
+      repository: https://github.com/omnium21/test-definitions
+      branch: se-manual

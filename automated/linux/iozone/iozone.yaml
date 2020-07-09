@@ -28,11 +28,13 @@ metadata:
         - performance
 
 params:
+    IOZONEDIR: ""
+    OPTS: "-a -I"
     SKIP_INSTALL: "false"
     VERSION: "3_458"
 
 run:
     steps:
         - cd automated/linux/iozone
-        - ./iozone.sh -s "${SKIP_INSTALL}" -v "${VERSION}"
+        - ./iozone.sh -s "${SKIP_INSTALL}" -v "${VERSION}" -i "${IOZONEDIR}" -o "${OPTS}"
         - ../../utils/send-to-lava.sh ./output/result.txt

@@ -17,6 +17,8 @@ usage() {
 
 while getopts "s:v:h" opt; do
     case "$opt" in
+        i) IOZONEDIR="${OPTARG}" ;;
+        o) OPTS="${OPTARG}" ;;
         s) SKIP_INSTALL="${OPTARG}" ;;
         v) VERSION="${OPTARG}" ;;
         *) usage ;;
@@ -47,7 +49,10 @@ fi
 which iozone || error_msg "'iozone' not found, exiting..."
 # -a: Auto mode
 # -I: Use VxFS VX_DIRECT, O_DIRECT,or O_DIRECTIO for all file operations
-iozone -a -I | tee "$LOGFILE"
+[[ -z "${OPTS}" ]] && OPTS="-a -I"
+[[ ! -z "${IOZONEDIR}" ]] && pushd ${IOZONEDIR}
+iozone ${OPTS} | tee "$LOGFILE"
+[[ ! -z "${IOZONEDIR}" ]] && popd
 
 # Parse iozone stdout.
 field_number=3

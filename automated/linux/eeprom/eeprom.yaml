@@ -1,0 +1,23 @@
+metadata:
+    name: meminfo
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Schneider Electric EEPROM test"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - oe
+    scope:
+        - functional
+    devices:
+        - rzn1d
+
+params:
+    EEPROM: '/sys/bus/spi/devices/spi0.1/eeprom'
+    BLOCK_SIZE: 1024
+    BLOCK_COUNT: 128
+
+run:
+    steps:
+        - cd ./automated/linux/eeprom
+        - ./eeprom.sh -e "${EEPROM}" -b ${BLOCK_SIZE} -c ${BLOCK_COUNT}
+        - ../../utils/send-to-lava.sh ./output/result.txt

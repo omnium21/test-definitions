@@ -106,15 +106,15 @@ def test_exists(test, repositories, args):
     test_file = open(test_file_path, "r")
     test_yaml = yaml.load(test_file.read(), Loader=yaml.FullLoader)
     params_string = ""
-    if 'parameters' in test.keys():
-        params_string = "_".join(["{0}-{1}".format(param_name, param_value).replace("/", "").replace(" ", "") for param_name, param_value in test['parameters'].iteritems()])
-        test_yaml['params'].update(test['parameters'])
+    if 'params' in test.keys():
+        params_string = "_".join(["{0}-{1}".format(param_name, param_value).replace("/", "").replace(" ", "") for param_name, param_value in test['params'].iteritems()])
+        test_yaml['params'].update(test['params'])
         if args.single_output:
-            # update parameters in test
+            # update params in test
             if 'params' in test_yaml.keys():
                 for param_name, param_value in test_yaml['params'].iteritems():
-                    if param_name not in test['parameters'].keys():
-                        test['parameters'].update({param_name: param_value})
+                    if param_name not in test['params'].keys():
+                        test['params'].update({param_name: param_value})
     print params_string
     test_name = "{0}_{1}.html".format(test_yaml['metadata']['name'], params_string)
     if not args.single_output:
@@ -141,7 +141,7 @@ def add_csv_row(requirement, test, args, manual=False):
         "path",
         "repository",
         "revision",
-        "parameters",
+        "params",
         "mandatory",
         "kind",
     ]
@@ -161,7 +161,7 @@ def add_csv_row(requirement, test, args, manual=False):
                 "path": test.get('path'),
                 "repository": test.get('repository'),
                 "revision": test.get('revision'),
-                "parameters": test.get('parameters'),
+                "params": test.get('params'),
                 "mandatory": test.get('mandatory'),
                 "kind": "manual" if manual else "automated",
             }

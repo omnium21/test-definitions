@@ -10,7 +10,7 @@
     <body>
         <div class="container">
             <div id="metadata">
-                <h1>Metadata</h1>
+                <h1>Schneider Electric Test Plan</h1>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -42,19 +42,19 @@
                 <h1>Tests</h1>
                     {% if obj.tests is defined %}
                         {% if obj.tests.manual is defined and obj.tests.manual is not none %}
-                        <h3>Manual tests</h3>
+                        <h2>Manual tests</h2>
                             {% for test in obj.tests.manual %}
                             <div {% if test.missing %}class="alert alert-danger"{% endif %}>
-                            <h5>{{ loop.index }}</h5>
+                            <h3>Manual Testcase {{ loop.index }}</h3>
                             {% include "_test_details.html" %}
                             </div>
                             {% endfor %}
                         {% endif %}
                         {% if obj.tests.automated is defined and obj.tests.automated is not none %}
-                        <h3>Automated tests</h3>
+                        <h2>Automated tests</h2>
                             {% for test in obj.tests.automated %}
                             <div {% if test.missing %}class="alert alert-danger"{% endif %}>
-                            <h5>{{ loop.index }}</h5>
+                            <h3>Automated Testcase {{ loop.index }}</h3>
                             {% include "_test_details.html" %}
                             </div>
                             {% endfor %}

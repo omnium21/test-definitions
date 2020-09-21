@@ -10,15 +10,16 @@ metadata:
         - functional
     devices:
         - lces2
-        - soca9
     environment:
         - manual-test
 
 run:
     steps:
-        - "git clone ssh://git@dev-private-git.linaro.org/schneider/mbedtls.git -b rmh-2.16"
+        - "You may need to rebase to the latest se/mbedtls-2.16 branch"
+        - " "
+        - "git clone ssh://git@dev-private-git.linaro.org/schneider/mbedtls.git -b rmh-2.16.8"
         - "git log --oneline -1"
-        - "2fd7c1906  2020-03-10  enable trustm"
+        - "e3f460832  2020-03-10  enable trustm"
         - " "
         - "scp -r ryan@192.168.1.11:/linaro/schneider/g.l.o/mbedtls ."
         - "cd mbedtls"

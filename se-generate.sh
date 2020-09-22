@@ -66,7 +66,7 @@ sed -e "s/Scheider Electric template/Scheider Electric TB Test Plan/g" -i ${plan
 
 testcases=($(ls manual/se/tb[1-9]?.yaml))
 for testcase in "${testcases[@]}" ; do
-	echo "    -path: ${testcase}" >> ${plan}
+	echo "    - path: ${testcase}" >> ${plan}
 	echo "      repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
 	echo "      branch: linaro" >> ${plan}
 done
@@ -84,9 +84,9 @@ sed -e "s/Scheider Electric template/Scheider Electric TC Test Plan/g" -i ${plan
 
 testcases=($(ls manual/se/tc*.yaml))
 for testcase in "${testcases[@]}" ; do
-	echo "    -path: ${testcase}" >> ${plan}
-	echo "      repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
-	echo "      branch: linaro" >> ${plan}
+	echo "     - path: ${testcase}" >> ${plan}
+	echo "       repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
+	echo "       branch: linaro" >> ${plan}
 done
 
 ################################################################################

@@ -64,7 +64,7 @@ sed -e "s/se-template/se-tb/g" -i ${plan}
 sed -e "s/Scheider Electric template/Scheider Electric TB Test Plan/g" -i ${plan}
 # TODO - describe what the TB test plan is"
 
-testcases=($(ls manual/se/tb[1-9]?.yaml))
+testcases=($(ls -v manual/se/tb[1-9]?.yaml))
 for testcase in "${testcases[@]}" ; do
 	echo "    - path: ${testcase}" >> ${plan}
 	echo "      repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
@@ -82,7 +82,7 @@ sed -e "s/se-template/se-tc/g" -i ${plan}
 sed -e "s/Scheider Electric template/Scheider Electric TC Test Plan/g" -i ${plan}
 # TODO - describe what the TC test plan is"
 
-testcases=($(ls manual/se/tc*.yaml))
+testcases=($(ls -v manual/se/tc*.yaml))
 for testcase in "${testcases[@]}" ; do
 	echo "     - path: ${testcase}" >> ${plan}
 	echo "       repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
@@ -100,7 +100,7 @@ sed -e "s/se-template/se-others/g" -i ${plan}
 sed -e "s/Scheider Electric template/Scheider Electric Misc Manual Test Plan/g" -i ${plan}
 # TODO - describe what this test plan is"
 
-testcases=($(ls manual/se/*.yaml | grep -v t[bc][0-9]))
+testcases=($(ls -v manual/se/*.yaml | grep -v t[bc][0-9]))
 for testcase in "${testcases[@]}" ; do
 	echo "    - path: ${testcase}" >> ${plan}
 	echo "      repository: https://github.com/omnium21/test-definitions.git" >> ${plan}
@@ -119,7 +119,7 @@ sed -e "s/Scheider Electric Automated Test Plan/Scheider Electric Test Plan desc
 # TODO - describe what this test plan is"
 
 echo "  manual:" >> ${plan}
-testcases=($(ls manual/se/*.yaml | grep -v tb[0-9]-j | sort -V))
+testcases=($(ls -v manual/se/*.yaml | grep -v tb[0-9]-j | sort -V))
 
 for testcase in "${testcases[@]}" ; do
 	echo "    - path: ${testcase}" >> ${plan}

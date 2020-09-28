@@ -348,7 +348,7 @@ gap
 echo "################################################################################"
 echo "Check ping from the host works"
 echo "################################################################################"
-q_hostping "${INTERFACE}" 001
+q_hostping "${INTERFACE}" TB2
 echo "################################################################################"
 gap
 
@@ -356,7 +356,7 @@ gap
 echo "################################################################################"
 echo "Disconnect the ethernet cable"
 echo "################################################################################"
-q_hostping "${INTERFACE}" 002 fail
+q_hostping "${INTERFACE}" TB3 fail
 echo "################################################################################"
 gap
 
@@ -364,7 +364,64 @@ gap
 echo "################################################################################"
 echo "Reconnect the ethernet cable"
 echo "################################################################################"
-q_hostping "${INTERFACE}" 003
+q_hostping "${INTERFACE}" TB4
+echo "################################################################################"
+gap
+
+
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# TODO - ethtool
+# ethtool -s ${eth} speed 100 duplex full autoneg off # TB1
+# ethtool -s ${eth} speed 100 duplex half autoneg off # TB5
+# ethtool -s ${eth} speed 100 duplex full autoneg off # TB6
+# ethtool -s ${eth} autoneg on # TB7
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+test_ethtool(){
+	local test_string
+	local interface
+	local speed
+	local duplex
+	local autoneg
+
+	interface="${1}"
+	test_string="${2}"
+	speed="${3}"
+	duplex="${4}"
+	autoneg="${5}"
+
+	echo "Requested Settingsi:"
+	echo "Link speed: ${speed}"
+	echo "Duplex:     ${duplex}"
+	echo "Auto-neg:   ${autoneg}"
+
+	# TODO - set ethtool settings
+	if [ "${autoneg}" = "on" ]; then
+		echo "Setting autoneg on"
+		ethtool -s "${interface} autoneg on"
+	else
+		echo "Setting manual negotiation"
+		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg "${autoneg}"
+	fi
+	sleep 5
+
+	# TODO - dump actual settings - i.e parse ethtool output 
+	ethtool "${interface}" \
+		| grep -e "Advertised auto-negotiation" -e "Speed" -e "Duplex" \
+		| sed -e "s/Advertised auto-negotiation/Auto-neg/g" -e "s/Speed: /Speed:    /g" -e "s/Duplex: /Duplex:   /g"
+
+	# TODO - check actual settings match final settings
+
+	q_hostping "${INTERFACE}" "${test_string}"
+}
+echo "################################################################################"
+echo "Link speed and duplex settings"
+echo "################################################################################"
+test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
+test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
+test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
+test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
 echo "################################################################################"
 gap
 

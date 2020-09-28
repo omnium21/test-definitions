@@ -46,7 +46,7 @@ if_state() {
 		state=1
 	fi
 
-	echo "if_up: interface ${interface} is in state ${state}"
+	echo "if_state: interface ${interface} is in state ${state}"
 	return "${state}"
 }
 
@@ -73,8 +73,21 @@ if_up() {
 		echo "Bringing interface ${interface} up"
 		ifconfig "${interface}" up
 		wait_for_if_up "${interface}" 2>&1 > /dev/null
-		exit_on_fail "ethernet-${interface}-state-UP"
+		exit_on_fail "ethernet-${interface}-state-up"
 	fi
+}
+
+
+if_down() {
+	local interface
+	local result
+
+	interface="${1}"
+	result=fail
+
+	echo "Bringing interface ${interface} down"
+	ifconfig "${interface}" down
+	if_state "${interface}" || exit_on_fail "ethernet-${interface}-state-down"
 }
 
 ################################################################################
@@ -103,49 +116,130 @@ delete_this_function() { # TODO
 }
 ################################################################################
 
-
-dhcp(){
+get_ipaddr() {
+	local ipaddr
 	local interface
+
 	interface="${1}"
-
-	# Get IP address of a given interface
-	IP_ADDR=$(ip addr show "${interface}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
-
-	echo IP_ADDR=$IP_ADDR
-	if [ -z "${IP_ADDR}" ]; then
-		echo "There is no IP address, let's get one..."
-		udhcpc -i "${interface}"
-	fi
+	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
+	echo "${ipaddr}"
 }
 
+get_netmask() {
+	local netmask
+	local interface
 
+	interface="${1}"
+	netmask=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet " | tail -1 | awk '{print $2}' | cut -f2 -d'/')
+	echo "${netmask}"
+}
 
+show_ip() {
+	local interface
+	local ipaddr
+	local netmask
+
+	interface="${1}"
+
+	ipaddr=$(get_ipaddr "${interface}")
+	netmask=$(get_netmask "${interface}")
+	echo Current ipaddr=$ipaddr netmask=$mask
+}
 
 ping_test() {
 	local interface
+	local test_string
+
 	interface="${1}"
+	test_string="${2}"
 
 	# Get IP address of a given interface
-	IP_ADDR=$(ip addr show "${interface}" | grep -a2 "state UP" | tail -1 | awk '{print $2}' | cut -f1 -d'/')
-
-	echo IP_ADDR=$IP_ADDR
-	[ -n "${IP_ADDR}" ]
-	exit_on_fail "ethernet-ping-state-UP" "ethernet-ping-route"
+	show_ip "${interface}"
+	ipaddr=$(get_ipaddr "${interface}")
+	[ -n "${ipaddr}" ]
+	exit_on_fail "ethernet-${interface}-ping-get-ipaddr"
 
 	# Get default Route IP address of a given interface
 	ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
 
 	# Run the test
-	run_test_case "ping -I ${interface} -c 5 ${ROUTE_ADDR}" "ethernet-ping-route"
+	run_test_case "ping -I ${interface} -c 5 ${ROUTE_ADDR}" "${test_string}"
+}
+
+
+
+do_udhcpc(){
+	local interface
+	local ipaddr
+	local netmask
+
+	interface="${1}"
+
+echo "xxx"
+	show_ip "${interface}"
+echo "xxx"
+	ipaddr=$(get_ipaddr "${interface}")
+echo "xxx"
+	netmask=$(get_netmask "${interface}")
+echo "xxx"
+	if [ ! -z "${ipaddr}" ]; then
+echo "xxx"
+		echo "ip address already set... removing"
+		ip addr del "${ipaddr}"/"${netmask}" dev "${interface}"
+echo "xxx"
+
+		echo "Check IP address removed"
+		show_ip "${interface}"
+echo "xxx"
+		ipaddr=$(get_ipaddr "${interface}")
+		[ -z "${ipaddr}" ]
+		exit_on_fail "ethernet-${interface}-udhcp-remove-ipaddr"
+	fi
+
+echo "xxx"
+	echo "Running udhcpc on ${interface}..."
+	udhcpc -i "${interface}"
+
+	# TODO - wait for IP addr assignment
+
+	show_ip "${interface}"
+	ipaddr=$(get_ipaddr "${interface}")
+	if [ -z "${ipaddr}" ]; then
+		exit_on_fail "ethernet-${interface}-udhcp-assign-ipaddr"
+	fi
+	ping_test "${INTERFACE}" "ethernet-udhcp-ping"
 }
 
 
 
 
+gap() {
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+	echo ""
+}
+
+# Disable networkmanager
+# TODO - save state and restore saved state at the end
+#systemctl stop NetworkManager.service
+#systemctl daemon-reload
+
+
 
 
 # Print all network interface status
+gap
+echo "################################################################################"
 ip addr
+echo "################################################################################"
+gap
 
 if [ -n "${SWITCH_IF}" ]; then
 	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
@@ -157,17 +251,45 @@ fi
 #delete_this_function ${SWITCH_IF}
 
 
-echo ""
+gap
+echo "################################################################################"
 echo "Current state of interface ${INTERFACE}"
 # Print given network interface status
 ip addr show "${INTERFACE}"
+echo "################################################################################"
+gap
 
-#delete_this_function "${INTERFACE}"
+# Take all interfaces down
+echo "################################################################################"
+iflist=( eth0 eth1 eth2 lan0 lan1 lan2 )
+for intf in ${iflist[@]}; do
+	if_down "${intf}"
+done
+sleep 2
+echo "################################################################################"
+gap
+
+
+echo "################################################################################"
+echo "Bring ${INTERFACE} up"
+echo "################################################################################"
 if_up "${INTERFACE}"
-#delete_this_function "${INTERFACE}"
+echo "################################################################################"
+gap
 
-dhcp "${INTERFACE}"
 
 
-echo "Setup complete. Now do some testing..."
-ping_test "${INTERFACE}"
+
+echo "################################################################################"
+echo "Run udhcpc on ${INTERFACE}"
+echo "################################################################################"
+do_udhcpc "${INTERFACE}"
+echo "################################################################################"
+gap
+
+
+
+
+
+#systemctl start NetworkManager.service
+#systemctl daemon-reload

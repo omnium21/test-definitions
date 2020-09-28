@@ -11,15 +11,17 @@ export RESULT_FILE
 INTERFACE="eth0"
 
 usage() {
-    echo "Usage: $0 [-i <ethernet-interface> -w <switch-interface> -s <true|false>]" 1>&2
+    echo "Usage: $0 [-i <ethernet-interface> -w <switch-interface> -I <static-ip-addr> -s <true|false>]" 1>&2
     exit 1
 }
 
-while getopts "s:i:w:" o; do
+while getopts "s:i:I:w:" o; do
   case "$o" in
     s) SKIP_INSTALL="${OPTARG}" ;;
     # Ethernet interface
     i) INTERFACE="${OPTARG}" ;;
+    I) IPADDR="${OPTARG}" ;;
+    g) GATEWAY="${OPTARG}" ;;
     w) SWITCH_IF="${OPTARG}" ;;
     *) usage ;;
   esac
@@ -31,6 +33,23 @@ create_out_dir "${OUTPUT}"
 
 pkgs="net-tools"
 install_deps "${pkgs}" "${SKIP_INSTALL}"
+
+
+if [ -z "${INTERFACE}" ]; then
+	# TODO - this should check if the interface exists
+	echo "ERROR: ethernet interface not specified"
+	exit 1
+fi
+
+if [ -z "${IPADDR}" ]; then
+	echo "ERROR: static IP address not specified"
+	exit 1
+fi
+
+if [ -z "${GATEWAY}" ]; then
+	GATEWAY=$(echo "${IPADDR}" | awk -F. '{print $1"."$2"."$3".254"}')
+	echo "WARNING: default gateway not specified. Setting to ${GATEWAY}"
+fi
 
 if_state() {
 	local interface
@@ -143,7 +162,7 @@ show_ip() {
 
 	ipaddr=$(get_ipaddr "${interface}")
 	netmask=$(get_netmask "${interface}")
-	echo Current ipaddr=$ipaddr netmask=$mask
+	echo "Current ipaddr=${ipaddr}/${netmask}"
 }
 
 ping_test() {
@@ -168,49 +187,74 @@ ping_test() {
 
 
 
-do_udhcpc(){
+assign_ipaddr(){
 	local interface
 	local ipaddr
 	local netmask
+	local static_ipaddr
 
 	interface="${1}"
+	static_ipaddr="${2}"
 
-echo "xxx"
+	if [ -z "${static_ipaddr}" ]; then
+		test_string="udhcp"
+	else
+		test_string="static-ip"
+	fi
+
 	show_ip "${interface}"
-echo "xxx"
 	ipaddr=$(get_ipaddr "${interface}")
-echo "xxx"
 	netmask=$(get_netmask "${interface}")
-echo "xxx"
 	if [ ! -z "${ipaddr}" ]; then
-echo "xxx"
 		echo "ip address already set... removing"
 		ip addr del "${ipaddr}"/"${netmask}" dev "${interface}"
-echo "xxx"
 
 		echo "Check IP address removed"
 		show_ip "${interface}"
-echo "xxx"
 		ipaddr=$(get_ipaddr "${interface}")
 		[ -z "${ipaddr}" ]
-		exit_on_fail "ethernet-${interface}-udhcp-remove-ipaddr"
+		exit_on_fail "ethernet-${interface}-${test_string}-remove-ipaddr"
 	fi
 
-echo "xxx"
-	echo "Running udhcpc on ${interface}..."
-	udhcpc -i "${interface}"
-
-	# TODO - wait for IP addr assignment
+	if [ -z "${static_ipaddr}" ]; then
+		echo "Running udhcpc on ${interface}..."
+		udhcpc -i "${interface}"
+		# TODO - wait for IP addr assignment?
+	else
+		echo "Setting a static IP address to ${static_ipaddr}..."
+		ifconfig "${interface}" "${static_ipaddr}"
+		echo "Setting default gateway to ${GATEWAY}"
+		route add default gw "${GATEWAY}"
+	fi
 
 	show_ip "${interface}"
 	ipaddr=$(get_ipaddr "${interface}")
 	if [ -z "${ipaddr}" ]; then
-		exit_on_fail "ethernet-${interface}-udhcp-assign-ipaddr"
+		exit_on_fail "ethernet-${interface}-${test_string}-assign-ipaddr"
 	fi
-	ping_test "${INTERFACE}" "ethernet-udhcp-ping"
+	ping_test "${INTERFACE}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
 }
 
 
+q_hostping(){
+	local test_string
+	local expect_failure
+	local interface
+
+	interface="${1}"
+	test_string="${2}"
+	expect_failure="${3}"
+
+	if [ -z "${expect_failure}" ]; then
+		query="succeeds"
+	else
+		query="times out"
+	fi
+
+	read -p "Check ping ${IPADDR} from your host machine ${query}? (Y/n) " y
+	test "${y}" != "n" -a "${y}" != "N"
+	exit_on_fail "ethernet-${interface}-ping-from-host-${test_string}"
+}
 
 
 gap() {
@@ -240,6 +284,9 @@ echo "##########################################################################
 ip addr
 echo "################################################################################"
 gap
+
+
+
 
 if [ -n "${SWITCH_IF}" ]; then
 	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
@@ -281,14 +328,45 @@ gap
 
 
 echo "################################################################################"
-echo "Run udhcpc on ${INTERFACE}"
+echo "Run udhcpc test on ${INTERFACE}"
 echo "################################################################################"
-do_udhcpc "${INTERFACE}"
+assign_ipaddr "${INTERFACE}"
+echo "################################################################################"
+gap
+
+echo "################################################################################"
+echo "Run fixed IP test on ${INTERFACE}"
+echo "################################################################################"
+assign_ipaddr "${INTERFACE}" "${IPADDR}"
 echo "################################################################################"
 gap
 
 
 
+
+
+echo "################################################################################"
+echo "Check ping from the host works"
+echo "################################################################################"
+q_hostping "${INTERFACE}" 001
+echo "################################################################################"
+gap
+
+
+echo "################################################################################"
+echo "Disconnect the ethernet cable"
+echo "################################################################################"
+q_hostping "${INTERFACE}" 002 fail
+echo "################################################################################"
+gap
+
+
+echo "################################################################################"
+echo "Reconnect the ethernet cable"
+echo "################################################################################"
+q_hostping "${INTERFACE}" 003
+echo "################################################################################"
+gap
 
 
 #systemctl start NetworkManager.service

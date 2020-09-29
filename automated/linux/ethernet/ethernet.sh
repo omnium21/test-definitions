@@ -9,6 +9,8 @@ export RESULT_FILE
 
 # Default ethernet interface
 INTERFACE="eth0"
+BOARD=$(uname -a | awk '{print $2}'| sed -e 's/snarc//g' -e 's/-//g')
+KERNEL=$(uname -r | awk -F. '{print $1"."$2}')
 
 usage() {
     echo "Usage: $0 [-i <ethernet-interface> -w <switch-interface> -I <static-ip-addr> -s <true|false>]" 1>&2
@@ -402,17 +404,12 @@ test_ethtool(){
 
 test_scp(){
 	local interface
-	local board
-	local kernel
-
 	interface="${1}"
-	board=$(uname -a | awk '{print $2}'| sed -e 's/snarc//g' -e 's/-//g')
-	kernel=$(uname -r | awk -F. '{print $1"."$2}')
 
 	# create 1G file - reuse existing file
 	local datafile
 
-	datafile=largedatafile.${board}-${kernel}
+	datafile=largedatafile.${BOARD}-${KERNEL}
 	localdatafile=/home/root/"${datafile}"
 	echo "Create \"${localdatafile}\" ... "
 	if [ ! -e "${localdatafile}" ]; then
@@ -548,11 +545,23 @@ gap
 echo "################################################################################"
 echo "Link speed and duplex settings"
 echo "################################################################################"
-test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
-test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
-test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
-test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
 
+if [ "${BOARD}" = "lces2" ]; then
+	if [ ${INTERFACE} = "eth1" ]; then
+		skip_ethtool_tests=true
+	fi
+fi
+
+if [ -z ${skip_ethtool_tests} ]; then
+	test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
+	test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
+	test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
+	test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
+else
+	echo "################################################################################"
+	echo "Skip ethtool tests on ${BOARD} for ${INTERFACE}"
+	echo "################################################################################"
+fi
 echo "################################################################################"
 echo "Bulk Data transfer tests"
 echo "################################################################################"

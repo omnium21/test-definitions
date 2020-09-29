@@ -270,104 +270,6 @@ gap() {
 	echo ""
 }
 
-# Disable networkmanager
-# TODO - save state and restore saved state at the end
-systemctl stop NetworkManager.service
-systemctl daemon-reload
-
-
-
-# Print all network interface status
-gap
-echo "################################################################################"
-ip addr
-echo "################################################################################"
-gap
-
-
-
-
-if [ -n "${SWITCH_IF}" ]; then
-	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-	if_up "${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-fi
-
-#delete_this_function ${SWITCH_IF}
-
-
-gap
-echo "################################################################################"
-echo "Current state of interface ${INTERFACE}"
-# Print given network interface status
-ip addr show "${INTERFACE}"
-echo "################################################################################"
-gap
-
-# Take all interfaces down
-echo "################################################################################"
-iflist=( eth0 eth1 eth2 lan0 lan1 lan2 )
-for intf in ${iflist[@]}; do
-	if_down "${intf}"
-done
-sleep 2
-echo "################################################################################"
-gap
-
-
-echo "################################################################################"
-echo "Bring ${INTERFACE} up"
-echo "################################################################################"
-if_up "${INTERFACE}"
-echo "################################################################################"
-gap
-
-
-
-
-echo "################################################################################"
-echo "Run udhcpc test on ${INTERFACE}"
-echo "################################################################################"
-assign_ipaddr "${INTERFACE}"
-echo "################################################################################"
-gap
-
-echo "################################################################################"
-echo "Run fixed IP test on ${INTERFACE}"
-echo "################################################################################"
-assign_ipaddr "${INTERFACE}" "${IPADDR}"
-echo "################################################################################"
-gap
-
-
-
-
-
-echo "################################################################################"
-echo "Check ping from the host works"
-echo "################################################################################"
-query_hostping "${INTERFACE}" TB2
-echo "################################################################################"
-gap
-
-
-echo "################################################################################"
-echo "Disconnect the ethernet cable"
-echo "################################################################################"
-query_hostping "${INTERFACE}" TB3 fail
-echo "################################################################################"
-gap
-
-
-echo "################################################################################"
-echo "Reconnect the ethernet cable"
-echo "################################################################################"
-query_hostping "${INTERFACE}" TB4
-echo "################################################################################"
-gap
-
-
 dump_link_settings(){
 	local interface
 	local speed
@@ -497,17 +399,7 @@ test_ethtool(){
 	echo "################################################################################"
 	gap
 }
-echo "################################################################################"
-echo "Link speed and duplex settings"
-echo "################################################################################"
-test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
-test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
-test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
-test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
 
-echo "################################################################################"
-echo "Bulk Data transfer tests"
-echo "################################################################################"
 test_scp(){
 	local interface
 	local board
@@ -555,16 +447,120 @@ test_scp(){
 	exit_on_fail "ethernet-${interface}-TB8-scp-to-host"
 }
 
+# Disable networkmanager
+# TODO - save state and restore saved state at the end
+systemctl stop NetworkManager.service
+systemctl daemon-reload
+
+
+
+# Print all network interface status
+gap
+echo "################################################################################"
+ip addr
+echo "################################################################################"
+gap
+
+
+
+
+if [ -n "${SWITCH_IF}" ]; then
+	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+	if_up "${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+fi
+
+#delete_this_function ${SWITCH_IF}
+
+
+gap
+echo "################################################################################"
+echo "Current state of interface ${INTERFACE}"
+# Print given network interface status
+ip addr show "${INTERFACE}"
+echo "################################################################################"
+gap
+
+# Take all interfaces down
+echo "################################################################################"
+iflist=( eth0 eth1 eth2 lan0 lan1 lan2 )
+for intf in ${iflist[@]}; do
+	if_down "${intf}"
+done
+sleep 2
+echo "################################################################################"
+gap
+
+
+
+
+echo "################################################################################"
+echo "Bring ${INTERFACE} up"
+echo "################################################################################"
+if_up "${INTERFACE}"
+echo "################################################################################"
+gap
+
+
+
+
+echo "################################################################################"
+echo "Run udhcpc test on ${INTERFACE}"
+echo "################################################################################"
+assign_ipaddr "${INTERFACE}"
+echo "################################################################################"
+gap
+
+echo "################################################################################"
+echo "Run fixed IP test on ${INTERFACE}"
+echo "################################################################################"
+assign_ipaddr "${INTERFACE}" "${IPADDR}"
+echo "################################################################################"
+gap
+
+
+
+
+
+echo "################################################################################"
+echo "Check ping from the host works"
+echo "################################################################################"
+query_hostping "${INTERFACE}" TB2
+echo "################################################################################"
+gap
+
+
+echo "################################################################################"
+echo "Disconnect the ethernet cable"
+echo "################################################################################"
+query_hostping "${INTERFACE}" TB3 fail
+echo "################################################################################"
+gap
+
+
+echo "################################################################################"
+echo "Reconnect the ethernet cable"
+echo "################################################################################"
+query_hostping "${INTERFACE}" TB4
+echo "################################################################################"
+gap
+echo "################################################################################"
+echo "Link speed and duplex settings"
+echo "################################################################################"
+test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
+test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
+test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
+test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
+
+echo "################################################################################"
+echo "Bulk Data transfer tests"
+echo "################################################################################"
 test_scp "${INTERFACE}"
 
 ifconfig "${INTERFACE}" down
 exit_on_fail "ethernet-${interface}-TB9-interface-down"
 
-
-
-
-
-
-
+# TODO - restore NetworkManager to it's original state
 #systemctl start NetworkManager.service
 #systemctl daemon-reload

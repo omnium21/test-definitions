@@ -272,8 +272,8 @@ gap() {
 
 # Disable networkmanager
 # TODO - save state and restore saved state at the end
-#systemctl stop NetworkManager.service
-#systemctl daemon-reload
+systemctl stop NetworkManager.service
+systemctl daemon-reload
 
 
 
@@ -369,15 +369,99 @@ echo "##########################################################################
 gap
 
 
-#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-# TODO - ethtool
-# ethtool -s ${eth} speed 100 duplex full autoneg off # TB1
-# ethtool -s ${eth} speed 100 duplex half autoneg off # TB5
-# ethtool -s ${eth} speed 100 duplex full autoneg off # TB6
-# ethtool -s ${eth} autoneg on # TB7
-#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+dump_link_settings(){
+	local interface
+	local speed
+	local duplex
+	local autoneg
+
+	interface="${1}"
+	speed=$(get_link_speed "${interface}")
+	duplex=$(get_link_duplex "${interface}")
+	autoneg=$(get_link_autoneg "${interface}")
+
+	echo "Current settings for interface ${interface}"
+	echo "  Auto-neg: ${autoneg}"
+	echo "  Speed:    ${speed}"
+	echo "  Duplex:   ${duplex}"
+}
+
+
+get_link_speed(){
+	local interface
+	local speed
+
+	interface="${1}"
+	speed=$(ethtool "${interface}" \
+		| grep -e "Speed" \
+		| sed  -e "s/Speed: //g" \
+		| sed  -e 's/\t//g' -e 's/ //g' -e 's/Mb\/s//g')
+	echo "${speed}"
+}
+get_link_duplex(){
+	local interface
+	local duplex
+
+	interface="${1}"
+	duplex=$(ethtool "${interface}" \
+		| grep -e "Duplex" \
+		| sed  -e "s/Duplex: //g" \
+		| sed  -e 's/\t//g' -e 's/ //g' \
+		| awk '{print tolower($0)}')
+	echo "${duplex}"
+}
+get_link_autoneg(){
+	local interface
+	local autoneg
+
+	interface="${1}"
+	autoneg=$(ethtool "${interface}" \
+		| grep -e "Advertised auto-negotiation" \
+		| sed  -e "s/Advertised auto-negotiation://g" \
+		| sed  -e 's/\t//g' -e 's/ //g' \
+		| awk '{print tolower($0)}')
+
+	case "${autoneg}" in
+		no|off) autoneg=off ;;
+		yes|on) autoneg=on ;;
+	esac
+	echo "${autoneg}"
+}
+
+check_link_settings(){
+	local interface
+	local requested_speed
+	local requested_duplex
+	local requested_autoneg
+	local actual_speed
+	local actual_duplex
+	local actual_autoneg
+	local test_string
+
+	interface="${1}"
+	requested_speed="${2}"
+	requested_duplex="${3}"
+	requested_autoneg="${4}"
+	test_string="${5}"
+
+	dump_link_settings "${interface}"
+
+	actual_speed=$(get_link_speed "${interface}")
+	actual_duplex=$(get_link_duplex "${interface}")
+	actual_autoneg=$(get_link_autoneg "${interface}")
+
+	[ "${actual_autoneg}" = "${requested_autoneg}" ]
+	exit_on_fail "ethernet-${interface}-${test_string}-check-link-autoneg" # TODO - we don't want to exit, just error
+
+	if [ "${requested_autoneg}" = "off" ]; then
+		[ "${actual_speed}" = "${requested_speed}" ]
+		exit_on_fail "ethernet-${interface}-${test_string}-check-link-speed" # TODO - we don't want to exit, just error
+		[ "${actual_duplex}" = "${requested_duplex}" ]
+		exit_on_fail "ethernet-${interface}-${test_string}-check-link-duplex" # TODO - we don't want to exit, just error
+	fi
+}
+
+
 test_ethtool(){
 	local test_string
 	local interface
@@ -391,29 +475,28 @@ test_ethtool(){
 	duplex="${4}"
 	autoneg="${5}"
 
-	echo "Requested Settingsi:"
-	echo "Link speed: ${speed}"
-	echo "Duplex:     ${duplex}"
-	echo "Auto-neg:   ${autoneg}"
+	dump_link_settings "${interface}"
 
-	# TODO - set ethtool settings
+	echo "Requested Settings:"
+	echo "  Auto-neg: ${autoneg}"
+	echo "  Speed:    ${speed}"
+	echo "  Duplex:   ${duplex}"
+
 	if [ "${autoneg}" = "on" ]; then
-		echo "Setting autoneg on"
-		ethtool -s "${interface} autoneg on"
+		echo "Setting ${interface} to auto-negotiate"
+		ethtool -s "${interface}" autoneg on
 	else
-		echo "Setting manual negotiation"
+		echo "Setting ${interface} to manual negotiation for ${speed}Mbps at ${duplex} duplex"
 		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg "${autoneg}"
 	fi
-	sleep 5
-
-	# TODO - dump actual settings - i.e parse ethtool output 
-	ethtool "${interface}" \
-		| grep -e "Advertised auto-negotiation" -e "Speed" -e "Duplex" \
-		| sed -e "s/Advertised auto-negotiation/Auto-neg/g" -e "s/Speed: /Speed:    /g" -e "s/Duplex: /Duplex:   /g"
-
-	# TODO - check actual settings match final settings
-
+	echo ""
+	sleep 10
+	echo ""
+	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${test_string}"
+	echo "################################################################################"
 	q_hostping "${INTERFACE}" "${test_string}"
+	echo "################################################################################"
+	gap
 }
 echo "################################################################################"
 echo "Link speed and duplex settings"
@@ -422,8 +505,6 @@ test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
 test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
 test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
 test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
-echo "################################################################################"
-gap
 
 
 #systemctl start NetworkManager.service

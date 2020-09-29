@@ -277,7 +277,6 @@ systemctl daemon-reload
 
 
 
-
 # Print all network interface status
 gap
 echo "################################################################################"
@@ -494,7 +493,7 @@ test_ethtool(){
 	echo ""
 	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${test_string}"
 	echo "################################################################################"
-	query_hostping "${INTERFACE}" "${test_string}"
+	query_hostping "${interface}" "${test_string}"
 	echo "################################################################################"
 	gap
 }
@@ -505,6 +504,66 @@ test_ethtool "${INTERFACE}" "ethtool-TB1" 100 full off
 test_ethtool "${INTERFACE}" "ethtool-TB5" 100 half off
 test_ethtool "${INTERFACE}" "ethtool-TB6" 100 full off
 test_ethtool "${INTERFACE}" "ethtool-TB7" any any  on
+
+echo "################################################################################"
+echo "Bulk Data transfer tests"
+echo "################################################################################"
+test_scp(){
+	local interface
+	local board
+	local kernel
+
+	interface="${1}"
+	board=$(uname -a | awk '{print $2}'| sed -e 's/snarc//g' -e 's/-//g')
+	kernel=$(uname -r | awk -F. '{print $1"."$2}')
+
+	# create 1G file - reuse existing file
+	local datafile
+
+	datafile=largedatafile.${board}-${kernel}
+	localdatafile=/home/root/"${datafile}"
+	echo "Create \"${localdatafile}\" ... "
+	if [ ! -e "${localdatafile}" ]; then
+		dd if=/dev/urandom of="${localdatafile}" bs=1M count=1024 status=progress
+		echo "done"
+	else
+		echo "file already exists"
+	fi
+
+	# checksum it
+	echo "Checksum \"${localdatafile}\" ..."
+	if [ ! -e "${localdatafile}.md5" ]; then
+		md5sum "${localdatafile}" > "${localdatafile}.md5"
+		echo "done"
+	else
+		echo "file already exists"
+	fi
+	cat "${localdatafile}.md5"
+	checksum=$(cat "${localdatafile}.md5" | awk '{print $1}')
+
+	# TODO - these should be script params, or some other external config
+	user=ryan
+	host=192.168.1.1
+	hostpath=/data/tmp
+
+	# scp to host
+	echo "Transferring datafile to host using scp..."
+	scp "${localdatafile}" "${user}"@"${host}":"${hostpath}" # TODO - how to avoid password?
+
+	read -p "Check \"md5sum ${hostpath}/${datafile}\" from your host machine equals ${checksum}? (Y/n) " y
+	test "${y}" != "n" -a "${y}" != "N"
+	exit_on_fail "ethernet-${interface}-TB8-scp-to-host"
+}
+
+test_scp "${INTERFACE}"
+
+ifconfig "${INTERFACE}" down
+exit_on_fail "ethernet-${interface}-TB9-interface-down"
+
+
+
+
+
 
 
 #systemctl start NetworkManager.service

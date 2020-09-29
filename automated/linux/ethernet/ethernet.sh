@@ -242,6 +242,7 @@ query_hostping(){
 	local test_string
 	local expect_failure
 	local interface
+	local ipaddr
 
 	interface="${1}"
 	test_string="${2}"
@@ -253,7 +254,8 @@ query_hostping(){
 		query="times out"
 	fi
 
-	read -p "Check ping ${IPADDR} from your host machine ${query}? (Y/n) " y
+	ipaddr=$(get_ipaddr "${interface}")
+	read -p "Check \"ping ${ipaddr}\" from your host machine ${query}? (Y/n) " y
 	test "${y}" != "n" -a "${y}" != "N"
 	exit_on_fail "ethernet-${interface}-ping-from-host-${test_string}"
 }
@@ -461,15 +463,6 @@ gap
 
 
 
-if [ -n "${SWITCH_IF}" ]; then
-	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-	if_up "${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-fi
-
-#delete_this_function ${SWITCH_IF}
-
 
 gap
 echo "################################################################################"
@@ -481,7 +474,9 @@ gap
 
 # Take all interfaces down
 echo "################################################################################"
-iflist=( eth0 eth1 eth2 lan0 lan1 lan2 )
+iflist=( eth0 eth1 lan0 lan1 lan2 )
+[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
+
 for intf in ${iflist[@]}; do
 	if_down "${intf}"
 done
@@ -495,6 +490,12 @@ gap
 echo "################################################################################"
 echo "Bring ${INTERFACE} up"
 echo "################################################################################"
+if [ -n "${SWITCH_IF}" ]; then
+	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+	if_up "${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+fi
 if_up "${INTERFACE}"
 echo "################################################################################"
 gap
@@ -546,8 +547,17 @@ echo "##########################################################################
 echo "Link speed and duplex settings"
 echo "################################################################################"
 
-if [ "${BOARD}" = "lces2" ]; then
+echo BOARD=$BOARD
+echo INTERFACE=$INTERFACE
+
+if [ "${BOARD}" = "rzn1" ]; then
 	if [ ${INTERFACE} = "eth1" ]; then
+		skip_ethtool_tests=true
+	fi
+fi
+
+if [ "${BOARD}" = "soca9" ]; then
+	if [ ${INTERFACE} = "eth2" ]; then
 		skip_ethtool_tests=true
 	fi
 fi

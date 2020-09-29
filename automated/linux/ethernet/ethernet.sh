@@ -236,7 +236,7 @@ assign_ipaddr(){
 }
 
 
-q_hostping(){
+query_hostping(){
 	local test_string
 	local expect_failure
 	local interface
@@ -348,7 +348,7 @@ gap
 echo "################################################################################"
 echo "Check ping from the host works"
 echo "################################################################################"
-q_hostping "${INTERFACE}" TB2
+query_hostping "${INTERFACE}" TB2
 echo "################################################################################"
 gap
 
@@ -356,7 +356,7 @@ gap
 echo "################################################################################"
 echo "Disconnect the ethernet cable"
 echo "################################################################################"
-q_hostping "${INTERFACE}" TB3 fail
+query_hostping "${INTERFACE}" TB3 fail
 echo "################################################################################"
 gap
 
@@ -364,7 +364,7 @@ gap
 echo "################################################################################"
 echo "Reconnect the ethernet cable"
 echo "################################################################################"
-q_hostping "${INTERFACE}" TB4
+query_hostping "${INTERFACE}" TB4
 echo "################################################################################"
 gap
 
@@ -494,7 +494,7 @@ test_ethtool(){
 	echo ""
 	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${test_string}"
 	echo "################################################################################"
-	q_hostping "${INTERFACE}" "${test_string}"
+	query_hostping "${INTERFACE}" "${test_string}"
 	echo "################################################################################"
 	gap
 }

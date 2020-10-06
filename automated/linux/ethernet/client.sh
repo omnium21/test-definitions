@@ -125,8 +125,8 @@ else
             | tee -a "${RESULT_FILE}"
     fi
 
-    cmd="lava-send"
-    if which "${cmd}"; then
-        ${cmd} client-request request="finished"
-    fi
+    #cmd="lava-send"
+    #if which "${cmd}"; then
+    #    ${cmd} client-request request="finished"
+    #fi
 fi

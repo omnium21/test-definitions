@@ -57,6 +57,11 @@ if which "${cmd}"; then
 	fi
 
 	# TODO - wait for a response
+	cmd="lava-wait"
+	if which "${cmd}"; then
+		${cmd} client-ping-done
+	fi
+
 	# TODO - report pass/fail depending on whether we expected ping to succeed or not
 else
     echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."

@@ -98,15 +98,19 @@ while [ true ]; do
 	echo "client-request \"${request}\"received"
 
 	# perform the client request
-	case $request in
+	case "${request}" in
 		"finished")
 			echo "Client has signalled we are finished. Exiting."
 			exit 0
 			;;
 		"ping")
-			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			echo "Client has asked us to ping address ${ipaddr}"
+			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			ping -c 5 "${ipaddr}"
+			cmd="lava-send"
+			if which "${cmd}"; then
+				${cmd} client-ping-done
+			fi
 			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac

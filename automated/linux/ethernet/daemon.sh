@@ -103,6 +103,11 @@ while [ true ]; do
 			echo "Client has signalled we are finished. Exiting."
 			exit 0
 			;;
+		"ping")
+			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+			echo "Client has asked us to ping address ${ipaddr}"
+			ping -c 5 "${ipaddr}"
+			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac
 done

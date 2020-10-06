@@ -55,6 +55,9 @@ if which "${cmd}"; then
 	if which "${cmd}"; then
 		${cmd} ping ipaddr="${ipaddr}"
 	fi
+
+	# TODO - wait for a response
+	# TODO - report pass/fail depending on whether we expected ping to succeed or not
 else
     echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
 fi

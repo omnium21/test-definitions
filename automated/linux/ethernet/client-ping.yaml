@@ -27,11 +27,10 @@ metadata:
         - rzn1d
 
 params:
-	  ETH: eth0
-    SKIP_INSTALL: "false"
+    ETH: eth0
 
 run:
     steps:
         - cd ./automated/linux/ethernet/
-        - ./client-ping.sh
+        - ./client-ping.sh -e "${ETH}"
         - ../../utils/send-to-lava.sh ./output/result.txt

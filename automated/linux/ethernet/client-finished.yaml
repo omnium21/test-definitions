@@ -1,0 +1,47 @@
+metadata:
+    name: ethernet-client
+    format: "Lava-Test Test Definition 1.0"
+    description: "iperf is a tool for active measurements of the maximum
+                  achievable bandwidth on IP networks."
+    maintainer:
+        - milosz.wasilewski@linaro.org
+    os:
+        - debian
+        - ubuntu
+        - fedora
+        - centos
+        - openembedded
+    scope:
+        - performance
+    environment:
+        - lava-test-shell
+    devices:
+        - hi6220-hikey
+        - apq8016-sbc
+        - mustang
+        - moonshot
+        - thunderX
+        - d03
+        - d05
+        - soca9
+        - rzn1d
+
+params:
+    # Set the location of the server.
+    # When running in LAVA, it will attempt to discover the server address
+    SERVER: "localhost"
+    # Time in seconds to transmit for
+    TIME: "10"
+    # Number of parallel client streams to run
+    THREADS: "1"
+    # Set affinity of the client to cpu 0 using "-A 0"
+    AFFINITY: ""
+    # Set REVERSE="-R" to run tx from the server
+    REVERSE: ""
+    SKIP_INSTALL: "false"
+
+run:
+    steps:
+        - cd ./automated/linux/ethernet/
+        - ./client-finished.sh
+        - ../../utils/send-to-lava.sh ./output/result.txt

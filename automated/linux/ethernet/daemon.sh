@@ -6,23 +6,16 @@ OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
 IPERF3_SERVER_RUNNING="no"
-
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
-# Specify iperf3 version for CentOS.
 VERSION="3.1.4"
 ETH="eth0"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-p number] [-v version] [-s true|false]" 1>&2
+    echo "Usage: $0 [-e server ethernet device] [-v version] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:Rh" o; do
   case "$o" in
-    A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     v) VERSION="${OPTARG}" ;;
     s) SKIP_INSTALL="${OPTARG}" ;;

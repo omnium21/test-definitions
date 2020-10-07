@@ -5,9 +5,6 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
 # Time in seconds to transmit for
 TIME="10"
 # Number of parallel client streams to run
@@ -20,18 +17,15 @@ REVERSE=""
 # CPU affinity is blank by default, meaning no affinity.
 # CPU numbers are zero based, eg AFFINITY="-A 0" for the first CPU
 AFFINITY=""
-ETH="eth0"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
-    e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
     R) REVERSE="-R" ;;
@@ -44,84 +38,25 @@ done
 create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"
 
-if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
-    info_msg "iperf3 installation skipped"
+SERVER="$(cat /tmp/server.ipaddr)"
+if [ -z "${SERVER}" ]; then
+	echo "ERROR: no server specified"
+	exit 1
 else
-    dist_name
-    # shellcheck disable=SC2154
-    case "${dist}" in
-        debian|ubuntu|fedora)
-            install_deps "iperf3"
-            ;;
-        centos)
-            install_deps "wget gcc make"
-            wget https://github.com/esnet/iperf/archive/"${VERSION}".tar.gz
-            tar xf "${VERSION}".tar.gz
-            cd iperf-"${VERSION}"
-            ./configure
-            make
-            make install
-            ;;
-    esac
+	echo "Using SERVER=${SERVER}"
 fi
+# We are running in client mode
+# Run iperf3 test with unbuffered output mode.
+stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+	| tee "${LOGFILE}"
 
-# Run local iperf3 server as a daemon when testing localhost.
-if [ "${SERVER}" = "" ]; then
-    cmd="lava-echo-ipv4"
-    if which "${cmd}"; then
-        ipaddr=$(${cmd} "${ETH}" | tr -d '\0')
-        if [ -z "${ipaddr}" ]; then
-            lava-test-raise "${ETH} not found"
-        fi
-    else
-        echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
-    fi
-    cmd="lava-send"
-    if which "${cmd}"; then
-        ${cmd} server-ready ipaddr="${ipaddr}"
-    fi
-
-    # We are running in server mode.
-    # Start the server and report pass/fail
-    cmd="iperf3 -s -D"
-    ${cmd}
-    if pgrep -f "${cmd}" > /dev/null; then
-        result="pass"
-    else
-        result="fail"
-    fi
-    echo "iperf3_server_started ${result}" | tee -a "${RESULT_FILE}"
-
-    cmd="lava-wait"
-    if which "${cmd}"; then
-        ${cmd} client-done
-    fi
-else
-	SERVER="$(cat /tmp/server.ipaddr)"
-    if [ -z "${SERVER}" ]; then
-        echo "ERROR: no server specified"
-        exit 1
-	else
-		echo "Using SERVER=${SERVER}"
-    fi
-    # We are running in client mode
-    # Run iperf3 test with unbuffered output mode.
-    stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
-        | tee "${LOGFILE}"
-
-    # Parse logfile.
-    if [ "${THREADS}" -eq 1 ]; then
-        grep -E "(sender|receiver)" "${LOGFILE}" \
-            | awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
-            | tee -a "${RESULT_FILE}"
-    elif [ "${THREADS}" -gt 1 ]; then
-        grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-            | awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
-            | tee -a "${RESULT_FILE}"
-    fi
-
-    #cmd="lava-send"
-    #if which "${cmd}"; then
-    #    ${cmd} client-request request="finished"
-    #fi
+# Parse logfile.
+if [ "${THREADS}" -eq 1 ]; then
+	grep -E "(sender|receiver)" "${LOGFILE}" \
+		| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+		| tee -a "${RESULT_FILE}"
+elif [ "${THREADS}" -gt 1 ]; then
+	grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+		| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+		| tee -a "${RESULT_FILE}"
 fi

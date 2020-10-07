@@ -65,6 +65,11 @@ else
     esac
 fi
 
+cmd="lava-send"
+if which "${cmd}"; then
+	${cmd} client-request request="start-iperf3-server"
+fi
+
 cmd="lava-wait"
 if which "${cmd}"; then
 	${cmd} server-ready

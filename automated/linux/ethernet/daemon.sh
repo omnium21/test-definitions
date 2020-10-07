@@ -5,6 +5,8 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf.txt"
+IPERF3_SERVER_RUNNING="no"
+
 # If SERVER is blank, we are the server, otherwise
 # If we are the client, we set SERVER to the ipaddr of the server
 SERVER=""
@@ -63,24 +65,6 @@ else
     echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
 fi
 
-################################################################################
-# Start the server
-# report pass/fail as a test result
-# send the server's IP address to the client(s)
-################################################################################
-cmd="iperf3 -s -D"
-${cmd}
-if pgrep -f "${cmd}" > /dev/null; then
-    result="pass"
-else
-    result="fail"
-fi
-echo "iperf3_server_started ${result}" | tee -a "${RESULT_FILE}"
-
-cmd="lava-send"
-if which "${cmd}"; then
-    ${cmd} server-ready ipaddr="${ipaddr}"
-fi
 
 ################################################################################
 # Wait for client requests
@@ -102,6 +86,31 @@ while [ true ]; do
 		"finished")
 			echo "Client has signalled we are finished. Exiting."
 			exit 0
+			;;
+		"start-iperf3-server")
+			if [ "${IPERF3_SERVER_RUNNING} != "pass" ]; then
+				################################################################################
+				# Start the server
+				# report pass/fail as a test result
+				# send the server's IP address to the client(s)
+				################################################################################
+				echo "Client has asked us to start the iperf3 server"
+				cmd="iperf3 -s -D"
+				${cmd}
+				if pgrep -f "${cmd}" > /dev/null; then
+					IPERF3_SERVER_RUNNING="pass"
+				else
+					IPERF3_SERVER_RUNNING="fail"
+				fi
+				echo "iperf3_server_started ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+			fi
+
+			if [ "${IPERF3_SERVER_RUNNING} = "pass" ]; then
+				cmd="lava-send"
+				if which "${cmd}"; then
+					${cmd} server-ready ipaddr="${ipaddr}"
+				fi
+			fi
 			;;
 		"ping")
 			echo "Client has asked us to ping address ${ipaddr}"

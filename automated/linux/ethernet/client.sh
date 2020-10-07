@@ -4,7 +4,7 @@
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
-LOGFILE="${OUTPUT}/iperf.txt"
+LOGFILE="${OUTPUT}/iperf3.txt"
 # If SERVER is blank, we are the server, otherwise
 # If we are the client, we set SERVER to the ipaddr of the server
 SERVER=""
@@ -45,7 +45,7 @@ create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"
 
 if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
-    info_msg "iperf installation skipped"
+    info_msg "iperf3 installation skipped"
 else
     dist_name
     # shellcheck disable=SC2154
@@ -105,18 +105,18 @@ else
 		echo "Using SERVER=${SERVER}"
     fi
     # We are running in client mode
-    # Run iperf test with unbuffered output mode.
+    # Run iperf3 test with unbuffered output mode.
     stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
         | tee "${LOGFILE}"
 
     # Parse logfile.
     if [ "${THREADS}" -eq 1 ]; then
         grep -E "(sender|receiver)" "${LOGFILE}" \
-            | awk '{printf("iperf_%s pass %s %s\n", $NF,$7,$8)}' \
+            | awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
             | tee -a "${RESULT_FILE}"
     elif [ "${THREADS}" -gt 1 ]; then
         grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-            | awk '{printf("iperf_%s pass %s %s\n", $NF,$6,$7)}' \
+            | awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
             | tee -a "${RESULT_FILE}"
     fi
 

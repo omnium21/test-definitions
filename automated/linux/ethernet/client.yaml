@@ -1,7 +1,7 @@
 metadata:
     name: ethernet-client
     format: "Lava-Test Test Definition 1.0"
-    description: "iperf is a tool for active measurements of the maximum
+    description: "iperf3 is a tool for active measurements of the maximum
                   achievable bandwidth on IP networks."
     maintainer:
         - milosz.wasilewski@linaro.org

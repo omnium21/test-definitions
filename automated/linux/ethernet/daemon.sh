@@ -4,7 +4,7 @@
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
-LOGFILE="${OUTPUT}/iperf.txt"
+LOGFILE="${OUTPUT}/iperf3.txt"
 IPERF3_SERVER_RUNNING="no"
 
 # If SERVER is blank, we are the server, otherwise
@@ -34,7 +34,7 @@ create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"
 
 if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
-    info_msg "iperf installation skipped"
+    info_msg "iperf3 installation skipped"
 else
     dist_name
     # shellcheck disable=SC2154

@@ -4,7 +4,7 @@
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
-LOGFILE="${OUTPUT}/iperf.txt"
+LOGFILE="${OUTPUT}/iperf3.txt"
 # If SERVER is blank, we are the server, otherwise
 # If we are the client, we set SERVER to the ipaddr of the server
 SERVER=""

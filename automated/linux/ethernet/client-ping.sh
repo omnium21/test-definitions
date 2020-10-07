@@ -53,7 +53,7 @@ if which "${cmd}"; then
     fi
 	cmd="lava-send"
 	if which "${cmd}"; then
-		${cmd} ping ipaddr="${ipaddr}"
+		${cmd} client-request request="ping" ipaddr="${ipaddr}"
 	fi
 
 	# TODO - wait for a response

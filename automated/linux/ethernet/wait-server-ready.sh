@@ -77,6 +77,7 @@ if [ -z "${SERVER}" ]; then
 	echo "ERROR: no server specified"
 	exit 1
 else
+	echo "server-ready: ${SERVER}"
 	echo "${SERVER}" > /tmp/server.ipaddr
 
 	# TODO - should probably send a lava test result

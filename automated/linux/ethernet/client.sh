@@ -97,10 +97,12 @@ if [ "${SERVER}" = "" ]; then
         ${cmd} client-done
     fi
 else
-	SERVER="${cat /etc/server.ipaddr}"
+	SERVER="$(cat /tmp/server.ipaddr)"
     if [ -z "${SERVER}" ]; then
         echo "ERROR: no server specified"
         exit 1
+	else
+		echo "Using SERVER=${SERVER}"
     fi
     # We are running in client mode
     # Run iperf test with unbuffered output mode.

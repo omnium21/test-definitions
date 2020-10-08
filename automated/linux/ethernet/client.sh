@@ -19,13 +19,15 @@ REVERSE=""
 AFFINITY=""
 
 usage() {
-    echo "Usage: $0 [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
+    c) SERVER="${OPTARG}" ;;
+    e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
     R) REVERSE="-R" ;;

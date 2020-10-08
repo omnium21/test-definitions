@@ -106,8 +106,9 @@ while [ true ]; do
 			fi
 			;;
 		"ping")
-			echo "Client has asked us to ping address ${ipaddr}"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+			echo "Client has asked us to ping address ${ipaddr}"
+			date
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
 			cmd="lava-send"

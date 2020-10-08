@@ -45,6 +45,7 @@ ipaddr=$(lava-echo-ipv4 "${ETH}" | tr -d '\0')
 if [ -z "${ipaddr}" ]; then
 	lava-test-raise "${ETH} not found"
 fi
+date
 lava-send client-request request="ping" ipaddr="${ipaddr}"
 
 # wait for a response
@@ -54,7 +55,7 @@ lava-wait client-ping-done
 pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 echo "The daemon says that pinging the client returned ${pingresult}"
 echo "We are expecting ping to ${EXPECTED_RESULT}"
-if [ "${pingresult}" = "${EXPECTED_RESULT}" == "pass" ]; then
+if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
 	actual_result="pass"
 else
 	actual_result="fail"

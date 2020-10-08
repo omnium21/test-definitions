@@ -108,8 +108,8 @@ while [ true ]; do
 		"ping")
 			echo "Client has asked us to ping address ${ipaddr}"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-			pingresult=0
-			ping -c 5 "${ipaddr}" || pingresult="$?"
+			pingresult=pass
+			ping -c 5 "${ipaddr}" || pingresult="fail"
 			cmd="lava-send"
 			if which "${cmd}"; then
 				${cmd} client-ping-done pingresult="${pingresult}"

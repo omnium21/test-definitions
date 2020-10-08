@@ -41,10 +41,21 @@ command_exists "lava-wait"
 command_exists "ping"
 
 # Run local iperf3 server as a daemon when testing localhost.
-ipaddr=$(lava-echo-ipv4 "${ETH}" | tr -d '\0')
-if [ -z "${ipaddr}" ]; then
-	lava-test-raise "${ETH} not found"
-fi
+#ipaddr=$(lava-echo-ipv4 "${ETH}" | tr -d '\0')
+#if [ -z "${ipaddr}" ]; then
+#	lava-test-raise "${ETH} not found"
+#fi
+
+get_ipaddr() {
+	local ipaddr
+	local interface
+
+	interface="${1}"
+	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
+	echo "${ipaddr}"
+}
+
+ipaddr=$(get_ipaddr $ETH)
 date
 lava-send client-request request="ping" ipaddr="${ipaddr}"
 

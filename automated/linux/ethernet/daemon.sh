@@ -109,9 +109,10 @@ while [ true ]; do
 			echo "Client has asked us to ping address ${ipaddr}"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			ping -c 5 "${ipaddr}"
+			result="$?"
 			cmd="lava-send"
 			if which "${cmd}"; then
-				${cmd} client-ping-done
+				${cmd} client-ping-done result="${result}"
 			fi
 			;;
 		*) echo "Unknown client request: ${request}" ;;

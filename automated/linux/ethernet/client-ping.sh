@@ -35,6 +35,13 @@ if which "${cmd}"; then
 	fi
 
 	# TODO - report pass/fail depending on whether we expected ping to succeed or not
+	result=$(grep "result" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${result}"
+	if [ "${result}" = 0 ]; then
+		echo "ping: pass"
+	else
+		echo "ping: fail"
+	fi
 else
     echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
 fi

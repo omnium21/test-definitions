@@ -4,9 +4,17 @@
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
+ETH="eth0"
 
 create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"
+
+while getopts "A:c:e:t:p:v:s:Rh" o; do
+  case "$o" in
+    e) ETH="${OPTARG}" ;;
+    h|*) usage ;;
+  esac
+done
 
 # Run local iperf3 server as a daemon when testing localhost.
 cmd="lava-echo-ipv4"

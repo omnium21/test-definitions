@@ -81,7 +81,7 @@ while [ true ]; do
 			exit 0
 			;;
 		"start-iperf3-server")
-			if [ "${IPERF3_SERVER_RUNNING} != "pass" ]; then
+			if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
 				################################################################################
 				# Start the server
 				# report pass/fail as a test result
@@ -98,7 +98,7 @@ while [ true ]; do
 				echo "iperf3_server_started ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
 			fi
 
-			if [ "${IPERF3_SERVER_RUNNING} = "pass" ]; then
+			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
 				cmd="lava-send"
 				if which "${cmd}"; then
 					${cmd} server-ready ipaddr="${ipaddr}"

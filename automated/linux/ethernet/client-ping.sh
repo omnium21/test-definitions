@@ -51,12 +51,12 @@ lava-send client-request request="ping" ipaddr="${ipaddr}"
 lava-wait client-ping-done
 
 # report pass/fail depending on whether we expected ping to succeed or not
-result=$(grep "result" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-echo "The daemon says that pinging the client returned ${result}"
+pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+echo "The daemon says that pinging the client returned ${pingresult}"
 echo "We are expecting ping to ${EXPECTED_RESULT}"
-if [ "${result}" = "0" ] && [ "${EXPECTED_RESULT}" == "pass" ]; then
+if [ "${pingresult}" = "0" ] && [ "${EXPECTED_RESULT}" == "pass" ]; then
 	actual_result="pass"
-elif [ "${result}" != "0" ] && [ "${EXPECTED_RESULT}" == "fail" ]; then
+elif [ "${pingresult}" != "0" ] && [ "${EXPECTED_RESULT}" == "fail" ]; then
 	actual_result="pass"
 else
 	actual_result="fail"

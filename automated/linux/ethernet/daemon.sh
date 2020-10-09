@@ -87,8 +87,9 @@ while [ true ]; do
 
 	# read the client request
 	request=$(grep "request" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 
-	echo "client-request \"${request}\"received"
+	echo "client-request \"${request}\" with stamp ${datestr} received"
 
 	# perform the client request
 	case "${request}" in
@@ -122,7 +123,7 @@ while [ true ]; do
 			fi
 
 			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-				lava-send server-ready ipaddr="${ipaddr}"
+				lava-send server-ready ipaddr="${ipaddr}" datestr="$(date +%s)"
 			fi
 			;;
 		"ping")
@@ -134,10 +135,10 @@ while [ true ]; do
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"
-			echo -n "Our date is " ; date --rfc-3339=ns
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
-			lava-send client-ping-done pingresult="${pingresult}"
+			datestr=$(date +%s)
+			lava-send client-ping-done pingresult="${pingresult}" datestr="$(date +%s)"
 			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac

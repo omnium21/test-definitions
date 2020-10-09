@@ -63,16 +63,15 @@ ipaddr=$(get_ipaddr $ETH)
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" != "" ]; then
-	echo -n "Our date is " ; date --rfc-3339=ns
-	datestr=$(date +%s)
-	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="${datestr}"
+	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="$(date +%s)"
 
 	# wait for a response
 	lava-wait client-ping-done
 
 	# report pass/fail depending on whether we expected ping to succeed or not
 	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-	echo "The daemon says that pinging the client returned ${pingresult}"
+	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult} stamp ${datestr}"
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
 		actual_result="pass"

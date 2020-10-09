@@ -81,18 +81,12 @@ eth=eth1
 echo "ipaddr for $eth is $(get_ipaddr $eth)"
 date
 
-cmd="lava-send"
-if which "${cmd}"; then
-	${cmd} client-request request="start-iperf3-server"
-fi
+lava-send client-request request="start-iperf3-server" datestr="$(date +%s)"
 
-cmd="lava-wait"
-if which "${cmd}"; then
-	${cmd} server-ready
-	SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-else
-	echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
-fi
+lava-wait server-ready
+SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+rm -f /tmp/lava_multi_node_cache.txt
 
 if [ -z "${SERVER}" ]; then
 	echo "ERROR: no server specified"

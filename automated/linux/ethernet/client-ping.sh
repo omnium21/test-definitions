@@ -69,16 +69,25 @@ fi
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" != "" ]; then
-	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="$(date +%s)"
+	tx_datestr="$(date +%s)"
+	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="${tx_datestr}"
 
 	# wait for a response
 	lava-wait client-ping-done
 
 	# report pass/fail depending on whether we expected ping to succeed or not
 	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-	echo "The daemon says that pinging the client returned ${pingresult} stamp ${datestr}"
+	rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_datestr}"
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+	if [ "${tx_datestr}" = "${rx_datestr}" ]; then
+		echo "tx_datestr ${tx_datestr} match rx_datestr ${rx_datestr}"
+	else
+		echo "WARNING: tx_datestr ${tx_datestr} DOES NOT match rx_datestr ${rx_datestr}"
+		# TODO - what do we do about this??
+	fi
+ 
 	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
 		actual_result="pass"
 	else

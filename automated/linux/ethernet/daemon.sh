@@ -145,7 +145,10 @@ while [ true ]; do
 			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
-			datestr=$(date +%s)
+
+			# Don't set datestr, reply with the same so the sender can match up the messages
+			# datestr=$(date +%s)
+
 			lava-send client-ping-done pingresult="${pingresult}" datestr="$(date +%s)"
 			;;
 		*) echo "Unknown client request: ${request}" ;;

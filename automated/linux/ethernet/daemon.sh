@@ -67,7 +67,7 @@ fi
 			echo "################################################################################"
 			echo "/tmp/lava_multi_node_cache.txt"
 			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt
+			cat /tmp/lava_multi_node_cache.txt || true
 			echo "################################################################################"
 
 
@@ -93,7 +93,7 @@ while [ true ]; do
 			echo "################################################################################"
 			echo "/tmp/lava_multi_node_cache.txt"
 			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt
+			cat /tmp/lava_multi_node_cache.txt || true
 			echo "################################################################################"
 			if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
 				################################################################################
@@ -125,7 +125,7 @@ while [ true ]; do
 			echo "################################################################################"
 			echo "/tmp/lava_multi_node_cache.txt"
 			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt
+			cat /tmp/lava_multi_node_cache.txt || true
 			echo "################################################################################"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')

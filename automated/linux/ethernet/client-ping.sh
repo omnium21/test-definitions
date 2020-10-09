@@ -55,20 +55,30 @@ get_ipaddr() {
 	echo "${ipaddr}"
 }
 
+echo "################################################################################"
+ip addr show
+echo "################################################################################"
+
 ipaddr=$(get_ipaddr $ETH)
-date
-lava-send client-request request="ping" ipaddr="${ipaddr}"
 
-# wait for a response
-lava-wait client-ping-done
+if [ "${ipaddr}" != "" ]; then
+	echo -n "Our date is " ; date --rfc-3339=ns
+	datestr=$(date +%s)
+	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="${datestr}"
 
-# report pass/fail depending on whether we expected ping to succeed or not
-pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-echo "The daemon says that pinging the client returned ${pingresult}"
-echo "We are expecting ping to ${EXPECTED_RESULT}"
-if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-	actual_result="pass"
+	# wait for a response
+	lava-wait client-ping-done
+
+	# report pass/fail depending on whether we expected ping to succeed or not
+	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult}"
+	echo "We are expecting ping to ${EXPECTED_RESULT}"
+	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+		actual_result="pass"
+	else
+		actual_result="fail"
+	fi
+	echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"
 else
-	actual_result="fail"
+	echo ERROR: ipaddr is invalid"
 fi
-echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"

@@ -107,8 +107,9 @@ while [ true ]; do
 			;;
 		"ping")
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-			echo "Client has asked us to ping address ${ipaddr}"
-			date
+			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"
+			echo -n "Our date is " ; date --rfc-3339=ns
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
 			cmd="lava-send"

@@ -89,7 +89,7 @@ while [ true ]; do
 	request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-	if [ "${previous_datestr}" -gt "${datestr}" ]; then
+	if [ "${datestr}" = "${previous_datestr}" ]; then
 		# ignore duplicate messages
 		continue
 	fi

@@ -77,7 +77,7 @@ if [ "${ipaddr}" != "" ]; then
 		lava-wait client-ping-done
 		rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 awk -F"=" '{print $NF}')
 
-		if [ "${tx_datestr}" -gt "${rx_datestr}" ]; then
+		if [ "${tx_datestr}" != "${rx_datestr}" ]; then
 			echo "WARNING: skipping old message ${rx_datestr} when waiting for ${tx_datastr}"
 			continue
 		fi

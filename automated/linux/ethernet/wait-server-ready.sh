@@ -87,8 +87,8 @@ cat "${ipaddrstash}" || true
 lava-send client-request request="start-iperf3-server" datestr="$(date +%s)"
 
 lava-wait server-ready
-SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ -z "${SERVER}" ]; then

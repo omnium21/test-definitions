@@ -86,10 +86,10 @@ while [ true ]; do
 	lava-wait client-request
 
 	# read the client request
-	request=$(grep "request" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-	if [ "${datestr}" = "${previous_datestr}" ]; then
+	if [ "${previous_datestr}" -gt "${datestr}" ]; then
 		# ignore duplicate messages
 		continue
 	fi
@@ -140,8 +140,8 @@ while [ true ]; do
 			echo "################################################################################"
 			cat /tmp/lava_multi_node_cache.txt || true
 			echo "################################################################################"
-			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"

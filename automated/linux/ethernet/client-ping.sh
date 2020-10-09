@@ -72,12 +72,19 @@ if [ "${ipaddr}" != "" ]; then
 	tx_datestr="$(date +%s)"
 	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="${tx_datestr}"
 
-	# wait for a response
-	lava-wait client-ping-done
+	# wait for a new response
+	while [ true ]; do
+		lava-wait client-ping-done
+		rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 awk -F"=" '{print $NF}')
+
+		if [ "${tx_datestr}" -gt "${rx_datestr}" ]; then
+			echo "WARNING: skipping old message ${rx_datestr} when waiting for ${tx_datastr}"
+			continue
+		fi
+	done
 
 	# report pass/fail depending on whether we expected ping to succeed or not
-	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
-	rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 	echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_datestr}"
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 

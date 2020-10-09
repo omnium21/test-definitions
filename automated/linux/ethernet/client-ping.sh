@@ -78,7 +78,7 @@ if [ "${ipaddr}" != "" ]; then
 		rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
 		if [ "${tx_datestr}" != "${rx_datestr}" ]; then
-			echo "WARNING: skipping old message ${rx_datestr} when waiting for ${tx_datastr}"
+			echo "WARNING: skipping old message ${rx_datestr} when waiting for ${tx_datestr}"
 			continue
 		fi
 	done

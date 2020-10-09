@@ -47,17 +47,26 @@ else
     esac
 fi
 
-# Run local iperf3 server as a daemon when testing localhost.
-cmd="lava-echo-ipv4"
-if which "${cmd}"; then
-    ipaddr=$(${cmd} "${ETH}" | tr -d '\0')
-    if [ -z "${ipaddr}" ]; then
-        lava-test-raise "${ETH} not found"
-    fi
-else
-    echo "WARNING: command ${cmd} not found. We are not running in the LAVA environment."
-fi
+command_exists(){
+	local cmd
 
+	cmd="$1"
+
+	if ! which "${cmd}"; then
+		echo "ERROR: ${cmd} not available"
+		exit 1
+	fi
+}
+command_exists "lava-echo-ipv4"
+command_exists "lava-send"
+command_exists "lava-wait"
+command_exists "ping"
+
+# Run local iperf3 server as a daemon when testing localhost.
+ipaddr=$(lava-echo-ipv4 "${ETH}" | tr -d '\0')
+if [ -z "${ipaddr}" ]; then
+	lava-test-raise "${ETH} not found"
+fi
 
 ################################################################################
 # Wait for client requests
@@ -68,15 +77,13 @@ fi
 			echo "/tmp/lava_multi_node_cache.txt"
 			echo "################################################################################"
 			cat /tmp/lava_multi_node_cache.txt || true
+			rm -f /tmp/lava_multi_node_cache.txt
 			echo "################################################################################"
 
 
 while [ true ]; do
 	# Wait for the client to request 
-	cmd="lava-wait"
-	if which "${cmd}"; then
-		${cmd} client-request
-	fi
+	lava-wait client-request
 
 	# read the client request
 	request=$(grep "request" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
@@ -115,10 +122,7 @@ while [ true ]; do
 			fi
 
 			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-				cmd="lava-send"
-				if which "${cmd}"; then
-					${cmd} server-ready ipaddr="${ipaddr}"
-				fi
+				lava-send server-ready ipaddr="${ipaddr}"
 			fi
 			;;
 		"ping")
@@ -133,13 +137,11 @@ while [ true ]; do
 			echo -n "Our date is " ; date --rfc-3339=ns
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
-			cmd="lava-send"
-			if which "${cmd}"; then
-				${cmd} client-ping-done pingresult="${pingresult}"
-			fi
+			lava-send client-ping-done pingresult="${pingresult}"
 			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac
+	rm -f /tmp/lava_multi_node_cache.txt
 done
 
 ################################################################################

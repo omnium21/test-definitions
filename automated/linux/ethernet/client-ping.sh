@@ -60,6 +60,7 @@ ip addr show
 echo "################################################################################"
 
 ipaddr=$(get_ipaddr $ETH)
+rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" != "" ]; then
 	echo -n "Our date is " ; date --rfc-3339=ns
@@ -79,6 +80,7 @@ if [ "${ipaddr}" != "" ]; then
 		actual_result="fail"
 	fi
 	echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"
+	rm -f /tmp/lava_multi_node_cache.txt
 else
 	echo "ERROR: ipaddr is invalid"
 fi

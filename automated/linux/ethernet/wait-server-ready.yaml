@@ -26,8 +26,11 @@ metadata:
         - soca9
         - rzn1d
 
+params:
+    ETH: eth0
+
 run:
     steps:
         - cd ./automated/linux/ethernet/
-        - ./wait-server-ready.sh
+        - ./wait-server-ready.sh -e "${ETH}"
         - ../../utils/send-to-lava.sh ./output/result.txt

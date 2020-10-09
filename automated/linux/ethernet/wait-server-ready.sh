@@ -77,9 +77,12 @@ get_ipaddr() {
 echo "################################################################################"
 ip addr show
 echo "################################################################################"
-eth=eth1
-echo "ipaddr for $eth is $(get_ipaddr $eth)"
 date
+ipaddr="$(get_ipaddr ${ETH})"
+echo "ipaddr for $eth is ${ipaddr}"
+ipaddrstash="/tmp/ipaddr-${ETH}.txt"
+echo "${ipaddr}" > "${ipaddrstash}"
+cat "${ipaddrstash}" || true
 
 lava-send client-request request="start-iperf3-server" datestr="$(date +%s)"
 

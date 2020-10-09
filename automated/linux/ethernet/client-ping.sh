@@ -59,7 +59,13 @@ echo "##########################################################################
 ip addr show
 echo "################################################################################"
 
-ipaddr=$(get_ipaddr $ETH)
+# Try to get the stashed IP address first, otherwise, try to work it out
+ipaddrstash="/tmp/ipaddr-${ETH}.txt"
+if [ -e "${ipaddrstash}" ]; then
+	ipaddr="$(cat ${ipaddrstash})"
+else
+	ipaddr=$(get_ipaddr $ETH)
+fi
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" != "" ]; then

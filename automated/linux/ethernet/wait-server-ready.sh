@@ -65,6 +65,19 @@ else
     esac
 fi
 
+get_ipaddr() {
+	local ipaddr
+	local interface
+
+	interface="${1}"
+	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
+	echo "${ipaddr}"
+}
+
+ipaddr=$(get_ipaddr $ETH)
+echo "Our ipaddr=${ipaddr}"
+date
+
 cmd="lava-send"
 if which "${cmd}"; then
 	${cmd} client-request request="start-iperf3-server"

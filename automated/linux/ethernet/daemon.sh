@@ -62,6 +62,15 @@ fi
 ################################################################################
 # Wait for client requests
 ################################################################################
+
+# TODO -delete this debug
+			echo "################################################################################"
+			echo "/tmp/lava_multi_node_cache.txt"
+			echo "################################################################################"
+			cat /tmp/lava_multi_node_cache.txt
+			echo "################################################################################"
+
+
 while [ true ]; do
 	# Wait for the client to request 
 	cmd="lava-wait"
@@ -81,6 +90,11 @@ while [ true ]; do
 			exit 0
 			;;
 		"start-iperf3-server")
+			echo "################################################################################"
+			echo "/tmp/lava_multi_node_cache.txt"
+			echo "################################################################################"
+			cat /tmp/lava_multi_node_cache.txt
+			echo "################################################################################"
 			if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
 				################################################################################
 				# Start the server
@@ -96,6 +110,8 @@ while [ true ]; do
 					IPERF3_SERVER_RUNNING="fail"
 				fi
 				echo "iperf3_server_started ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+			else
+				echo "iperf3 server is already running"
 			fi
 
 			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
@@ -106,6 +122,11 @@ while [ true ]; do
 			fi
 			;;
 		"ping")
+			echo "################################################################################"
+			echo "/tmp/lava_multi_node_cache.txt"
+			echo "################################################################################"
+			cat /tmp/lava_multi_node_cache.txt
+			echo "################################################################################"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"

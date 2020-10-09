@@ -80,5 +80,5 @@ if [ "${ipaddr}" != "" ]; then
 	fi
 	echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"
 else
-	echo ERROR: ipaddr is invalid"
+	echo "ERROR: ipaddr is invalid"
 fi

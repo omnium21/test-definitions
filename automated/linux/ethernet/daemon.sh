@@ -80,7 +80,7 @@ fi
 			rm -f /tmp/lava_multi_node_cache.txt
 			echo "################################################################################"
 
-
+previous_datestr=""
 while [ true ]; do
 	# Wait for the client to request 
 	lava-wait client-request
@@ -88,6 +88,14 @@ while [ true ]; do
 	# read the client request
 	request=$(grep "request" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
 	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | awk -F"=" '{print $NF}')
+
+	if [ "${datestr}" = "${previous_datestr}" ]; then
+		# ignore duplicate messages
+		continue
+	fi
+
+	# log this message so we don't handle it again
+	previous_datestr="${datestr}"
 
 	echo "client-request \"${request}\" with stamp ${datestr} received"
 

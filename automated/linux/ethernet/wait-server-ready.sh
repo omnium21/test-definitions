@@ -74,8 +74,11 @@ get_ipaddr() {
 	echo "${ipaddr}"
 }
 
-ipaddr=$(get_ipaddr $ETH)
-echo "Our ipaddr=${ipaddr}"
+echo "################################################################################"
+ip addr show
+echo "################################################################################"
+eth=eth1
+echo "ipaddr for $eth is $(get_ipaddr $eth)"
 date
 
 cmd="lava-send"

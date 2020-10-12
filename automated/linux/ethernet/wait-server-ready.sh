@@ -74,6 +74,35 @@ get_ipaddr() {
 	echo "${ipaddr}"
 }
 
+wait_for_msg(){
+	local message="${1}"
+	local msgseq="${2}"
+
+	while [ true ]; do
+		# Wait for the daemon to respond
+		lava-wait client-ping-done
+
+		dump_msg_cache
+
+		# report pass/fail depending on whether we expected ping to succeed or not
+		rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+		if [ "${rx_msgseq}" -lt "${msgseq}" ]; then
+			echo "WARNING: Ignoring duplicate message (${rx_msgseq} < ${msgseq})"
+			rm -f /tmp/lava_multi_node_cache.txt
+			continue
+		elif [ "${rx_msgseq}" -gt "${msgseq}" ]; then
+			echo "ERROR: We missed the reply to our message (rx_msgseq=${rx_msgseq} > msgseq=${msgseq})"
+			# TODO - report lava test fail
+			exit 1
+		else
+			echo "ACK: we found the droid we were looking for..."
+			break
+		fi
+	done
+}
+
+
 echo "################################################################################"
 ip addr show
 echo "################################################################################"
@@ -86,18 +115,11 @@ cat "${ipaddrstash}" || true
 
 tx_msgseq="$(date +%s)"
 lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+wait_for_msg server-ready "${tx_msgseq}"
 
-lava-wait server-ready
 SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 rm -f /tmp/lava_multi_node_cache.txt
-
-if [ "${tx_msgseq}" = "${rx_msgseq}" ]; then
-	echo "tx_msgseq ${tx_msgseq} match rx_msgseq ${rx_msgseq}"
-else
-	echo "WARNING: tx_msgseq ${tx_msgseq} DOES NOT match rx_msgseq ${rx_msgseq}"
-	# TODO - what do we do about this??
-fi
 
 if [ -z "${SERVER}" ]; then
 	echo "ERROR: no server specified"

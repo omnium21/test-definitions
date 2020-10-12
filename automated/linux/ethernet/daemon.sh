@@ -72,13 +72,17 @@ fi
 # Wait for client requests
 ################################################################################
 
-# TODO -delete this debug
-			echo "################################################################################"
-			echo "/tmp/lava_multi_node_cache.txt"
-			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt || true
-			rm -f /tmp/lava_multi_node_cache.txt
-			echo "################################################################################"
+dump_msg_cache(){
+	# TODO -delete this debug
+	echo "################################################################################"
+	echo "/tmp/lava_multi_node_cache.txt"
+	echo "################################################################################"
+	cat /tmp/lava_multi_node_cache.txt || true
+	echo "################################################################################"
+}
+
+dump_msg_cache
+rm -f /tmp/lava_multi_node_cache.txt
 
 previous_msgseq=""
 while [ true ]; do
@@ -90,7 +94,7 @@ while [ true ]; do
 	msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
 	if [ "${msgseq}" = "${previous_msgseq}" ]; then
-		# ignore duplicate messages
+		echo "Ignoring duplicate message ${msgseq}"
 		continue
 	fi
 
@@ -106,11 +110,7 @@ while [ true ]; do
 			exit 0
 			;;
 		"start-iperf3-server")
-			echo "################################################################################"
-			echo "/tmp/lava_multi_node_cache.txt"
-			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt || true
-			echo "################################################################################"
+			dump_msg_cache
 			if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
 				################################################################################
 				# Start the server
@@ -135,11 +135,8 @@ while [ true ]; do
 			fi
 			;;
 		"ping")
-			echo "################################################################################"
-			echo "/tmp/lava_multi_node_cache.txt"
-			echo "################################################################################"
-			cat /tmp/lava_multi_node_cache.txt || true
-			echo "################################################################################"
+			dump_msg_cache
+
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 			msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 			echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"

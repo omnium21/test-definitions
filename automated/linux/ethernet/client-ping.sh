@@ -65,34 +65,6 @@ dump_msg_cache(){
 }
 
 
-wait_for_msg(){
-	local message="${1}"
-	local msgseq="${2}"
-
-	while [ true ]; do
-		# Wait for the daemon to respond
-		lava-wait client-ping-done
-
-		dump_msg_cache
-
-		# report pass/fail depending on whether we expected ping to succeed or not
-		rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-		if [ "${rx_msgseq}" -lt "${msgseq}" ]; then
-			echo "WARNING: Ignoring duplicate message (${rx_msgseq} < ${msgseq})"
-			rm -f /tmp/lava_multi_node_cache.txt
-			continue
-		elif [ "${rx_msgseq}" -gt "${msgseq}" ]; then
-			echo "ERROR: We missed the reply to our message (rx_msgseq=${rx_msgseq} > msgseq=${msgseq})"
-			# TODO - report lava test fail
-			exit 1
-		else
-			echo "ACK: we found the droid we were looking for..."
-			break
-		fi
-	done
-}
-
 
 echo "################################################################################"
 ip addr show
@@ -117,9 +89,30 @@ fi
 
 tx_msgseq="$(date +%s)"
 lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-wait_for_msg client-ping-done "${tx_msgseq}"
 
-rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+while [ true ]; do
+	# Wait for the daemon to respond
+	lava-wait client-ping-done
+
+	dump_msg_cache
+
+	# report pass/fail depending on whether we expected ping to succeed or not
+	rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+	if [ "${rx_msgseq}" -lt "${tx_msgseq}" ]; then
+		echo "WARNING: Ignoring duplicate message (${rx_msgseq} < ${tx_msgseq})"
+		rm -f /tmp/lava_multi_node_cache.txt
+		continue
+	elif [ "${rx_msgseq}" -gt "${tx_msgseq}" ]; then
+		echo "ERROR: We missed the reply to our message (rx_msgseq=${rx_msgseq} > tx_msgseq=${tx_msgseq})"
+		# TODO - report lava test fail
+		exit 1
+	else
+		echo "ACK: we found the droid we were looking for..."
+		break
+	fi
+done
+
 pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_msgseq}"
 echo "We are expecting ping to ${EXPECTED_RESULT}"

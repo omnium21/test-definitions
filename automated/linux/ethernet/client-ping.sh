@@ -69,22 +69,22 @@ fi
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" != "" ]; then
-	tx_datestr="$(date +%s)"
-	lava-send client-request request="ping" ipaddr="${ipaddr}" datestr="${tx_datestr}"
+	tx_msgseq="$(date +%s)"
+	lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
 
     # wait for a response
     lava-wait client-ping-done
 
 	# report pass/fail depending on whether we expected ping to succeed or not
 	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-	rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-	echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_datestr}"
+	rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_msgseq}"
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 
-	if [ "${tx_datestr}" = "${rx_datestr}" ]; then
-		echo "tx_datestr ${tx_datestr} matches rx_datestr ${rx_datestr}"
+	if [ "${tx_msgseq}" = "${rx_msgseq}" ]; then
+		echo "tx_msgseq ${tx_msgseq} matches rx_msgseq ${rx_msgseq}"
 	else
-		echo "WARNING: tx_datestr ${tx_datestr} DOES NOT match rx_datestr ${rx_datestr}"
+		echo "WARNING: tx_msgseq ${tx_msgseq} DOES NOT match rx_msgseq ${rx_msgseq}"
 		# TODO - what do we do about this??
 	fi
  

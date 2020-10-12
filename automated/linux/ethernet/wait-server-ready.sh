@@ -84,18 +84,18 @@ ipaddrstash="/tmp/ipaddr-${ETH}.txt"
 echo "${ipaddr}" > "${ipaddrstash}"
 cat "${ipaddrstash}" || true
 
-tx_datestr="$(date +%s)"
-lava-send client-request request="start-iperf3-server" datestr="${tx_datestr}"
+tx_msgseq="$(date +%s)"
+lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
 
 lava-wait server-ready
 SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 rm -f /tmp/lava_multi_node_cache.txt
 
-if [ "${tx_datestr}" = "${rx_datestr}" ]; then
-	echo "tx_datestr ${tx_datestr} match rx_datestr ${rx_datestr}"
+if [ "${tx_msgseq}" = "${rx_msgseq}" ]; then
+	echo "tx_msgseq ${tx_msgseq} match rx_msgseq ${rx_msgseq}"
 else
-	echo "WARNING: tx_datestr ${tx_datestr} DOES NOT match rx_datestr ${rx_datestr}"
+	echo "WARNING: tx_msgseq ${tx_msgseq} DOES NOT match rx_msgseq ${rx_msgseq}"
 	# TODO - what do we do about this??
 fi
 

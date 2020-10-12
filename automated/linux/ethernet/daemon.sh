@@ -80,24 +80,24 @@ fi
 			rm -f /tmp/lava_multi_node_cache.txt
 			echo "################################################################################"
 
-previous_datestr=""
+previous_msgseq=""
 while [ true ]; do
 	# Wait for the client to request 
 	lava-wait client-request
 
 	# read the client request
 	request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-	datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-	if [ "${datestr}" = "${previous_datestr}" ]; then
+	if [ "${msgseq}" = "${previous_msgseq}" ]; then
 		# ignore duplicate messages
 		continue
 	fi
 
 	# log this message so we don't handle it again
-	previous_datestr="${datestr}"
+	previous_msgseq="${msgseq}"
 
-	echo "client-request \"${request}\" with stamp ${datestr} received"
+	echo "client-request \"${request}\" with stamp ${msgseq} received"
 
 	# perform the client request
 	case "${request}" in
@@ -131,7 +131,7 @@ while [ true ]; do
 			fi
 
 			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-				lava-send server-ready ipaddr="${ipaddr}" datestr="${datestr}"
+				lava-send server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
 			fi
 			;;
 		"ping")
@@ -141,15 +141,15 @@ while [ true ]; do
 			cat /tmp/lava_multi_node_cache.txt || true
 			echo "################################################################################"
 			ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-			datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-			echo "Client has asked us to ping address ${ipaddr} with datestr=${datestr}"
+			msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
 
-			# Don't set datestr, reply with the same so the sender can match up the messages
-			# datestr=$(date +%s)
+			# Don't set msgseq, reply with the same so the sender can match up the messages
+			# msgseq=$(date +%s)
 
-			lava-send client-ping-done pingresult="${pingresult}" datestr="${datestr}"
+			lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
 			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac

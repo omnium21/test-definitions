@@ -131,7 +131,7 @@ while [ true ]; do
 			fi
 
 			if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-				lava-send server-ready ipaddr="${ipaddr}" datestr="$(date +%s)"
+				lava-send server-ready ipaddr="${ipaddr}" datestr="${datestr}"
 			fi
 			;;
 		"ping")

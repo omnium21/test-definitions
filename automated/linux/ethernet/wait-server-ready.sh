@@ -84,12 +84,20 @@ ipaddrstash="/tmp/ipaddr-${ETH}.txt"
 echo "${ipaddr}" > "${ipaddrstash}"
 cat "${ipaddrstash}" || true
 
-lava-send client-request request="start-iperf3-server" datestr="$(date +%s)"
+tx_datestr="$(date +%s)"
+lava-send client-request request="start-iperf3-server" datestr="${tx_datestr}"
 
 lava-wait server-ready
 SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 rm -f /tmp/lava_multi_node_cache.txt
+
+if [ "${tx_datestr}" = "${rx_datestr}" ]; then
+	echo "tx_datestr ${tx_datestr} match rx_datestr ${rx_datestr}"
+else
+	echo "WARNING: tx_datestr ${tx_datestr} DOES NOT match rx_datestr ${rx_datestr}"
+	# TODO - what do we do about this??
+fi
 
 if [ -z "${SERVER}" ]; then
 	echo "ERROR: no server specified"

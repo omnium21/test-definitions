@@ -77,6 +77,7 @@ if [ "${ipaddr}" != "" ]; then
 
 	# report pass/fail depending on whether we expected ping to succeed or not
 	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	rx_datestr=$(grep "datestr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 	echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_datestr}"
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 

@@ -82,7 +82,7 @@ if [ "${ipaddr}" != "" ]; then
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 
 	if [ "${tx_datestr}" = "${rx_datestr}" ]; then
-		echo "tx_datestr ${tx_datestr} match rx_datestr ${rx_datestr}"
+		echo "tx_datestr ${tx_datestr} matches rx_datestr ${rx_datestr}"
 	else
 		echo "WARNING: tx_datestr ${tx_datestr} DOES NOT match rx_datestr ${rx_datestr}"
 		# TODO - what do we do about this??

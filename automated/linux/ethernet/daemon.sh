@@ -149,7 +149,7 @@ while [ true ]; do
 			# Don't set datestr, reply with the same so the sender can match up the messages
 			# datestr=$(date +%s)
 
-			lava-send client-ping-done pingresult="${pingresult}" datestr="$(date +%s)"
+			lava-send client-ping-done pingresult="${pingresult}" datestr="${datestr}"
 			;;
 		*) echo "Unknown client request: ${request}" ;;
 	esac

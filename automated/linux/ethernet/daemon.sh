@@ -86,7 +86,7 @@ rm -f /tmp/lava_multi_node_cache.txt
 
 previous_msgseq=""
 while [ true ]; do
-	# Wait for the client to request 
+	# Wait for the client to make a request
 	lava-wait client-request
 
 	# read the client request

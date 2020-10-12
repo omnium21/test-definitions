@@ -91,7 +91,7 @@ tx_msgseq="$(date +%s)"
 lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
 
 while [ true ]; do
-	# Wait for the client to request 
+	# Wait for the daemon to respond
 	lava-wait client-ping-done
 
 	dump_msg_cache

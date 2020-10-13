@@ -4,11 +4,30 @@
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
+LOGFILE="${OUTPUT}/iperf3.txt"
+# If SERVER is blank, we are the server, otherwise
+# If we are the client, we set SERVER to the ipaddr of the server
+SERVER=""
+# Time in seconds to transmit for
+TIME="10"
+# Number of parallel client streams to run
+THREADS="1"
+# Specify iperf3 version for CentOS.
+VERSION="3.1.4"
+# By default, the client sends to the server,
+# Setting REVERSE="-R" means the server sends to the client
+REVERSE=""
+# CPU affinity is blank by default, meaning no affinity.
+# CPU numbers are zero based, eg AFFINITY="-A 0" for the first CPU
+AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
+IPERF3_SERVER_RUNNING="no"
 
-create_out_dir "${OUTPUT}"
-cd "${OUTPUT}"
+usage() {
+    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    exit 1
+}
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
@@ -25,6 +44,30 @@ while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   esac
 done
 
+create_out_dir "${OUTPUT}"
+cd "${OUTPUT}"
+
+if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
+    info_msg "iperf3 installation skipped"
+else
+    dist_name
+    # shellcheck disable=SC2154
+    case "${dist}" in
+        debian|ubuntu|fedora)
+            install_deps "iperf3"
+            ;;
+        centos)
+            install_deps "wget gcc make"
+            wget https://github.com/esnet/iperf/archive/"${VERSION}".tar.gz
+            tar xf "${VERSION}".tar.gz
+            cd iperf-"${VERSION}"
+            ./configure
+            make
+            make install
+            ;;
+    esac
+fi
+
 command_exists(){
 	local cmd
 
@@ -39,12 +82,6 @@ command_exists "lava-echo-ipv4"
 command_exists "lava-send"
 command_exists "lava-wait"
 command_exists "ping"
-
-# Run local iperf3 server as a daemon when testing localhost.
-#ipaddr=$(lava-echo-ipv4 "${ETH}" | tr -d '\0')
-#if [ -z "${ipaddr}" ]; then
-#	lava-test-raise "${ETH} not found"
-#fi
 
 get_ipaddr() {
 	local ipaddr
@@ -124,10 +161,10 @@ else
 	echo "We are expecting ping to ${EXPECTED_RESULT}"
 
 	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-		actual_result="pass"
+		result="pass"
 	else
-		actual_result="fail"
+		result="fail"
 	fi
 fi
-echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"
+echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 rm -f /tmp/lava_multi_node_cache.txt

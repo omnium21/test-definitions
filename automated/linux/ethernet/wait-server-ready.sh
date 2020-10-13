@@ -1,10 +1,10 @@
-#!/bin/sh -ex
+#!/bin/sh -x
 
 # shellcheck disable=SC1091
 . ../../lib/sh-test-lib
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
-LOGFILE="${OUTPUT}/iperf.txt"
+LOGFILE="${OUTPUT}/iperf3.txt"
 # If SERVER is blank, we are the server, otherwise
 # If we are the client, we set SERVER to the ipaddr of the server
 SERVER=""
@@ -21,19 +21,22 @@ REVERSE=""
 # CPU numbers are zero based, eg AFFINITY="-A 0" for the first CPU
 AFFINITY=""
 ETH="eth0"
+EXPECTED_RESULT="pass"
+IPERF3_SERVER_RUNNING="no"
 
 usage() {
     echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
-while getopts "A:c:e:t:p:v:s:Rh" o; do
+while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
     c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
+    r) EXPECTED_RESULT="${OPTARG}" ;;
     R) REVERSE="-R" ;;
     v) VERSION="${OPTARG}" ;;
     s) SKIP_INSTALL="${OPTARG}" ;;
@@ -45,7 +48,7 @@ create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"
 
 if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
-    info_msg "iperf installation skipped"
+    info_msg "iperf3 installation skipped"
 else
     dist_name
     # shellcheck disable=SC2154
@@ -65,6 +68,21 @@ else
     esac
 fi
 
+command_exists(){
+	local cmd
+
+	cmd="$1"
+
+	if ! which "${cmd}"; then
+		echo "ERROR: ${cmd} not available"
+		exit 1
+	fi
+}
+command_exists "lava-echo-ipv4"
+command_exists "lava-send"
+command_exists "lava-wait"
+command_exists "ping"
+
 get_ipaddr() {
 	local ipaddr
 	local interface
@@ -73,6 +91,16 @@ get_ipaddr() {
 	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
 	echo "${ipaddr}"
 }
+
+dump_msg_cache(){
+	# TODO -delete this debug
+	echo "################################################################################"
+	echo "/tmp/lava_multi_node_cache.txt"
+	echo "################################################################################"
+	cat /tmp/lava_multi_node_cache.txt || true
+	echo "################################################################################"
+}
+
 
 wait_for_msg(){
 	local message="${1}"

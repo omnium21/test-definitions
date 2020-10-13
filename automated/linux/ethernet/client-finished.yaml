@@ -27,9 +27,6 @@ metadata:
         - rzn1d
 
 params:
-    # Set the location of the server.
-    # When running in LAVA, it will attempt to discover the server address
-    SERVER: "localhost"
     # Time in seconds to transmit for
     TIME: "10"
     # Number of parallel client streams to run

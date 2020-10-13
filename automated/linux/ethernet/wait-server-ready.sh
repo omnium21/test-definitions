@@ -5,9 +5,6 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
 # Time in seconds to transmit for
 TIME="10"
 # Number of parallel client streams to run
@@ -25,14 +22,13 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -152,25 +148,20 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	if [ "${SERVER}" = "" ]; then
-		echo "Server mode is not supported at the moment"
-		exit 1
+	tx_msgseq="$(date +%s)"
+	lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+	wait_for_msg server-ready "${tx_msgseq}"
+
+	SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+	if [ -z "${SERVER}" ]; then
+		echo "ERROR: no server specified"
+		result="fail"
 	else
-		tx_msgseq="$(date +%s)"
-		lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
-		wait_for_msg server-ready "${tx_msgseq}"
-
-		SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-		if [ -z "${SERVER}" ]; then
-			echo "ERROR: no server specified"
-			result="fail"
-		else
-			echo "server-ready: ${SERVER}"
-			echo "${SERVER}" > /tmp/server.ipaddr
-			result="pass"
-		fi
-		echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+		echo "server-ready: ${SERVER}"
+		echo "${SERVER}" > /tmp/server.ipaddr
+		result="pass"
 	fi
+	echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
 fi
 echo "wait-server-ready ${result}" | tee -a "${RESULT_FILE}"

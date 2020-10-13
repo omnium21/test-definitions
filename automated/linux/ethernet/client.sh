@@ -5,9 +5,6 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
 # Time in seconds to transmit for
 TIME="10"
 # Number of parallel client streams to run
@@ -25,14 +22,13 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -152,33 +148,28 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	if [ "${SERVER}" = "" ]; then
-		echo "Server mode is not supported at the moment"
+	SERVER="$(cat /tmp/server.ipaddr)"
+	if [ -z "${SERVER}" ]; then
+		echo "ERROR: no server specified"
 		exit 1
 	else
-		SERVER="$(cat /tmp/server.ipaddr)"
-		if [ -z "${SERVER}" ]; then
-			echo "ERROR: no server specified"
-			exit 1
-		else
-			echo "Using SERVER=${SERVER}"
-		fi
+		echo "Using SERVER=${SERVER}"
+	fi
 
-		# We are running in client mode
-		# Run iperf3 test with unbuffered output mode.
-		stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
-			| tee "${LOGFILE}"
+	# We are running in client mode
+	# Run iperf3 test with unbuffered output mode.
+	stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+		| tee "${LOGFILE}"
 
-		# Parse logfile.
-		if [ "${THREADS}" -eq 1 ]; then
-			grep -E "(sender|receiver)" "${LOGFILE}" \
-				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
-				| tee -a "${RESULT_FILE}"
-		elif [ "${THREADS}" -gt 1 ]; then
-			grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
-				| tee -a "${RESULT_FILE}"
-		fi
+	# Parse logfile.
+	if [ "${THREADS}" -eq 1 ]; then
+		grep -E "(sender|receiver)" "${LOGFILE}" \
+			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+			| tee -a "${RESULT_FILE}"
+	elif [ "${THREADS}" -gt 1 ]; then
+		grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+			| tee -a "${RESULT_FILE}"
 	fi
 fi
 echo "client-ping ${result}" | tee -a "${RESULT_FILE}"

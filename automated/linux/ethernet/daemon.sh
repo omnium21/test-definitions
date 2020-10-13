@@ -5,9 +5,6 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
 # Time in seconds to transmit for
 TIME="10"
 # Number of parallel client streams to run
@@ -25,14 +22,13 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -152,71 +148,69 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	if [ "${SERVER}" = "" ]; then
-		previous_msgseq=""
-		while [ true ]; do
-			# Wait for the client to make a request
-			lava-wait client-request
+	previous_msgseq=""
+	while [ true ]; do
+		# Wait for the client to make a request
+		lava-wait client-request
 
-			# read the client request
-			request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-			msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+		# read the client request
+		request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+		msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-			if [ "${msgseq}" = "${previous_msgseq}" ]; then
-				echo "Ignoring duplicate message ${msgseq}"
-				continue
-			fi
+		if [ "${msgseq}" = "${previous_msgseq}" ]; then
+			echo "Ignoring duplicate message ${msgseq}"
+			continue
+		fi
 
-			# log this message so we don't handle it again
-			previous_msgseq="${msgseq}"
+		# log this message so we don't handle it again
+		previous_msgseq="${msgseq}"
 
-			echo "client-request \"${request}\" with stamp ${msgseq} received"
+		echo "client-request \"${request}\" with stamp ${msgseq} received"
 
-			# perform the client request
-			case "${request}" in
-				"finished")
-					echo "Client has signalled we are finished. Exiting."
-					exit 0
-					;;
-				"start-iperf3-server")
-					dump_msg_cache
-					if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
-						################################################################################
-						# Start the server
-						# report pass/fail as a test result
-						# send the server's IP address to the client(s)
-						################################################################################
-						echo "Client has asked us to start the iperf3 server"
-						cmd="iperf3 -s -D"
-						${cmd}
-						if pgrep -f "${cmd}" > /dev/null; then
-							IPERF3_SERVER_RUNNING="pass"
-						else
-							IPERF3_SERVER_RUNNING="fail"
-						fi
-						echo "iperf3-server-running ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+		# perform the client request
+		case "${request}" in
+			"finished")
+				echo "Client has signalled we are finished. Exiting."
+				exit 0
+				;;
+			"start-iperf3-server")
+				dump_msg_cache
+				if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
+					################################################################################
+					# Start the server
+					# report pass/fail as a test result
+					# send the server's IP address to the client(s)
+					################################################################################
+					echo "Client has asked us to start the iperf3 server"
+					cmd="iperf3 -s -D"
+					${cmd}
+					if pgrep -f "${cmd}" > /dev/null; then
+						IPERF3_SERVER_RUNNING="pass"
 					else
-						echo "iperf3 server is already running"
+						IPERF3_SERVER_RUNNING="fail"
 					fi
+					echo "iperf3-server-running ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+				else
+					echo "iperf3 server is already running"
+				fi
 
-					if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-						lava-send server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
-					fi
-					;;
-				"ping")
-					dump_msg_cache
+				if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
+					lava-send server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
+				fi
+				;;
+			"ping")
+				dump_msg_cache
 
-					ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-					echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
-					pingresult=pass
-					ping -c 5 "${ipaddr}" || pingresult="fail"
-					lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
-					;;
-				*) echo "Unknown client request: ${request}" ;;
-			esac
-			rm -f /tmp/lava_multi_node_cache.txt
-		done
-	fi
+				ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+				msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+				echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
+				pingresult=pass
+				ping -c 5 "${ipaddr}" || pingresult="fail"
+				lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
+				;;
+			*) echo "Unknown client request: ${request}" ;;
+		esac
+		rm -f /tmp/lava_multi_node_cache.txt
+	done
 fi
 echo "daemon ${result}" | tee -a "${RESULT_FILE}"

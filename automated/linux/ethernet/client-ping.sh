@@ -5,9 +5,6 @@
 OUTPUT="$(pwd)/output"
 RESULT_FILE="${OUTPUT}/result.txt"
 LOGFILE="${OUTPUT}/iperf3.txt"
-# If SERVER is blank, we are the server, otherwise
-# If we are the client, we set SERVER to the ipaddr of the server
-SERVER=""
 # Time in seconds to transmit for
 TIME="10"
 # Number of parallel client streams to run
@@ -25,14 +22,13 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 
 usage() {
-    echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
-    c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -152,24 +148,19 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	if [ "${SERVER}" = "" ]; then
-		echo "Server mode is not supported at the moment"
-		exit 1
+	tx_msgseq="$(date +%s)"
+	lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+	wait_for_msg client-ping-done "${tx_msgseq}"
+
+	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult}"
+	echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+		result="pass"
 	else
-		tx_msgseq="$(date +%s)"
-		lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-		wait_for_msg client-ping-done "${tx_msgseq}"
-
-		pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-		echo "The daemon says that pinging the client returned ${pingresult}"
-		echo "We are expecting ping to ${EXPECTED_RESULT}"
-
-		if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-			result="pass"
-		else
-			result="fail"
-		fi
-		echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
+		result="fail"
 	fi
+	echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 fi
 echo "client-ping ${result}" | tee -a "${RESULT_FILE}"

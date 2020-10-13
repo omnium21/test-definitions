@@ -71,7 +71,7 @@ wait_for_msg(){
 
 	while [ true ]; do
 		# Wait for the daemon to respond
-		lava-wait client-ping-done
+		lava-wait "${message}"
 
 		dump_msg_cache
 

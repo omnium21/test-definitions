@@ -104,37 +104,30 @@ if [ -e "${ipaddrstash}" ]; then
 	ipaddr="$(cat ${ipaddrstash})"
 else
 	ipaddr=$(get_ipaddr $ETH)
+	echo "${ipaddr}" > "${ipaddrstash}"
 fi
+echo "My IP address is ${ipaddr}"
 
 dump_msg_cache
 rm -f /tmp/lava_multi_node_cache.txt
 
 if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
-	# TODO - report lava test fail
-	exit 1
-fi
-
-tx_msgseq="$(date +%s)"
-lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-wait_for_msg client-ping-done "${tx_msgseq}"
-
-rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-echo "The daemon says that pinging the client returned ${pingresult} stamp ${rx_msgseq}"
-echo "We are expecting ping to ${EXPECTED_RESULT}"
-
-if [ "${tx_msgseq}" = "${rx_msgseq}" ]; then
-	echo "tx_msgseq ${tx_msgseq} matches rx_msgseq ${rx_msgseq}"
-else
-	echo "WARNING: tx_msgseq ${tx_msgseq} DOES NOT match rx_msgseq ${rx_msgseq}"
-	# TODO - what do we do about this??
-fi
-
-if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-	actual_result="pass"
-else
 	actual_result="fail"
+else
+	tx_msgseq="$(date +%s)"
+	lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+	wait_for_msg client-ping-done "${tx_msgseq}"
+
+	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+	echo "The daemon says that pinging the client returned ${pingresult}"
+	echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+		actual_result="pass"
+	else
+		actual_result="fail"
+	fi
 fi
 echo "client-ping-request ${actual_result}" | tee -a "${RESULT_FILE}"
 rm -f /tmp/lava_multi_node_cache.txt

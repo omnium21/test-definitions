@@ -106,27 +106,38 @@ wait_for_msg(){
 echo "################################################################################"
 ip addr show
 echo "################################################################################"
-date
-ipaddr="$(get_ipaddr ${ETH})"
-echo "ipaddr for $eth is ${ipaddr}"
+
+# Try to get the stashed IP address first, otherwise, try to work it out
 ipaddrstash="/tmp/ipaddr-${ETH}.txt"
-echo "${ipaddr}" > "${ipaddrstash}"
-cat "${ipaddrstash}" || true
+if [ -e "${ipaddrstash}" ]; then
+	ipaddr="$(cat ${ipaddrstash})"
+else
+	ipaddr=$(get_ipaddr $ETH)
+	echo "${ipaddr}" > "${ipaddrstash}"
+fi
+echo "My IP address is ${ipaddr}"
 
-tx_msgseq="$(date +%s)"
-lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
-wait_for_msg server-ready "${tx_msgseq}"
-
-SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+dump_msg_cache
 rm -f /tmp/lava_multi_node_cache.txt
 
-if [ -z "${SERVER}" ]; then
-	echo "ERROR: no server specified"
-	exit 1
+if [ "${ipaddr}" = "" ]; then
+	echo "ERROR: ipaddr is invalid"
+	actual_result="fail"
 else
-	echo "server-ready: ${SERVER}"
-	echo "${SERVER}" > /tmp/server.ipaddr
+	tx_msgseq="$(date +%s)"
+	lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+	wait_for_msg server-ready "${tx_msgseq}"
 
-	# TODO - should probably send a lava test result
+	SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+	if [ -z "${SERVER}" ]; then
+		echo "ERROR: no server specified"
+		result="fail"
+	else
+		echo "server-ready: ${SERVER}"
+		echo "${SERVER}" > /tmp/server.ipaddr
+		result="pass"
+	fi
 fi
+echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+rm -f /tmp/lava_multi_node_cache.txt

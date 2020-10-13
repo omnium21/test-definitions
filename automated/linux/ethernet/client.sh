@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -x
 
 # shellcheck disable=SC1091
 . ../../lib/sh-test-lib
@@ -21,19 +21,22 @@ REVERSE=""
 # CPU numbers are zero based, eg AFFINITY="-A 0" for the first CPU
 AFFINITY=""
 ETH="eth0"
+EXPECTED_RESULT="pass"
+IPERF3_SERVER_RUNNING="no"
 
 usage() {
     echo "Usage: $0 [-c server] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
-while getopts "A:c:e:t:p:v:s:Rh" o; do
+while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
     c) SERVER="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
+    r) EXPECTED_RESULT="${OPTARG}" ;;
     R) REVERSE="-R" ;;
     v) VERSION="${OPTARG}" ;;
     s) SKIP_INSTALL="${OPTARG}" ;;
@@ -65,31 +68,117 @@ else
     esac
 fi
 
-SERVER="$(cat /tmp/server.ipaddr)"
-if [ -z "${SERVER}" ]; then
-	echo "ERROR: no server specified"
-	exit 1
+command_exists(){
+	local cmd
+
+	cmd="$1"
+
+	if ! which "${cmd}"; then
+		echo "ERROR: ${cmd} not available"
+		exit 1
+	fi
+}
+command_exists "lava-echo-ipv4"
+command_exists "lava-send"
+command_exists "lava-wait"
+command_exists "ping"
+
+get_ipaddr() {
+	local ipaddr
+	local interface
+
+	interface="${1}"
+	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
+	echo "${ipaddr}"
+}
+
+dump_msg_cache(){
+	# TODO -delete this debug
+	echo "################################################################################"
+	echo "/tmp/lava_multi_node_cache.txt"
+	echo "################################################################################"
+	cat /tmp/lava_multi_node_cache.txt || true
+	echo "################################################################################"
+}
+
+
+wait_for_msg(){
+	local message="${1}"
+	local msgseq="${2}"
+
+	while [ true ]; do
+		# Wait for the daemon to respond
+		lava-wait "${message}"
+
+		dump_msg_cache
+
+		# report pass/fail depending on whether we expected ping to succeed or not
+		rx_msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+		if [ "${rx_msgseq}" -lt "${msgseq}" ]; then
+			echo "WARNING: Ignoring duplicate message (${rx_msgseq} < ${msgseq})"
+			rm -f /tmp/lava_multi_node_cache.txt
+			continue
+		elif [ "${rx_msgseq}" -gt "${msgseq}" ]; then
+			echo "ERROR: We missed the reply to our message (rx_msgseq=${rx_msgseq} > msgseq=${msgseq})"
+			# TODO - report lava test fail
+			exit 1
+		else
+			echo "ACK: we found the droid we were looking for..."
+			break
+		fi
+	done
+}
+
+
+echo "################################################################################"
+ip addr show
+echo "################################################################################"
+
+# Try to get the stashed IP address first, otherwise, try to work it out
+ipaddrstash="/tmp/ipaddr-${ETH}.txt"
+if [ -e "${ipaddrstash}" ]; then
+	ipaddr="$(cat ${ipaddrstash})"
 else
-	echo "Using SERVER=${SERVER}"
+	ipaddr=$(get_ipaddr $ETH)
+	echo "${ipaddr}" > "${ipaddrstash}"
 fi
+echo "My IP address is ${ipaddr}"
 
-if [ "${SERVER}" = "" ]; then
-	echo "Server mode is not supported at the moment"
-	exit 1
+dump_msg_cache
+rm -f /tmp/lava_multi_node_cache.txt
+
+if [ "${ipaddr}" = "" ]; then
+	echo "ERROR: ipaddr is invalid"
+	actual_result="fail"
 else
-	# We are running in client mode
-	# Run iperf3 test with unbuffered output mode.
-	stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
-		| tee "${LOGFILE}"
+	if [ "${SERVER}" = "" ]; then
+		echo "Server mode is not supported at the moment"
+		exit 1
+	else
+		SERVER="$(cat /tmp/server.ipaddr)"
+		if [ -z "${SERVER}" ]; then
+			echo "ERROR: no server specified"
+			exit 1
+		else
+			echo "Using SERVER=${SERVER}"
+		fi
 
-	# Parse logfile.
-	if [ "${THREADS}" -eq 1 ]; then
-		grep -E "(sender|receiver)" "${LOGFILE}" \
-			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
-			| tee -a "${RESULT_FILE}"
-	elif [ "${THREADS}" -gt 1 ]; then
-		grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
-			| tee -a "${RESULT_FILE}"
+		# We are running in client mode
+		# Run iperf3 test with unbuffered output mode.
+		stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+			| tee "${LOGFILE}"
+
+		# Parse logfile.
+		if [ "${THREADS}" -eq 1 ]; then
+			grep -E "(sender|receiver)" "${LOGFILE}" \
+				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+				| tee -a "${RESULT_FILE}"
+		elif [ "${THREADS}" -gt 1 ]; then
+			grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+				| tee -a "${RESULT_FILE}"
+		fi
 	fi
 fi
+echo "client-ping ${result}" | tee -a "${RESULT_FILE}"

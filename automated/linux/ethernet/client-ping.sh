@@ -152,19 +152,24 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	tx_msgseq="$(date +%s)"
-	lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-	wait_for_msg client-ping-done "${tx_msgseq}"
-
-	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-	echo "The daemon says that pinging the client returned ${pingresult}"
-	echo "We are expecting ping to ${EXPECTED_RESULT}"
-
-	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-		result="pass"
+	if [ "${SERVER}" = "" ]; then
+		echo "Server mode is not supported at the moment"
+		exit 1
 	else
-		result="fail"
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+		wait_for_msg client-ping-done "${tx_msgseq}"
+
+		pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+		echo "The daemon says that pinging the client returned ${pingresult}"
+		echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+		if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+			result="pass"
+		else
+			result="fail"
+		fi
+		echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 	fi
 fi
-echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
-rm -f /tmp/lava_multi_node_cache.txt
+echo "client-ping ${result}" | tee -a "${RESULT_FILE}"

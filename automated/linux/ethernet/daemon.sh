@@ -125,7 +125,7 @@ while [ true ]; do
 				else
 					IPERF3_SERVER_RUNNING="fail"
 				fi
-				echo "iperf3_server_started ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+				echo "iperf3-server-running ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
 			else
 				echo "iperf3 server is already running"
 			fi
@@ -142,10 +142,6 @@ while [ true ]; do
 			echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
 			pingresult=pass
 			ping -c 5 "${ipaddr}" || pingresult="fail"
-
-			# Don't set msgseq, reply with the same so the sender can match up the messages
-			# msgseq=$(date +%s)
-
 			lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
 			;;
 		*) echo "Unknown client request: ${request}" ;;

@@ -20,15 +20,17 @@ AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
+CMD="iperf3"
 
 usage() {
-    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
+    c) CMD="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -148,28 +150,35 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	SERVER="$(cat /tmp/server.ipaddr)"
-	if [ -z "${SERVER}" ]; then
-		echo "ERROR: no server specified"
-		exit 1
-	else
-		echo "Using SERVER=${SERVER}"
-	fi
+	case "$CMD" in
+		iperf3)
+			SERVER="$(cat /tmp/server.ipaddr)"
+			if [ -z "${SERVER}" ]; then
+				echo "ERROR: no server specified"
+				exit 1
+			else
+				echo "Using SERVER=${SERVER}"
+			fi
 
-	# We are running in client mode
-	# Run iperf3 test with unbuffered output mode.
-	stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
-		| tee "${LOGFILE}"
+			# We are running in client mode
+			# Run iperf3 test with unbuffered output mode.
+			stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+				| tee "${LOGFILE}"
 
-	# Parse logfile.
-	if [ "${THREADS}" -eq 1 ]; then
-		grep -E "(sender|receiver)" "${LOGFILE}" \
-			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
-			| tee -a "${RESULT_FILE}"
-	elif [ "${THREADS}" -gt 1 ]; then
-		grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-			| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
-			| tee -a "${RESULT_FILE}"
-	fi
+			# Parse logfile.
+			if [ "${THREADS}" -eq 1 ]; then
+				grep -E "(sender|receiver)" "${LOGFILE}" \
+					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+					| tee -a "${RESULT_FILE}"
+			elif [ "${THREADS}" -gt 1 ]; then
+				grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+					| tee -a "${RESULT_FILE}"
+			fi
+			;;
+		*)
+			usage
+			;;
+	esac
 fi
-echo "client-ping ${result}" | tee -a "${RESULT_FILE}"
+echo "client ${result}" | tee -a "${RESULT_FILE}"

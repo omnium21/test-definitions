@@ -20,15 +20,17 @@ AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
+CMD="ping"
 
 usage() {
-    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
 while getopts "A:c:e:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
+    c) CMD="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
@@ -148,19 +150,26 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	tx_msgseq="$(date +%s)"
-	lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-	wait_for_msg client-ping-done "${tx_msgseq}"
+	case "$CMD" in
+		ping)
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+			wait_for_msg client-ping-done "${tx_msgseq}"
 
-	pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-	echo "The daemon says that pinging the client returned ${pingresult}"
-	echo "We are expecting ping to ${EXPECTED_RESULT}"
+			pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			echo "The daemon says that pinging the client returned ${pingresult}"
+			echo "We are expecting ping to ${EXPECTED_RESULT}"
 
-	if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-		result="pass"
-	else
-		result="fail"
-	fi
-	echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
+			if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+				result="pass"
+			else
+				result="fail"
+			fi
+			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
+			;;
+		*)
+			usage
+			;;
+	esac
 fi
 echo "client-ping ${result}" | tee -a "${RESULT_FILE}"

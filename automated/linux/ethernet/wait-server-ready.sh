@@ -20,9 +20,10 @@ AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
+CMD="start-iperf3-server"
 
 usage() {
-    echo "Usage: $0 [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
     exit 1
 }
 
@@ -148,20 +149,27 @@ if [ "${ipaddr}" = "" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
-	tx_msgseq="$(date +%s)"
-	lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
-	wait_for_msg server-ready "${tx_msgseq}"
+	case "$CMD" in
+		start-iperf3-server)
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+			wait_for_msg server-ready "${tx_msgseq}"
 
-	SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-	if [ -z "${SERVER}" ]; then
-		echo "ERROR: no server specified"
-		result="fail"
-	else
-		echo "server-ready: ${SERVER}"
-		echo "${SERVER}" > /tmp/server.ipaddr
-		result="pass"
-	fi
-	echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+			if [ -z "${SERVER}" ]; then
+				echo "ERROR: no server specified"
+				result="fail"
+			else
+				echo "server-ready: ${SERVER}"
+				echo "${SERVER}" > /tmp/server.ipaddr
+				result="pass"
+			fi
+			echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+			;;
+		*)
+			usage
+			;;
+	esac
 fi
 echo "wait-server-ready ${result}" | tee -a "${RESULT_FILE}"

@@ -217,9 +217,67 @@ else
 				rm -f /tmp/lava_multi_node_cache.txt
 			done
 			;;
+		ping)
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+			wait_for_msg client-ping-done "${tx_msgseq}"
+
+			pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			echo "The daemon says that pinging the client returned ${pingresult}"
+			echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+			if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+				result="pass"
+			else
+				result="fail"
+			fi
+			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
+			;;
+		start-iperf3-server)
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+			wait_for_msg server-ready "${tx_msgseq}"
+
+			SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+			if [ -z "${SERVER}" ]; then
+				echo "ERROR: no server specified"
+				result="fail"
+			else
+				echo "server-ready: ${SERVER}"
+				echo "${SERVER}" > /tmp/server.ipaddr
+				result="pass"
+			fi
+			echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+			;;
+		iperf3)
+			SERVER="$(cat /tmp/server.ipaddr)"
+			if [ -z "${SERVER}" ]; then
+				echo "ERROR: no server specified"
+				exit 1
+			else
+				echo "Using SERVER=${SERVER}"
+			fi
+
+			# We are running in client mode
+			# Run iperf3 test with unbuffered output mode.
+			stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+				| tee "${LOGFILE}"
+
+			# Parse logfile.
+			if [ "${THREADS}" -eq 1 ]; then
+				grep -E "(sender|receiver)" "${LOGFILE}" \
+					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+					| tee -a "${RESULT_FILE}"
+			elif [ "${THREADS}" -gt 1 ]; then
+				grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+					| tee -a "${RESULT_FILE}"
+			fi
+			;;
 		*)
 			usage
 			;;
 	esac
 fi
-echo "daemon ${result}" | tee -a "${RESULT_FILE}"
+echo "$0 ${result}" | tee -a "${RESULT_FILE}"

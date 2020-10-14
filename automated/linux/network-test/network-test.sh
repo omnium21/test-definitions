@@ -18,7 +18,7 @@ REVERSE=""
 # CPU numbers are zero based, eg AFFINITY="-A 0" for the first CPU
 AFFINITY=""
 ETH="eth0"
-EXPECTED_RESULT="skip"
+EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 CMD="usage"
 
@@ -34,15 +34,13 @@ while getopts "A:c:e:t:p:v:s:r:Rh" o; do
     e) ETH="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
-    r) EXPECTED_RESULT="${OPTARG}"; echo "Params set EXPECTED_RESULT=${OPTARG}" ;;
+    r) EXPECTED_RESULT="${OPTARG}" ;;
     R) REVERSE="-R" ;;
     v) VERSION="${OPTARG}" ;;
     s) SKIP_INSTALL="${OPTARG}" ;;
     h|*) usage ;;
   esac
 done
-
-echo "EXPECTED_RESULT=${EXPECTED_RESULT}"
 
 create_out_dir "${OUTPUT}"
 cd "${OUTPUT}"

@@ -28,12 +28,16 @@ metadata:
 
 params:
     CMD: "daemon"
-    SKIP_INSTALL: "false"
     SERVER_ETHERNET_DEVICE: "eth0"
-    AFFINITY: ""
+    # Time in seconds to transmit for
     TIME: "10"
+    # Number of parallel client streams to run
     THREADS: "1"
+    # Set affinity of the client to cpu 0 using "-A 0"
+    AFFINITY: ""
+    # Set REVERSE="-R" to run tx from the server
     REVERSE: ""
+    SKIP_INSTALL: "false"
 
 run:
     steps:

@@ -29,6 +29,10 @@ metadata:
 params:
     CMD: "daemon"
     ETH: "eth0"
+
+    # Used for ping-request commands to indicate if we expect the ping to pass or fail
+    # This is used when we disable the ethernet port, then check that ping fails
+    EXPECTED_RESULT: "pass"
     # Time in seconds to transmit for
     TIME: "10"
     # Number of parallel client streams to run
@@ -42,5 +46,5 @@ params:
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}" -r "${EXPECTED_RESULT}"
         - ../../utils/send-to-lava.sh ./output/result.txt

@@ -23,7 +23,7 @@ IPERF3_SERVER_RUNNING="no"
 CMD="usage"
 
 usage() {
-    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false]" 1>&2
     exit 1
 }
 

@@ -275,6 +275,9 @@ else
 					| tee -a "${RESULT_FILE}"
 			fi
 			;;
+		finished)
+			lava-send client-request request="finished"
+			;;
 		*)
 			usage
 			;;

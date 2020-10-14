@@ -41,6 +41,6 @@ params:
 
 run:
     steps:
-        - cd ./automated/linux/ethernet
+        - cd ./automated/linux/network-test
         - ./daemon.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

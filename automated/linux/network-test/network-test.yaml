@@ -46,5 +46,5 @@ params:
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}" -r "${EXPECTED_RESULT}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

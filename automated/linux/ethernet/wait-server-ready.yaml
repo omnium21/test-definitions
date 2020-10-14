@@ -27,10 +27,11 @@ metadata:
         - rzn1d
 
 params:
+    CMD: "iperf3-server"
     ETH: eth0
 
 run:
     steps:
         - cd ./automated/linux/ethernet/
-        - ./wait-server-ready.sh -e "${ETH}"
+        - ./wait-server-ready.sh -c "${CMD}" -e "${ETH}"
         - ../../utils/send-to-lava.sh ./output/result.txt

@@ -20,7 +20,7 @@ AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
-CMD="iperf3"
+CMD="iperf3-client"
 
 usage() {
     echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2
@@ -177,7 +177,7 @@ else
 						echo "Client has signalled we are finished. Exiting."
 						exit 0
 						;;
-					"start-iperf3-server")
+					"iperf3-server")
 						dump_msg_cache
 						if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
 							################################################################################
@@ -202,7 +202,7 @@ else
 							lava-send server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
 						fi
 						;;
-					"ping")
+					"ping-request")
 						dump_msg_cache
 
 						ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -217,9 +217,9 @@ else
 				rm -f /tmp/lava_multi_node_cache.txt
 			done
 			;;
-		ping)
+		ping-request)
 			tx_msgseq="$(date +%s)"
-			lava-send client-request request="ping" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+			lava-send client-request request="ping-request" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
 			wait_for_msg client-ping-done "${tx_msgseq}"
 
 			pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -233,9 +233,9 @@ else
 			fi
 			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		start-iperf3-server)
+		iperf3-server)
 			tx_msgseq="$(date +%s)"
-			lava-send client-request request="start-iperf3-server" msgseq="${tx_msgseq}"
+			lava-send client-request request="iperf3-server" msgseq="${tx_msgseq}"
 			wait_for_msg server-ready "${tx_msgseq}"
 
 			SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -248,9 +248,9 @@ else
 				echo "${SERVER}" > /tmp/server.ipaddr
 				result="pass"
 			fi
-			echo "start-iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+			echo "iperf3-server ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		iperf3)
+		iperf3-client)
 			SERVER="$(cat /tmp/server.ipaddr)"
 			if [ -z "${SERVER}" ]; then
 				echo "ERROR: no server specified"

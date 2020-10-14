@@ -27,11 +27,12 @@ metadata:
         - rzn1d
 
 params:
+    CMD: ping-request
     ETH: eth0
     EXPECTED_RESULT: pass
 
 run:
     steps:
         - cd ./automated/linux/ethernet/
-        - ./client-ping.sh -e "${ETH}" -r "${EXPECTED_RESULT}"
+        - ./client-ping.sh -c "${CMD}" -e "${ETH}" -r "${EXPECTED_RESULT}"
         - ../../utils/send-to-lava.sh ./output/result.txt

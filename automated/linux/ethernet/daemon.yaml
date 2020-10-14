@@ -27,11 +27,12 @@ metadata:
         - rzn1d
 
 params:
+    CMD: "daemon"
     SKIP_INSTALL: "false"
     SERVER_ETHERNET_DEVICE: "eth0"
 
 run:
     steps:
         - cd ./automated/linux/ethernet
-        - ./daemon.sh -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"
+        - ./daemon.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

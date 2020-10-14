@@ -28,7 +28,7 @@ metadata:
 
 params:
     CMD: "daemon"
-    SERVER_ETHERNET_DEVICE: "eth0"
+    ETH: "eth0"
     # Time in seconds to transmit for
     TIME: "10"
     # Number of parallel client streams to run
@@ -42,5 +42,5 @@ params:
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

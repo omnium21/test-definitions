@@ -212,6 +212,15 @@ else
 						ping -c 5 "${ipaddr}" || pingresult="fail"
 						lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
 						;;
+					"md5sum-request")
+						dump_msg_cache
+						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						echo "Client has asked us to md5sum ${filename}"
+						our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+						echo "Our md5sum is ${our_sum}"
+						lava-send md5sum-result md5sum="${our_sum}" msgseq="${msgseq}"
+						;;
 					*) echo "Unknown client request: ${request}" ;;
 				esac
 				rm -f /tmp/lava_multi_node_cache.txt
@@ -274,6 +283,33 @@ else
 					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
 					| tee -a "${RESULT_FILE}"
 			fi
+			;;
+		scp-request)
+			# TODO - this relies on running iperf3 tests first
+			SERVER="$(cat /tmp/server.ipaddr)"
+			if [ -z "${SERVER}" ]; then
+				echo "ERROR: no server specified"
+				exit 1
+			else
+				echo "Using SERVER=${SERVER}"
+			fi
+
+			filename=$(mktemp ~/largefile.XXXXX)
+			dd if=/dev/urandom of="${filename}" bs=1M count=1024
+			scp -o StrictHostKeyChecking=no "${filename}" root@"${SERVER}":"${filename}"
+			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="md5sum-request" filename="${filename}" msgseq="${tx_msgseq}"
+			wait_for_msg md5sum-result "${tx_msgseq}"
+			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+			if [ "${their_sum}" = "${our_sum}" ]; then
+				result=pass
+			else
+				result=fail
+			fi
+			echo "scp-request ${result}" | tee -a "${RESULT_FILE}"
 			;;
 		finished)
 			lava-send client-request request="finished"

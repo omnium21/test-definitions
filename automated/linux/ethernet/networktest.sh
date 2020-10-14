@@ -20,7 +20,7 @@ AFFINITY=""
 ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
-CMD="daemon"
+CMD="usage"
 
 usage() {
     echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-s true|false]" 1>&2

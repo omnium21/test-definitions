@@ -30,9 +30,13 @@ params:
     CMD: "daemon"
     SKIP_INSTALL: "false"
     SERVER_ETHERNET_DEVICE: "eth0"
+    AFFINITY: ""
+    TIME: "10"
+    THREADS: "1"
+    REVERSE: ""
 
 run:
     steps:
         - cd ./automated/linux/ethernet
-        - ./daemon.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"
+        - ./daemon.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${SERVER_ETHERNET_DEVICE}"  -t "${TIME}" -p "${THREADS}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

@@ -346,7 +346,7 @@ else
 			# Send an empty file back to the host to overwrite the large file, effectively deleting the file, so we don't eat their disk space
 			smallfilename=$(mktemp /tmp/smallfile.XXXXX)
 			scp -o StrictHostKeyChecking=no "${filename}" root@"${SERVER}":"${filename}"
-			rm -f "${filename}" ${smallfilename}"
+			rm -f "${filename}" "${smallfilename}"
 			;;
 		"finished")
 			lava-send client-request request="finished"

@@ -329,10 +329,9 @@ else
 			filename=$(mktemp ~/largefile.XXXXX)
 			dd if=/dev/urandom of="${filename}" bs=1M count=1024
 			scp -o StrictHostKeyChecking=no "${filename}" root@"${SERVER}":"${filename}"
-			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
-
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="md5sum-request" filename="${filename}" msgseq="${tx_msgseq}"
+			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
 			wait_for_msg md5sum-result "${tx_msgseq}"
 			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 

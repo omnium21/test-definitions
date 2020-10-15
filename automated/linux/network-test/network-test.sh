@@ -151,7 +151,7 @@ if [ "${ipaddr}" = "" ]; then
 	actual_result="fail"
 else
 	case "$CMD" in
-		daemon)
+		"daemon")
 			previous_msgseq=""
 			while [ true ]; do
 				# Wait for the client to make a request
@@ -226,7 +226,7 @@ else
 				rm -f /tmp/lava_multi_node_cache.txt
 			done
 			;;
-		ping-request)
+		"ping-request")
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="ping-request" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
 			wait_for_msg client-ping-done "${tx_msgseq}"
@@ -242,7 +242,7 @@ else
 			fi
 			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		iperf3-server)
+		"iperf3-server")
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="iperf3-server" msgseq="${tx_msgseq}"
 			wait_for_msg server-ready "${tx_msgseq}"
@@ -259,7 +259,7 @@ else
 			fi
 			echo "iperf3-server ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		iperf3-client)
+		"iperf3-client")
 			SERVER="$(cat /tmp/server.ipaddr)"
 			if [ -z "${SERVER}" ]; then
 				echo "ERROR: no server specified"
@@ -284,7 +284,8 @@ else
 					| tee -a "${RESULT_FILE}"
 			fi
 			;;
-		scp-request)
+		"scp-target-to-host")
+			# SCP a file from the target (client, DUT) to the host (server)
 			# TODO - this relies on running iperf3 tests first
 			SERVER="$(cat /tmp/server.ipaddr)"
 			if [ -z "${SERVER}" ]; then
@@ -309,9 +310,9 @@ else
 			else
 				result=fail
 			fi
-			echo "scp-request ${result}" | tee -a "${RESULT_FILE}"
+			echo "scp-to-host ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		finished)
+		"finished")
 			lava-send client-request request="finished"
 			;;
 		*)

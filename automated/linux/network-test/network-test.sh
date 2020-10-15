@@ -221,6 +221,20 @@ else
 						echo "Our md5sum is ${our_sum}"
 						lava-send md5sum-result md5sum="${our_sum}" msgseq="${msgseq}"
 						;;
+					"scp-request")
+						dump_msg_cache
+						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						echo "Client has asked us to send them ${filename}"
+
+						# first create the file
+						our_filename=$(mktemp ~/largefile.XXXXX)
+						dd if=/dev/urandom of="${filename}" bs=1M count=1024
+						our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
+						echo "Our md5sum is ${our_sum}"
+						lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
+						rm -f "${our_filename}"
+						;;
 					*) echo "Unknown client request: ${request}" ;;
 				esac
 				rm -f /tmp/lava_multi_node_cache.txt
@@ -284,6 +298,23 @@ else
 					| tee -a "${RESULT_FILE}"
 			fi
 			;;
+		"scp-host-to-target")
+			# SCP a file from the host (server) to the target (client)
+			filename=$(mktemp ~/largefile.XXXXX)
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="scp-request" filename="${filename}" msgseq="${tx_msgseq}"
+			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+			wait_for_msg scp-result "${tx_msgseq}"
+			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+			if [ "${their_sum}" = "${our_sum}" ]; then
+				result=pass
+			else
+				result=fail
+			fi
+			echo "scp-host-to-target ${result}" | tee -a "${RESULT_FILE}"
+			rm -f "${filename}"
+			;;
 		"scp-target-to-host")
 			# SCP a file from the target (client, DUT) to the host (server)
 			# TODO - this relies on running iperf3 tests first
@@ -310,7 +341,12 @@ else
 			else
 				result=fail
 			fi
-			echo "scp-to-host ${result}" | tee -a "${RESULT_FILE}"
+			echo "scp-target-to-host ${result}" | tee -a "${RESULT_FILE}"
+
+			# Send an empty file back to the host to overwrite the large file, effectively deleting the file, so we don't eat their disk space
+			smallfilename=$(mktemp /tmp/smallfile.XXXXX)
+			scp -o StrictHostKeyChecking=no "${filename}" root@"${SERVER}":"${filename}"
+			rm -f "${filename}" ${smallfilename}"
 			;;
 		"finished")
 			lava-send client-request request="finished"

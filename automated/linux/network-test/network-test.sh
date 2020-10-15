@@ -223,14 +223,16 @@ else
 						;;
 					"scp-request")
 						dump_msg_cache
-						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 						echo "Client has asked us to send them ${filename}"
 
 						# first create the file
 						our_filename=$(mktemp ~/largefile.XXXXX)
-						dd if=/dev/urandom of="${filename}" bs=1M count=1024
-						our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
+						dd if=/dev/urandom of="${our_filename}" bs=1M count=1024
+						our_sum=$(md5sum "${our_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
+						scp -o StrictHostKeyChecking=no "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
 						echo "Our md5sum is ${our_sum}"
 						lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
 						rm -f "${our_filename}"
@@ -302,7 +304,7 @@ else
 			# SCP a file from the host (server) to the target (client)
 			filename=$(mktemp ~/largefile.XXXXX)
 			tx_msgseq="$(date +%s)"
-			lava-send client-request request="scp-request" filename="${filename}" msgseq="${tx_msgseq}"
+			lava-send client-request request="scp-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
 			wait_for_msg scp-result "${tx_msgseq}"
 			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)

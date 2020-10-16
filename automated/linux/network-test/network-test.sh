@@ -212,6 +212,16 @@ else
 						ping -c 5 "${ipaddr}" || pingresult="fail"
 						lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
 						;;
+					"ssh-request")
+						dump_msg_cache
+						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+						echo "Client has asked us to ssh in and md5sum ${their_filename}"
+						our_sum=$(ssh -o StrictHostKeyChecking=no -o BatchMode=yes root@"${their_ipaddr}" md5sum "${their_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${their_filename}".md5)
+						echo "Our md5sum is ${our_sum}"
+						lava-send ssh-result md5sum="${our_sum}" msgseq="${msgseq}"
+						;;
 					"md5sum-request")
 						dump_msg_cache
 						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -299,6 +309,25 @@ else
 					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
 					| tee -a "${RESULT_FILE}"
 			fi
+			;;
+		"ssh-host-to-target")
+			# SSH into the target and md5sum a file. Send the md5sum back to the target for verification
+			filename=$(mktemp /tmp/magic.XXXXX)
+			dd if=/dev/urandom of="${filename}" bs=1024 count=1
+			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+
+			tx_msgseq="$(date +%s)"
+			lava-send client-request request="ssh-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
+			wait_for_msg ssh-result "${tx_msgseq}"
+			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+			if [ "${their_sum}" = "${our_sum}" ]; then
+				result=pass
+			else
+				result=fail
+			fi
+			echo "ssh-host-to-target ${result}" | tee -a "${RESULT_FILE}"
+			rm -f "${filename}"
 			;;
 		"scp-host-to-target")
 			# SCP a file from the host (server) to the target (client)

@@ -232,7 +232,7 @@ else
 						our_filename=$(mktemp ~/largefile.XXXXX)
 						dd if=/dev/urandom of="${our_filename}" bs=1M count=1024
 						our_sum=$(md5sum "${our_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
-						scp -o StrictHostKeyChecking=no "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
+						scp -o StrictHostKeyChecking=no -o BatchMode=yes "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
 						echo "Our md5sum is ${our_sum}"
 						lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
 						rm -f "${our_filename}"
@@ -330,7 +330,7 @@ else
 
 			filename=$(mktemp ~/largefile.XXXXX)
 			dd if=/dev/urandom of="${filename}" bs=1M count=1024
-			scp -o StrictHostKeyChecking=no "${filename}" root@"${SERVER}":"${filename}"
+			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${filename}" root@"${SERVER}":"${filename}"
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="md5sum-request" filename="${filename}" msgseq="${tx_msgseq}"
 			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
@@ -346,7 +346,7 @@ else
 
 			# Send an empty file back to the host to overwrite the large file, effectively deleting the file, so we don't eat their disk space
 			smallfilename=$(mktemp /tmp/smallfile.XXXXX)
-			scp -o StrictHostKeyChecking=no "${smallfilename}" root@"${SERVER}":"${filename}"
+			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${smallfilename}" root@"${SERVER}":"${filename}"
 			rm -f "${filename}" "${smallfilename}"
 			;;
 		"finished")

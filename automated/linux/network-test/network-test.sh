@@ -27,11 +27,14 @@ usage() {
     exit 1
 }
 
-while getopts "A:c:e:t:p:v:s:r:Rh" o; do
+while getopts "A:a:c:d:e:l:t:p:v:s:r:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
+    a) AUTONEG="${OPTARG}" ;;
     c) CMD="${OPTARG}" ;;
+    d) DUPLEX="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
+    l) LINKSPEED="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
     r) EXPECTED_RESULT="${OPTARG}" ;;
@@ -81,15 +84,6 @@ command_exists "lava-send"
 command_exists "lava-wait"
 command_exists "ping"
 
-get_ipaddr() {
-	local ipaddr
-	local interface
-
-	interface="${1}"
-	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
-	echo "${ipaddr}"
-}
-
 dump_msg_cache(){
 	# TODO -delete this debug
 	echo "################################################################################"
@@ -127,6 +121,304 @@ wait_for_msg(){
 		fi
 	done
 }
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+if_state() {
+	local interface
+	local if_info
+	local state
+
+	interface="${1}"
+	state=0 # zero is down, 1 is up
+
+	if_info=$(ip addr show "${interface}" | grep -a2 "state DOWN" | tail -1 )
+
+	if [ -z "${if_info}" ]; then
+		state=1
+	fi
+
+	echo "if_state: interface ${interface} is in state ${state}"
+	return "${state}"
+}
+
+wait_for_if_up() {
+	local interface
+	local state
+
+	interface="${1}"
+
+	retries=0
+	max_retries=100
+	while if_state "${interface}" && [ "$((retries++))" -lt "${max_retries}" ]; do
+		sleep 0.1
+	done
+	if_state "${interface}" && return -1
+	return 0
+}
+
+if_up() {
+	local interface
+	interface="${1}"
+
+	if if_state "${interface}" ; then
+		echo "Bringing interface ${interface} up"
+		ifconfig "${interface}" up
+		wait_for_if_up "${interface}" 2>&1 > /dev/null
+		check_return "ethernet-${interface}-state-up ${result}"
+	fi
+}
+
+
+if_down() {
+	local interface
+	local result
+
+	interface="${1}"
+	result=fail
+
+	echo "Bringing interface ${interface} down"
+	ifconfig "${interface}" down
+	if_state "${interface}"
+	check_return "ethernet-${interface}-state-down"
+}
+
+get_ipaddr() {
+	local ipaddr
+	local interface
+
+	interface="${1}"
+	ipaddr=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet "| tail -1 | awk '{print $2}' | cut -f1 -d'/')
+	echo "${ipaddr}"
+}
+
+get_netmask() {
+	local netmask
+	local interface
+
+	interface="${1}"
+	netmask=$(ip addr show "${interface}" | grep -a2 "state " | grep "inet " | tail -1 | awk '{print $2}' | cut -f2 -d'/')
+	echo "${netmask}"
+}
+
+show_ip() {
+	local interface
+	local ipaddr
+	local netmask
+
+	interface="${1}"
+
+	ipaddr=$(get_ipaddr "${interface}")
+	netmask=$(get_netmask "${interface}")
+	echo "Current ipaddr=${ipaddr}/${netmask}"
+}
+
+ping_test() {
+	local interface
+	local test_string
+
+	interface="${1}"
+	test_string="${2}"
+
+	# Get IP address of a given interface
+	show_ip "${interface}"
+	ipaddr=$(get_ipaddr "${interface}")
+	[ -n "${ipaddr}" ]
+	check_return "ethernet-${interface}-ping-get-ipaddr"
+
+	# Get default Route IP address of a given interface
+	ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+
+	# Run the test
+	run_test_case "ping -I ${interface} -c 5 ${ROUTE_ADDR}" "${test_string}"
+}
+
+
+
+assign_ipaddr(){
+	local interface
+	local ipaddr
+	local netmask
+	local static_ipaddr
+
+	interface="${1}"
+	static_ipaddr="${2}"
+
+	if [ -z "${static_ipaddr}" ]; then
+		test_string="udhcp"
+	else
+		test_string="static-ip"
+	fi
+
+	show_ip "${interface}"
+	ipaddr=$(get_ipaddr "${interface}")
+	netmask=$(get_netmask "${interface}")
+	if [ ! -z "${ipaddr}" ]; then
+		echo "ip address already set... removing"
+		ip addr del "${ipaddr}"/"${netmask}" dev "${interface}"
+
+		echo "Check IP address removed"
+		show_ip "${interface}"
+		ipaddr=$(get_ipaddr "${interface}")
+		[ -z "${ipaddr}" ]
+		check_return "ethernet-${interface}-${test_string}-remove-ipaddr"
+	fi
+
+	if [ -z "${static_ipaddr}" ]; then
+		echo "Running udhcpc on ${interface}..."
+		udhcpc -i "${interface}"
+		# TODO - wait for IP addr assignment?
+	else
+		echo "Setting a static IP address to ${static_ipaddr}..."
+		ifconfig "${interface}" "${static_ipaddr}"
+		echo "Setting default gateway to ${GATEWAY}"
+		route add default gw "${GATEWAY}"
+	fi
+
+	show_ip "${interface}"
+	ipaddr=$(get_ipaddr "${interface}")
+	if [ -z "${ipaddr}" ]; then
+		check_return "ethernet-${interface}-${test_string}-assign-ipaddr"
+	fi
+	ping_test "${INTERFACE}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
+}
+
+dump_link_settings(){
+	local interface
+	local speed
+	local duplex
+	local autoneg
+
+	interface="${1}"
+	speed=$(get_link_speed "${interface}")
+	duplex=$(get_link_duplex "${interface}")
+	autoneg=$(get_link_autoneg "${interface}")
+
+	echo "Current settings for interface ${interface}"
+	echo "  Auto-neg: ${autoneg}"
+	echo "  Speed:    ${speed}"
+	echo "  Duplex:   ${duplex}"
+}
+
+
+get_link_speed(){
+	local interface
+	local speed
+
+	interface="${1}"
+	speed=$(ethtool "${interface}" \
+		| grep -e "Speed" \
+		| sed  -e "s/Speed: //g" \
+		| sed  -e 's/\t//g' -e 's/ //g' -e 's/Mb\/s//g')
+	echo "${speed}"
+}
+get_link_duplex(){
+	local interface
+	local duplex
+
+	interface="${1}"
+	duplex=$(ethtool "${interface}" \
+		| grep -e "Duplex" \
+		| sed  -e "s/Duplex: //g" \
+		| sed  -e 's/\t//g' -e 's/ //g' \
+		| awk '{print tolower($0)}')
+	echo "${duplex}"
+}
+get_link_autoneg(){
+	local interface
+	local autoneg
+
+	interface="${1}"
+	autoneg=$(ethtool "${interface}" \
+		| grep -e "Advertised auto-negotiation" \
+		| sed  -e "s/Advertised auto-negotiation://g" \
+		| sed  -e 's/\t//g' -e 's/ //g' \
+		| awk '{print tolower($0)}')
+
+	case "${autoneg}" in
+		no|off) autoneg=off ;;
+		yes|on) autoneg=on ;;
+	esac
+	echo "${autoneg}"
+}
+
+check_link_settings(){
+	local interface
+	local requested_speed
+	local requested_duplex
+	local requested_autoneg
+	local actual_speed
+	local actual_duplex
+	local actual_autoneg
+	local test_string
+
+	interface="${1}"
+	requested_speed="${2}"
+	requested_duplex="${3}"
+	requested_autoneg="${4}"
+	test_string="${5}"
+
+	dump_link_settings "${interface}"
+
+	actual_speed=$(get_link_speed "${interface}")
+	actual_duplex=$(get_link_duplex "${interface}")
+	actual_autoneg=$(get_link_autoneg "${interface}")
+
+	[ "${actual_autoneg}" = "${requested_autoneg}" ]
+	check_return "ethernet-${interface}-${test_string}-check-link-autoneg"
+
+	if [ "${requested_autoneg}" = "off" ]; then
+		[ "${actual_speed}" = "${requested_speed}" ]
+		check_return "ethernet-${interface}-${test_string}-check-link-speed"
+		[ "${actual_duplex}" = "${requested_duplex}" ]
+		check_return "ethernet-${interface}-${test_string}-check-link-duplex"
+	fi
+}
+
+
+test_ethtool(){
+	local test_string
+	local interface
+	local speed
+	local duplex
+	local autoneg
+
+	interface="${1}"
+	test_string="${2}"
+	speed="${3}"
+	duplex="${4}"
+	autoneg="${5}"
+
+	dump_link_settings "${interface}"
+
+	echo "Requested Settings:"
+	echo "  Auto-neg: ${autoneg}"
+	echo "  Speed:    ${speed}"
+	echo "  Duplex:   ${duplex}"
+
+	if [ "${autoneg}" = "on" ]; then
+		echo "Setting ${interface} to auto-negotiate"
+		ethtool -s "${interface}" autoneg on
+	else
+		echo "Setting ${interface} to manual negotiation for ${speed}Mbps at ${duplex} duplex"
+		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg "${autoneg}"
+	fi
+	echo ""
+	sleep 10
+	echo ""
+	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${test_string}"
+}
+
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+
 
 
 echo "################################################################################"
@@ -377,6 +669,13 @@ else
 			smallfilename=$(mktemp /tmp/smallfile.XXXXX)
 			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${smallfilename}" root@"${SERVER}":"${filename}"
 			rm -f "${filename}" "${smallfilename}"
+			;;
+		"ethtool")
+			# TODO - add params for:
+			# speed
+			# duplex
+			# autoneg
+			test_ethtool "${ETH}" "ethtool-${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
 			;;
 		"finished")
 			lava-send client-request request="finished"

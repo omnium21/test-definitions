@@ -30,10 +30,13 @@ params:
     CMD: "daemon"
     ETH: "eth0"
 
+    # Settings for CMD=ping-request
     # Used for ping-request commands to indicate if we expect the ping to pass or fail
     # This is used when we disable the ethernet port, then check that ping fails
     EXPECTED_RESULT: "pass"
     # Time in seconds to transmit for
+
+    # Setting for CMD=iperf3-client
     TIME: "10"
     # Number of parallel client streams to run
     THREADS: "1"
@@ -41,10 +44,16 @@ params:
     AFFINITY: ""
     # Set REVERSE="-R" to run tx from the server
     REVERSE: ""
+
+    # Setting for CMD=ethtool
+    LINKSPEED: "100"
+    DUPLEX: "full"
+    AUTONEG: "off"
+
     SKIP_INSTALL: "false"
 
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" "${AFFINITY}" "${REVERSE}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

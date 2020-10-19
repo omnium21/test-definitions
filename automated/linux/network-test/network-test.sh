@@ -381,17 +381,15 @@ check_link_settings(){
 
 
 test_ethtool(){
-	local test_string
 	local interface
 	local speed
 	local duplex
 	local autoneg
 
 	interface="${1}"
-	test_string="${2}"
-	speed="${3}"
-	duplex="${4}"
-	autoneg="${5}"
+	speed="${2}"
+	duplex="${3}"
+	autoneg="${4}"
 
 	dump_link_settings "${interface}"
 
@@ -410,7 +408,7 @@ test_ethtool(){
 	echo ""
 	sleep 10
 	echo ""
-	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${test_string}"
+	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "ethtool"
 }
 
 ################################################################################
@@ -675,7 +673,7 @@ else
 			# speed
 			# duplex
 			# autoneg
-			test_ethtool "${ETH}" "ethtool-${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
+			test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
 			;;
 		"finished")
 			lava-send client-request request="finished"

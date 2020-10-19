@@ -203,18 +203,18 @@ show_ip() {
 ################################################################################
 is_valid_ip() {
     local  ip=$1
-    local  stat=1
+    local  is_valid="false"
 
 	if expr "$ip" : '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null; then
 	  for i in 1 2 3 4; do
 		if [ $(echo "$ip" | cut -d. -f$i) -gt 255 ]; then
-		  return 1
+		  return "false"
 		fi
 	  done
-	  return 0
+	  is_valid="true"
 	fi
 
-    return $stat
+    return $is_valid
 }
 
 ################################################################################
@@ -523,7 +523,7 @@ echo "##########################################################################
 # Try to get the stashed IP address first, otherwise, try to work it out
 ipaddrstash="/tmp/ipaddr-${ETH}.txt"
 ipaddr=$(get_ipaddr $ETH)
-if [ -z $(is_valid_ip $ipaddr) ]; then
+if [ $(is_valid_ip $ipaddr) = "false" ]; then
 	if [ -e "${ipaddrstash}" ]; then
 		ipaddr="$(cat ${ipaddrstash})"
 	fi
@@ -534,7 +534,7 @@ fi
 dump_msg_cache
 rm -f /tmp/lava_multi_node_cache.txt
 
-if [ -z $(is_valid_ip $ipaddr) ]; then
+if [ $(is_valid_ip $ipaddr) = "false" ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else

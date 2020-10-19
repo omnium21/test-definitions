@@ -285,7 +285,7 @@ assign_ipaddr(){
 	if [ -z "${ipaddr}" ]; then
 		check_return "ethernet-${interface}-${test_string}-assign-ipaddr"
 	fi
-	ping_test "${INTERFACE}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
+	ping_test "${interface}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
 }
 
 dump_link_settings(){
@@ -434,15 +434,15 @@ echo "##########################################################################
 
 # Bring up the interface we want to test
 echo "################################################################################"
-echo "Bring ${INTERFACE} up"
+echo "Bring ${ETH} up"
 echo "################################################################################"
 if [ -n "${SWITCH_IF}" ]; then
-	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
+	echo "${ETH} is a port on switch ${SWITCH_IF}"
 	ip addr show "${SWITCH_IF}"
 	if_up "${SWITCH_IF}"
 	ip addr show "${SWITCH_IF}"
 fi
-if_up "${INTERFACE}"
+if_up "${ETH}"
 echo "################################################################################"
 
 

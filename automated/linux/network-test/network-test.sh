@@ -496,7 +496,8 @@ echo "##########################################################################
 # Try to get the stashed IP address first, otherwise, try to work it out
 ipaddrstash="/tmp/ipaddr-${ETH}.txt"
 ipaddr=$(get_ipaddr $ETH)
-if [ ! -z $(is_valid_ip $ipaddr) ]; then
+is_valid_ip "${ipaddr}"
+if [ $? != 0 ]; then
 	if [ -e "${ipaddrstash}" ]; then
 		ipaddr="$(cat ${ipaddrstash})"
 	fi
@@ -507,7 +508,8 @@ fi
 dump_msg_cache
 rm -f /tmp/lava_multi_node_cache.txt
 
-if [ ! -z $(is_valid_ip $ipaddr) ]; then
+is_valid_ip "${ipaddr}"
+if [ $? != 0 ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else

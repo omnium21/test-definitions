@@ -23,7 +23,7 @@ IPERF3_SERVER_RUNNING="no"
 CMD="usage"
 
 usage() {
-    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false]" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface>" 1>&2
     exit 1
 }
 
@@ -40,6 +40,7 @@ while getopts "A:a:c:d:e:l:t:p:v:s:r:Rh" o; do
     r) EXPECTED_RESULT="${OPTARG}" ;;
     R) REVERSE="-R" ;;
     v) VERSION="${OPTARG}" ;;
+    w) SWITCH_IF="${OPTARG}" ;;
     s) SKIP_INSTALL="${OPTARG}" ;;
     h|*) usage ;;
   esac
@@ -417,6 +418,32 @@ test_ethtool(){
 ################################################################################
 ################################################################################
 
+
+# Take all interfaces down
+echo "################################################################################"
+
+# TODO: iflist should be auto-generated or able to deal with other boards
+iflist=( eth0 eth1 lan0 lan1 lan2 )
+[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
+
+for intf in ${iflist[@]}; do
+	if_down "${intf}"
+done
+sleep 2
+echo "################################################################################"
+
+# Bring up the interface we want to test
+echo "################################################################################"
+echo "Bring ${INTERFACE} up"
+echo "################################################################################"
+if [ -n "${SWITCH_IF}" ]; then
+	echo "${INTERFACE} is a port on switch ${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+	if_up "${SWITCH_IF}"
+	ip addr show "${SWITCH_IF}"
+fi
+if_up "${INTERFACE}"
+echo "################################################################################"
 
 
 echo "################################################################################"

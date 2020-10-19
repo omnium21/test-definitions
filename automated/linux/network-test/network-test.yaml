@@ -50,10 +50,12 @@ params:
     DUPLEX: "full"
     AUTONEG: "off"
 
+    SWITCH_IF: ""
+
     SKIP_INSTALL: "false"
 
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" "${AFFINITY}" "${REVERSE}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" -w "${SWITCH_IF}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

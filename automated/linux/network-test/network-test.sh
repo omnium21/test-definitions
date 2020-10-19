@@ -22,54 +22,17 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 CMD="usage"
 
+################################################################################
+#
+################################################################################
 usage() {
     echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface>" 1>&2
     exit 1
 }
 
-while getopts "A:a:c:d:e:l:t:p:v:s:r:w:Rh" o; do
-  case "$o" in
-    A) AFFINITY="-A ${OPTARG}" ;;
-    a) AUTONEG="${OPTARG}" ;;
-    c) CMD="${OPTARG}" ;;
-    d) DUPLEX="${OPTARG}" ;;
-    e) ETH="${OPTARG}" ;;
-    l) LINKSPEED="${OPTARG}" ;;
-    t) TIME="${OPTARG}" ;;
-    p) THREADS="${OPTARG}" ;;
-    r) EXPECTED_RESULT="${OPTARG}" ;;
-    R) REVERSE="-R" ;;
-    v) VERSION="${OPTARG}" ;;
-    w) SWITCH_IF="${OPTARG}" ;;
-    s) SKIP_INSTALL="${OPTARG}" ;;
-    h|*) usage ;;
-  esac
-done
-
-create_out_dir "${OUTPUT}"
-cd "${OUTPUT}"
-
-if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
-    info_msg "iperf3 installation skipped"
-else
-    dist_name
-    # shellcheck disable=SC2154
-    case "${dist}" in
-        debian|ubuntu|fedora)
-            install_deps "iperf3"
-            ;;
-        centos)
-            install_deps "wget gcc make"
-            wget https://github.com/esnet/iperf/archive/"${VERSION}".tar.gz
-            tar xf "${VERSION}".tar.gz
-            cd iperf-"${VERSION}"
-            ./configure
-            make
-            make install
-            ;;
-    esac
-fi
-
+################################################################################
+#
+################################################################################
 command_exists(){
 	local cmd
 
@@ -80,11 +43,10 @@ command_exists(){
 		exit 1
 	fi
 }
-command_exists "lava-echo-ipv4"
-command_exists "lava-send"
-command_exists "lava-wait"
-command_exists "ping"
 
+################################################################################
+#
+################################################################################
 dump_msg_cache(){
 	# TODO -delete this debug
 	echo "################################################################################"
@@ -95,6 +57,9 @@ dump_msg_cache(){
 }
 
 
+################################################################################
+#
+################################################################################
 wait_for_msg(){
 	local message="${1}"
 	local msgseq="${2}"
@@ -124,10 +89,7 @@ wait_for_msg(){
 }
 
 ################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
+#
 ################################################################################
 if_state() {
 	local interface
@@ -147,6 +109,9 @@ if_state() {
 	return "${state}"
 }
 
+################################################################################
+#
+################################################################################
 wait_for_if_up() {
 	local interface
 	local state
@@ -162,6 +127,9 @@ wait_for_if_up() {
 	return 0
 }
 
+################################################################################
+#
+################################################################################
 if_up() {
 	local interface
 	interface="${1}"
@@ -175,6 +143,9 @@ if_up() {
 }
 
 
+################################################################################
+#
+################################################################################
 if_down() {
 	local interface
 	local result
@@ -188,6 +159,9 @@ if_down() {
 	check_return "ethernet-${interface}-state-down"
 }
 
+################################################################################
+#
+################################################################################
 get_ipaddr() {
 	local ipaddr
 	local interface
@@ -197,6 +171,9 @@ get_ipaddr() {
 	echo "${ipaddr}"
 }
 
+################################################################################
+#
+################################################################################
 get_netmask() {
 	local netmask
 	local interface
@@ -206,6 +183,9 @@ get_netmask() {
 	echo "${netmask}"
 }
 
+################################################################################
+#
+################################################################################
 show_ip() {
 	local interface
 	local ipaddr
@@ -218,6 +198,9 @@ show_ip() {
 	echo "Current ipaddr=${ipaddr}/${netmask}"
 }
 
+################################################################################
+#
+################################################################################
 is_valid_ip() {
     local  ip=$1
     local  stat=1
@@ -234,6 +217,9 @@ is_valid_ip() {
     return $stat
 }
 
+################################################################################
+#
+################################################################################
 ping_test() {
 	local interface
 	local test_string
@@ -256,6 +242,9 @@ ping_test() {
 
 
 
+################################################################################
+#
+################################################################################
 assign_ipaddr(){
 	local interface
 	local ipaddr
@@ -304,6 +293,9 @@ assign_ipaddr(){
 	ping_test "${interface}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
 }
 
+################################################################################
+#
+################################################################################
 dump_link_settings(){
 	local interface
 	local speed
@@ -322,6 +314,9 @@ dump_link_settings(){
 }
 
 
+################################################################################
+#
+################################################################################
 get_link_speed(){
 	local interface
 	local speed
@@ -333,6 +328,9 @@ get_link_speed(){
 		| sed  -e 's/\t//g' -e 's/ //g' -e 's/Mb\/s//g')
 	echo "${speed}"
 }
+################################################################################
+#
+################################################################################
 get_link_duplex(){
 	local interface
 	local duplex
@@ -345,6 +343,9 @@ get_link_duplex(){
 		| awk '{print tolower($0)}')
 	echo "${duplex}"
 }
+################################################################################
+#
+################################################################################
 get_link_autoneg(){
 	local interface
 	local autoneg
@@ -363,6 +364,9 @@ get_link_autoneg(){
 	echo "${autoneg}"
 }
 
+################################################################################
+#
+################################################################################
 check_link_settings(){
 	local interface
 	local requested_speed
@@ -397,6 +401,9 @@ check_link_settings(){
 }
 
 
+################################################################################
+#
+################################################################################
 test_ethtool(){
 	local interface
 	local speed
@@ -434,10 +441,57 @@ test_ethtool(){
 ################################################################################
 ################################################################################
 
+while getopts "A:a:c:d:e:l:t:p:v:s:r:w:Rh" o; do
+  case "$o" in
+    A) AFFINITY="-A ${OPTARG}" ;;
+    a) AUTONEG="${OPTARG}" ;;
+    c) CMD="${OPTARG}" ;;
+    d) DUPLEX="${OPTARG}" ;;
+    e) ETH="${OPTARG}" ;;
+    l) LINKSPEED="${OPTARG}" ;;
+    t) TIME="${OPTARG}" ;;
+    p) THREADS="${OPTARG}" ;;
+    r) EXPECTED_RESULT="${OPTARG}" ;;
+    R) REVERSE="-R" ;;
+    v) VERSION="${OPTARG}" ;;
+    w) SWITCH_IF="${OPTARG}" ;;
+    s) SKIP_INSTALL="${OPTARG}" ;;
+    h|*) usage ;;
+  esac
+done
+
+create_out_dir "${OUTPUT}"
+cd "${OUTPUT}"
+
+if [ "${SKIP_INSTALL}" = "true" ] || [ "${SKIP_INSTALL}" = "True" ]; then
+    info_msg "iperf3 installation skipped"
+else
+    dist_name
+    # shellcheck disable=SC2154
+    case "${dist}" in
+        debian|ubuntu|fedora)
+            install_deps "iperf3"
+            ;;
+        centos)
+            install_deps "wget gcc make"
+            wget https://github.com/esnet/iperf/archive/"${VERSION}".tar.gz
+            tar xf "${VERSION}".tar.gz
+            cd iperf-"${VERSION}"
+            ./configure
+            make
+            make install
+            ;;
+    esac
+fi
+
+command_exists "lava-echo-ipv4"
+command_exists "lava-send"
+command_exists "lava-wait"
+command_exists "ping"
+
 
 # Take all interfaces down
 echo "################################################################################"
-
 # TODO: iflist should be auto-generated or able to deal with other boards
 iflist=( eth0 eth1 lan0 lan1 lan2 )
 [ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
@@ -486,6 +540,9 @@ if [ -z $(is_valid_ip $ipaddr) ]; then
 else
 	echo "My IP address is ${ipaddr}"
 	case "$CMD" in
+		################################################################################
+		#
+		################################################################################
 		"daemon")
 			previous_msgseq=""
 			while [ true ]; do
@@ -508,14 +565,25 @@ else
 
 				# perform the client request
 				case "${request}" in
+					################################################################################
+					#
+					################################################################################
 					"finished")
 						echo "Client has signalled we are finished. Exiting."
 						exit 0
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"request-server-address")
 						dump_msg_cache
 						lava-send server-address ipaddr="${ipaddr}" msgseq="${msgseq}"
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"iperf3-server")
 						dump_msg_cache
 						if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
@@ -541,6 +609,10 @@ else
 							lava-send iperf3-server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
 						fi
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"ping-request")
 						dump_msg_cache
 
@@ -551,6 +623,10 @@ else
 						ping -c 5 "${ipaddr}" || pingresult="fail"
 						lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"ssh-request")
 						dump_msg_cache
 						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -561,6 +637,10 @@ else
 						echo "Our md5sum is ${our_sum}"
 						lava-send ssh-result md5sum="${our_sum}" msgseq="${msgseq}"
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"md5sum-request")
 						dump_msg_cache
 						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -570,6 +650,10 @@ else
 						echo "Our md5sum is ${our_sum}"
 						lava-send md5sum-result md5sum="${our_sum}" msgseq="${msgseq}"
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					"scp-request")
 						dump_msg_cache
 						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
@@ -586,11 +670,19 @@ else
 						lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
 						rm -f "${our_filename}"
 						;;
+
+					################################################################################
+					#
+					################################################################################
 					*) echo "Unknown client request: ${request}" ;;
 				esac
 				rm -f /tmp/lava_multi_node_cache.txt
 			done
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"ping-request")
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="ping-request" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
@@ -607,6 +699,10 @@ else
 			fi
 			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"request-server-address"|"iperf3-server")
 			# The mechanism for requesting the servier address, or for requesting
 			# the the daemon starts the iperf3 daemon are the same:
@@ -634,6 +730,10 @@ else
 			fi
 			echo "${CMD}" | tee -a "${RESULT_FILE}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"iperf3-client")
 			SERVER="$(cat /tmp/server.ipaddr)"
 			if [ -z "${SERVER}" ]; then
@@ -659,6 +759,10 @@ else
 					| tee -a "${RESULT_FILE}"
 			fi
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"ssh-host-to-target")
 			# SSH into the target and md5sum a file. Send the md5sum back to the target for verification
 			filename=$(mktemp /tmp/magic.XXXXX)
@@ -678,6 +782,10 @@ else
 			echo "ssh-host-to-target ${result}" | tee -a "${RESULT_FILE}"
 			rm -f "${filename}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"scp-host-to-target")
 			# SCP a file from the host (server) to the target (client)
 			filename=$(mktemp ~/largefile.XXXXX)
@@ -695,6 +803,10 @@ else
 			echo "scp-host-to-target ${result}" | tee -a "${RESULT_FILE}"
 			rm -f "${filename}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"scp-target-to-host")
 			# SCP a file from the target (client, DUT) to the host (server)
 			# TODO - this relies on running iperf3 tests first
@@ -727,12 +839,21 @@ else
 			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${smallfilename}" root@"${SERVER}":"${filename}"
 			rm -f "${filename}" "${smallfilename}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"ethtool")
 			test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
 			;;
+
+		################################################################################
+		#
+		################################################################################
 		"finished")
 			lava-send client-request request="finished"
 			;;
+
 		*)
 			usage
 			;;

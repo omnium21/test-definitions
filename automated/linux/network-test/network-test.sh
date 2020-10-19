@@ -489,7 +489,7 @@ else
 						fi
 
 						if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-							lava-send server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
+							lava-send iperf3-server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
 						fi
 						;;
 					"ping-request")
@@ -561,7 +561,7 @@ else
 		"iperf3-server")
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="iperf3-server" msgseq="${tx_msgseq}"
-			wait_for_msg server-ready "${tx_msgseq}"
+			wait_for_msg iperf3-server-ready "${tx_msgseq}"
 
 			SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
@@ -569,7 +569,7 @@ else
 				echo "ERROR: no server specified"
 				result="fail"
 			else
-				echo "server-ready: ${SERVER}"
+				echo "iperf3-server-ready: ${SERVER}"
 				echo "${SERVER}" > /tmp/server.ipaddr
 				result="pass"
 			fi

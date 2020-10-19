@@ -467,6 +467,10 @@ else
 						echo "Client has signalled we are finished. Exiting."
 						exit 0
 						;;
+					"request-server-address")
+						dump_msg_cache
+						lava-send server-address ipaddr="${ipaddr}" msgseq="${msgseq}"
+						;;
 					"iperf3-server")
 						dump_msg_cache
 						if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
@@ -558,22 +562,28 @@ else
 			fi
 			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
 			;;
-		"iperf3-server")
+		"request-server-address"|"iperf3-server")
+			# The mechanism for requesting the servier address, or for requesting
+			# the the daemon starts the iperf3 daemon are the same:
+			# - we send the request
+			# - the server does what it needs to
+			# - the server replies with its IP address
 			tx_msgseq="$(date +%s)"
-			lava-send client-request request="iperf3-server" msgseq="${tx_msgseq}"
+			lava-send client-request request="${CMD}" msgseq="${tx_msgseq}"
 			wait_for_msg iperf3-server-ready "${tx_msgseq}"
 
-			SERVER=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			server=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 
-			if [ -z "${SERVER}" ]; then
+			if [ -z "${server}" ]; then
 				echo "ERROR: no server specified"
 				result="fail"
 			else
-				echo "iperf3-server-ready: ${SERVER}"
+				SERVER="${server}"
+				echo "${CMD}: ${SERVER}"
 				echo "${SERVER}" > /tmp/server.ipaddr
 				result="pass"
 			fi
-			echo "iperf3-server ${result}" | tee -a "${RESULT_FILE}"
+			echo "${CMD}" | tee -a "${RESULT_FILE}"
 			;;
 		"iperf3-client")
 			SERVER="$(cat /tmp/server.ipaddr)"

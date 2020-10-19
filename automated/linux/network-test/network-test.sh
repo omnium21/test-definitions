@@ -476,15 +476,15 @@ if [ -z $(is_valid_ip $ipaddr) ]; then
 else
 	echo "${ipaddr}" > "${ipaddrstash}"
 fi
-echo "My IP address is ${ipaddr}"
 
 dump_msg_cache
 rm -f /tmp/lava_multi_node_cache.txt
 
-if [ "${ipaddr}" = "" ]; then
+if [ -z $(is_valid_ip $ipaddr) ]; then
 	echo "ERROR: ipaddr is invalid"
 	actual_result="fail"
 else
+	echo "My IP address is ${ipaddr}"
 	case "$CMD" in
 		"daemon")
 			previous_msgseq=""

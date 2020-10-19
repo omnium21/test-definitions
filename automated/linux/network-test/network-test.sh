@@ -255,7 +255,7 @@ assign_ipaddr(){
 	static_ipaddr="${2}"
 
 	if [ -z "${static_ipaddr}" ]; then
-		test_string="udhcp"
+		test_string="udhcpc" # TODO - what about dhclient?
 	else
 		test_string="static-ip"
 	fi
@@ -510,358 +510,384 @@ rm -f /tmp/lava_multi_node_cache.txt
 
 is_valid_ip "${ipaddr}"
 if [ $? != 0 ]; then
-	echo "ERROR: ipaddr is invalid"
-	actual_result="fail"
+	echo "WARNING: ipaddr is invalid"
 else
 	echo "My IP address is ${ipaddr}"
-	case "$CMD" in
-		################################################################################
-		#
-		################################################################################
-		"configure-interface")
-			# Take all interfaces down
-			echo "################################################################################"
-			# TODO: iflist should be auto-generated or able to deal with other boards
-			iflist=( eth0 eth1 lan0 lan1 lan2 )
-			[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
-
-			for intf in ${iflist[@]}; do
-				if_down "${intf}"
-			done
-			sleep 2
-			echo "################################################################################"
-
-			# Bring up the interface we want to test
-			echo "################################################################################"
-			echo "Bring ${ETH} up"
-			echo "################################################################################"
-			if [ -n "${SWITCH_IF}" ]; then
-				echo "${ETH} is a port on switch ${SWITCH_IF}"
-				ip addr show "${SWITCH_IF}"
-				if_up "${SWITCH_IF}"
-				ip addr show "${SWITCH_IF}"
-			fi
-			if_up "${ETH}"
-			echo "################################################################################"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"daemon")
-			previous_msgseq=""
-			while [ true ]; do
-				# Wait for the client to make a request
-				lava-wait client-request
-
-				# read the client request
-				request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-				msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-				if [ "${msgseq}" = "${previous_msgseq}" ]; then
-					echo "Ignoring duplicate message ${msgseq}"
-					continue
-				fi
-
-				# log this message so we don't handle it again
-				previous_msgseq="${msgseq}"
-
-				echo "client-request \"${request}\" with stamp ${msgseq} received"
-
-				# perform the client request
-				case "${request}" in
-					################################################################################
-					#
-					################################################################################
-					"finished")
-						echo "Client has signalled we are finished. Exiting."
-						exit 0
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"request-server-address")
-						dump_msg_cache
-						lava-send server-address ipaddr="${ipaddr}" msgseq="${msgseq}"
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"iperf3-server")
-						dump_msg_cache
-						if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
-							################################################################################
-							# Start the server
-							# report pass/fail as a test result
-							# send the server's IP address to the client(s)
-							################################################################################
-							echo "Client has asked us to start the iperf3 server"
-							cmd="iperf3 -s -D"
-							${cmd}
-							if pgrep -f "${cmd}" > /dev/null; then
-								IPERF3_SERVER_RUNNING="pass"
-							else
-								IPERF3_SERVER_RUNNING="fail"
-							fi
-							echo "iperf3-server-running ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
-						else
-							echo "iperf3 server is already running"
-						fi
-
-						if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
-							lava-send iperf3-server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
-						fi
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"ping-request")
-						dump_msg_cache
-
-						ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
-						pingresult=pass
-						ping -c 5 "${ipaddr}" || pingresult="fail"
-						lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"ssh-request")
-						dump_msg_cache
-						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						echo "Client has asked us to ssh in and md5sum ${their_filename}"
-						our_sum=$(ssh -o StrictHostKeyChecking=no -o BatchMode=yes root@"${their_ipaddr}" md5sum "${their_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${their_filename}".md5)
-						echo "Our md5sum is ${our_sum}"
-						lava-send ssh-result md5sum="${our_sum}" msgseq="${msgseq}"
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"md5sum-request")
-						dump_msg_cache
-						filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						echo "Client has asked us to md5sum ${filename}"
-						our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
-						echo "Our md5sum is ${our_sum}"
-						lava-send md5sum-result md5sum="${our_sum}" msgseq="${msgseq}"
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					"scp-request")
-						dump_msg_cache
-						their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-						echo "Client has asked us to send them ${filename}"
-
-						# first create the file
-						our_filename=$(mktemp ~/largefile.XXXXX)
-						dd if=/dev/urandom of="${our_filename}" bs=1M count=1024
-						our_sum=$(md5sum "${our_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
-						scp -o StrictHostKeyChecking=no -o BatchMode=yes "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
-						echo "Our md5sum is ${our_sum}"
-						lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
-						rm -f "${our_filename}"
-						;;
-
-					################################################################################
-					#
-					################################################################################
-					*) echo "Unknown client request: ${request}" ;;
-				esac
-				rm -f /tmp/lava_multi_node_cache.txt
-			done
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"ping-request")
-			tx_msgseq="$(date +%s)"
-			lava-send client-request request="ping-request" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
-			wait_for_msg client-ping-done "${tx_msgseq}"
-
-			pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-			echo "The daemon says that pinging the client returned ${pingresult}"
-			echo "We are expecting ping to ${EXPECTED_RESULT}"
-
-			if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
-				result="pass"
-			else
-				result="fail"
-			fi
-			echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"request-server-address"|"iperf3-server")
-			# The mechanism for requesting the servier address, or for requesting
-			# the the daemon starts the iperf3 daemon are the same:
-			# - we send the request
-			# - the server does what it needs to
-			# - the server replies with its IP address
-			tx_msgseq="$(date +%s)"
-			lava-send client-request request="${CMD}" msgseq="${tx_msgseq}"
-			case "${CMD}" in
-				"iperf3-server") wait_msg=iperf3-server-ready ;;
-				*) wait_msg=server-address ;;
-			esac
-			wait_for_msg "${wait_msg}" "${tx_msgseq}"
-
-			server=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-			if [ -z "${server}" ]; then
-				echo "ERROR: no server specified"
-				result="fail"
-			else
-				SERVER="${server}"
-				echo "${CMD}: ${SERVER}"
-				echo "${SERVER}" > /tmp/server.ipaddr
-				result="pass"
-			fi
-			echo "${CMD}" | tee -a "${RESULT_FILE}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"iperf3-client")
-			SERVER="$(cat /tmp/server.ipaddr)"
-			if [ -z "${SERVER}" ]; then
-				echo "ERROR: no server specified"
-				exit 1
-			else
-				echo "Using SERVER=${SERVER}"
-			fi
-
-			# We are running in client mode
-			# Run iperf3 test with unbuffered output mode.
-			stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
-				| tee "${LOGFILE}"
-
-			# Parse logfile.
-			if [ "${THREADS}" -eq 1 ]; then
-				grep -E "(sender|receiver)" "${LOGFILE}" \
-					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
-					| tee -a "${RESULT_FILE}"
-			elif [ "${THREADS}" -gt 1 ]; then
-				grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
-					| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
-					| tee -a "${RESULT_FILE}"
-			fi
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"ssh-host-to-target")
-			# SSH into the target and md5sum a file. Send the md5sum back to the target for verification
-			filename=$(mktemp /tmp/magic.XXXXX)
-			dd if=/dev/urandom of="${filename}" bs=1024 count=1
-			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
-
-			tx_msgseq="$(date +%s)"
-			lava-send client-request request="ssh-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
-			wait_for_msg ssh-result "${tx_msgseq}"
-			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-			if [ "${their_sum}" = "${our_sum}" ]; then
-				result=pass
-			else
-				result=fail
-			fi
-			echo "ssh-host-to-target ${result}" | tee -a "${RESULT_FILE}"
-			rm -f "${filename}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"scp-host-to-target")
-			# SCP a file from the host (server) to the target (client)
-			filename=$(mktemp ~/largefile.XXXXX)
-			tx_msgseq="$(date +%s)"
-			lava-send client-request request="scp-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
-			wait_for_msg scp-result "${tx_msgseq}"
-			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
-
-			if [ "${their_sum}" = "${our_sum}" ]; then
-				result=pass
-			else
-				result=fail
-			fi
-			echo "scp-host-to-target ${result}" | tee -a "${RESULT_FILE}"
-			rm -f "${filename}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"scp-target-to-host")
-			# SCP a file from the target (client, DUT) to the host (server)
-			# TODO - this relies on running iperf3 tests first
-			SERVER="$(cat /tmp/server.ipaddr)"
-			if [ -z "${SERVER}" ]; then
-				echo "ERROR: no server specified"
-				exit 1
-			else
-				echo "Using SERVER=${SERVER}"
-			fi
-
-			filename=$(mktemp ~/largefile.XXXXX)
-			dd if=/dev/urandom of="${filename}" bs=1M count=1024
-			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${filename}" root@"${SERVER}":"${filename}"
-			tx_msgseq="$(date +%s)"
-			lava-send client-request request="md5sum-request" filename="${filename}" msgseq="${tx_msgseq}"
-			our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
-			wait_for_msg md5sum-result "${tx_msgseq}"
-			their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
-
-			if [ "${their_sum}" = "${our_sum}" ]; then
-				result=pass
-			else
-				result=fail
-			fi
-			echo "scp-target-to-host ${result}" | tee -a "${RESULT_FILE}"
-
-			# Send an empty file back to the host to overwrite the large file, effectively deleting the file, so we don't eat their disk space
-			smallfilename=$(mktemp /tmp/smallfile.XXXXX)
-			scp -o StrictHostKeyChecking=no -o BatchMode=yes "${smallfilename}" root@"${SERVER}":"${filename}"
-			rm -f "${filename}" "${smallfilename}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"ethtool")
-			test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
-			;;
-
-		################################################################################
-		#
-		################################################################################
-		"finished")
-			lava-send client-request request="finished"
-			;;
-
-		*)
-			usage
-			;;
-	esac
 fi
-echo "$0 ${result}" | tee -a "${RESULT_FILE}"
+
+# TODO - some commands *need* an IP address configured for the interface, eg. ping
+#        others don't, eg. configure-interface
+#        Exit early in these specific circumstances
+
+ipaddr_mandatory=true
+case "${CMD}" in
+	"configure-interface")
+		ipaddr_mandatory=false ;;
+esac
+
+if [ "${ipaddr_mandatory}" = "true" ]; then
+	is_valid_ip "${ipaddr}"
+	if [ $? != 0 ]; then
+		echo "WARNING: ipaddr is invalid. Attempt to assign one..."
+		assign_ipaddr "${ETH}"
+		ipaddr=$(get_ipaddr $ETH)
+		is_valid_ip "${ipaddr}"
+		if [ $? != 0 ]; then
+			echo "ERROR: ipaddr is invalid. Exiting."
+			# TODO - report lava test fail
+			exit 1
+		fi
+	fi
+fi
+
+case "$CMD" in
+	################################################################################
+	#
+	################################################################################
+	"configure-interface")
+		# Take all interfaces down
+		echo "################################################################################"
+		# TODO: iflist should be auto-generated or able to deal with other boards
+		iflist=( eth0 eth1 lan0 lan1 lan2 )
+		[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
+
+		for intf in ${iflist[@]}; do
+			if_down "${intf}"
+		done
+		sleep 2
+		echo "################################################################################"
+
+		# Bring up the interface we want to test
+		echo "################################################################################"
+		echo "Bring ${ETH} up"
+		echo "################################################################################"
+		if [ -n "${SWITCH_IF}" ]; then
+			echo "${ETH} is a port on switch ${SWITCH_IF}"
+			ip addr show "${SWITCH_IF}"
+			if_up "${SWITCH_IF}"
+			ip addr show "${SWITCH_IF}"
+		fi
+		if_up "${ETH}"
+		echo "################################################################################"
+		assign_ipaddr ${ETH} ${ipaddr}
+		echo "################################################################################"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"daemon")
+		previous_msgseq=""
+		while [ true ]; do
+			# Wait for the client to make a request
+			lava-wait client-request
+
+			# read the client request
+			request=$(grep "request" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+			msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+			if [ "${msgseq}" = "${previous_msgseq}" ]; then
+				echo "Ignoring duplicate message ${msgseq}"
+				continue
+			fi
+
+			# log this message so we don't handle it again
+			previous_msgseq="${msgseq}"
+
+			echo "client-request \"${request}\" with stamp ${msgseq} received"
+
+			# perform the client request
+			case "${request}" in
+				################################################################################
+				#
+				################################################################################
+				"finished")
+					echo "Client has signalled we are finished. Exiting."
+					exit 0
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"request-server-address")
+					dump_msg_cache
+					lava-send server-address ipaddr="${ipaddr}" msgseq="${msgseq}"
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"iperf3-server")
+					dump_msg_cache
+					if [ "${IPERF3_SERVER_RUNNING}" != "pass" ]; then
+						################################################################################
+						# Start the server
+						# report pass/fail as a test result
+						# send the server's IP address to the client(s)
+						################################################################################
+						echo "Client has asked us to start the iperf3 server"
+						cmd="iperf3 -s -D"
+						${cmd}
+						if pgrep -f "${cmd}" > /dev/null; then
+							IPERF3_SERVER_RUNNING="pass"
+						else
+							IPERF3_SERVER_RUNNING="fail"
+						fi
+						echo "iperf3-server-running ${IPERF3_SERVER_RUNNING}" | tee -a "${RESULT_FILE}"
+					else
+						echo "iperf3 server is already running"
+					fi
+
+					if [ "${IPERF3_SERVER_RUNNING}" = "pass" ]; then
+						lava-send iperf3-server-ready ipaddr="${ipaddr}" msgseq="${msgseq}"
+					fi
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"ping-request")
+					dump_msg_cache
+
+					ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					echo "Client has asked us to ping address ${ipaddr} with msgseq=${msgseq}"
+					pingresult=pass
+					ping -c 5 "${ipaddr}" || pingresult="fail"
+					lava-send client-ping-done pingresult="${pingresult}" msgseq="${msgseq}"
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"ssh-request")
+					dump_msg_cache
+					their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					echo "Client has asked us to ssh in and md5sum ${their_filename}"
+					our_sum=$(ssh -o StrictHostKeyChecking=no -o BatchMode=yes root@"${their_ipaddr}" md5sum "${their_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${their_filename}".md5)
+					echo "Our md5sum is ${our_sum}"
+					lava-send ssh-result md5sum="${our_sum}" msgseq="${msgseq}"
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"md5sum-request")
+					dump_msg_cache
+					filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					echo "Client has asked us to md5sum ${filename}"
+					our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+					echo "Our md5sum is ${our_sum}"
+					lava-send md5sum-result md5sum="${our_sum}" msgseq="${msgseq}"
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				"scp-request")
+					dump_msg_cache
+					their_filename=$(grep "filename" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+					echo "Client has asked us to send them ${filename}"
+
+					# first create the file
+					our_filename=$(mktemp ~/largefile.XXXXX)
+					dd if=/dev/urandom of="${our_filename}" bs=1M count=1024
+					our_sum=$(md5sum "${our_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
+					scp -o StrictHostKeyChecking=no -o BatchMode=yes "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
+					echo "Our md5sum is ${our_sum}"
+					lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
+					rm -f "${our_filename}"
+					;;
+
+				################################################################################
+				#
+				################################################################################
+				*) echo "Unknown client request: ${request}" ;;
+			esac
+			rm -f /tmp/lava_multi_node_cache.txt
+		done
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"ping-request")
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="ping-request" ipaddr="${ipaddr}" msgseq="${tx_msgseq}"
+		wait_for_msg client-ping-done "${tx_msgseq}"
+
+		pingresult=$(grep "pingresult" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+		echo "The daemon says that pinging the client returned ${pingresult}"
+		echo "We are expecting ping to ${EXPECTED_RESULT}"
+
+		if [ "${pingresult}" = "${EXPECTED_RESULT}" ]; then
+			result="pass"
+		else
+			result="fail"
+		fi
+		echo "client-ping-request ${result}" | tee -a "${RESULT_FILE}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"request-server-address"|"iperf3-server")
+		# The mechanism for requesting the servier address, or for requesting
+		# the the daemon starts the iperf3 daemon are the same:
+		# - we send the request
+		# - the server does what it needs to
+		# - the server replies with its IP address
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="${CMD}" msgseq="${tx_msgseq}"
+		case "${CMD}" in
+			"iperf3-server") wait_msg=iperf3-server-ready ;;
+			*) wait_msg=server-address ;;
+		esac
+		wait_for_msg "${wait_msg}" "${tx_msgseq}"
+
+		server=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+		if [ -z "${server}" ]; then
+			echo "ERROR: no server specified"
+			result="fail"
+		else
+			SERVER="${server}"
+			echo "${CMD}: ${SERVER}"
+			echo "${SERVER}" > /tmp/server.ipaddr
+			result="pass"
+		fi
+		echo "${CMD}" | tee -a "${RESULT_FILE}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"iperf3-client")
+		SERVER="$(cat /tmp/server.ipaddr)"
+		if [ -z "${SERVER}" ]; then
+			echo "ERROR: no server specified"
+			exit 1
+		else
+			echo "Using SERVER=${SERVER}"
+		fi
+
+		# We are running in client mode
+		# Run iperf3 test with unbuffered output mode.
+		stdbuf -o0 iperf3 -c "${SERVER}" -t "${TIME}" -P "${THREADS}" "${REVERSE}" "${AFFINITY}" 2>&1 \
+			| tee "${LOGFILE}"
+
+		# Parse logfile.
+		if [ "${THREADS}" -eq 1 ]; then
+			grep -E "(sender|receiver)" "${LOGFILE}" \
+				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$7,$8)}' \
+				| tee -a "${RESULT_FILE}"
+		elif [ "${THREADS}" -gt 1 ]; then
+			grep -E "[SUM].*(sender|receiver)" "${LOGFILE}" \
+				| awk '{printf("iperf3_%s pass %s %s\n", $NF,$6,$7)}' \
+				| tee -a "${RESULT_FILE}"
+		fi
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"ssh-host-to-target")
+		# SSH into the target and md5sum a file. Send the md5sum back to the target for verification
+		filename=$(mktemp /tmp/magic.XXXXX)
+		dd if=/dev/urandom of="${filename}" bs=1024 count=1
+		our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="ssh-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
+		wait_for_msg ssh-result "${tx_msgseq}"
+		their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+		if [ "${their_sum}" = "${our_sum}" ]; then
+			result=pass
+		else
+			result=fail
+		fi
+		echo "ssh-host-to-target ${result}" | tee -a "${RESULT_FILE}"
+		rm -f "${filename}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"scp-host-to-target")
+		# SCP a file from the host (server) to the target (client)
+		filename=$(mktemp ~/largefile.XXXXX)
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="scp-request" ipaddr="${ipaddr}" filename="${filename}" msgseq="${tx_msgseq}"
+		wait_for_msg scp-result "${tx_msgseq}"
+		their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+		our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+
+		if [ "${their_sum}" = "${our_sum}" ]; then
+			result=pass
+		else
+			result=fail
+		fi
+		echo "scp-host-to-target ${result}" | tee -a "${RESULT_FILE}"
+		rm -f "${filename}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"scp-target-to-host")
+		# SCP a file from the target (client, DUT) to the host (server)
+		# TODO - this relies on running iperf3 tests first
+		SERVER="$(cat /tmp/server.ipaddr)"
+		if [ -z "${SERVER}" ]; then
+			echo "ERROR: no server specified"
+			exit 1
+		else
+			echo "Using SERVER=${SERVER}"
+		fi
+
+		filename=$(mktemp ~/largefile.XXXXX)
+		dd if=/dev/urandom of="${filename}" bs=1M count=1024
+		scp -o StrictHostKeyChecking=no -o BatchMode=yes "${filename}" root@"${SERVER}":"${filename}"
+		tx_msgseq="$(date +%s)"
+		lava-send client-request request="md5sum-request" filename="${filename}" msgseq="${tx_msgseq}"
+		our_sum=$(md5sum "${filename}" | tail -1 | cut -d " " -f 1 | tee -a "${filename}".md5)
+		wait_for_msg md5sum-result "${tx_msgseq}"
+		their_sum=$(grep "md5sum" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
+
+		if [ "${their_sum}" = "${our_sum}" ]; then
+			result=pass
+		else
+			result=fail
+		fi
+		echo "scp-target-to-host ${result}" | tee -a "${RESULT_FILE}"
+
+		# Send an empty file back to the host to overwrite the large file, effectively deleting the file, so we don't eat their disk space
+		smallfilename=$(mktemp /tmp/smallfile.XXXXX)
+		scp -o StrictHostKeyChecking=no -o BatchMode=yes "${smallfilename}" root@"${SERVER}":"${filename}"
+		rm -f "${filename}" "${smallfilename}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"ethtool")
+		test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
+		;;
+
+	################################################################################
+	#
+	################################################################################
+	"finished")
+		lava-send client-request request="finished"
+		;;
+
+	*)
+		usage
+		;;
+esac

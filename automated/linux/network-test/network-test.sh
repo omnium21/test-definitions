@@ -570,7 +570,11 @@ else
 			# - the server replies with its IP address
 			tx_msgseq="$(date +%s)"
 			lava-send client-request request="${CMD}" msgseq="${tx_msgseq}"
-			wait_for_msg iperf3-server-ready "${tx_msgseq}"
+			case "${CMD}" in
+				"iperf3-server") wait_msg=iperf3-server-ready ;;
+				*) wait_msg=server-address ;;
+			esac
+			wait_for_msg "${wait_msg}" "${tx_msgseq}"
 
 			server=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 

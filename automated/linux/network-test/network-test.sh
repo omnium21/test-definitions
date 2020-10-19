@@ -117,7 +117,7 @@ wait_for_msg(){
 			# TODO - report lava test fail
 			exit 1
 		else
-			echo "ACK: we found the droid we were looking for..."
+			echo "ACK: we found the droids we were looking for..."
 			break
 		fi
 	done

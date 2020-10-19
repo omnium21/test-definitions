@@ -218,6 +218,22 @@ show_ip() {
 	echo "Current ipaddr=${ipaddr}/${netmask}"
 }
 
+is_valid_ip() {
+    local  ip=$1
+    local  stat=1
+
+	if expr "$ip" : '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null; then
+	  for i in 1 2 3 4; do
+		if [ $(echo "$ip" | cut -d. -f$i) -gt 255 ]; then
+		  return 1
+		fi
+	  done
+	  return 0
+	fi
+
+    return $stat
+}
+
 ping_test() {
 	local interface
 	local test_string
@@ -452,10 +468,12 @@ echo "##########################################################################
 
 # Try to get the stashed IP address first, otherwise, try to work it out
 ipaddrstash="/tmp/ipaddr-${ETH}.txt"
-if [ -e "${ipaddrstash}" ]; then
-	ipaddr="$(cat ${ipaddrstash})"
+ipaddr=$(get_ipaddr $ETH)
+if [ -z $(is_valid_ip $ipaddr) ]; then
+	if [ -e "${ipaddrstash}" ]; then
+		ipaddr="$(cat ${ipaddrstash})"
+	fi
 else
-	ipaddr=$(get_ipaddr $ETH)
 	echo "${ipaddr}" > "${ipaddrstash}"
 fi
 echo "My IP address is ${ipaddr}"

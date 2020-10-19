@@ -489,33 +489,6 @@ command_exists "lava-send"
 command_exists "lava-wait"
 command_exists "ping"
 
-
-# Take all interfaces down
-echo "################################################################################"
-# TODO: iflist should be auto-generated or able to deal with other boards
-iflist=( eth0 eth1 lan0 lan1 lan2 )
-[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
-
-for intf in ${iflist[@]}; do
-	if_down "${intf}"
-done
-sleep 2
-echo "################################################################################"
-
-# Bring up the interface we want to test
-echo "################################################################################"
-echo "Bring ${ETH} up"
-echo "################################################################################"
-if [ -n "${SWITCH_IF}" ]; then
-	echo "${ETH} is a port on switch ${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-	if_up "${SWITCH_IF}"
-	ip addr show "${SWITCH_IF}"
-fi
-if_up "${ETH}"
-echo "################################################################################"
-
-
 echo "################################################################################"
 ip addr show
 echo "################################################################################"
@@ -540,6 +513,35 @@ if [ $(is_valid_ip $ipaddr) = "false" ]; then
 else
 	echo "My IP address is ${ipaddr}"
 	case "$CMD" in
+		################################################################################
+		#
+		################################################################################
+		"configure-interface")
+			# Take all interfaces down
+			echo "################################################################################"
+			# TODO: iflist should be auto-generated or able to deal with other boards
+			iflist=( eth0 eth1 lan0 lan1 lan2 )
+			[ "${BOARD}" = "soca9" ] && iflist=(${iflist[@]} eth2)
+
+			for intf in ${iflist[@]}; do
+				if_down "${intf}"
+			done
+			sleep 2
+			echo "################################################################################"
+
+			# Bring up the interface we want to test
+			echo "################################################################################"
+			echo "Bring ${ETH} up"
+			echo "################################################################################"
+			if [ -n "${SWITCH_IF}" ]; then
+				echo "${ETH} is a port on switch ${SWITCH_IF}"
+				ip addr show "${SWITCH_IF}"
+				if_up "${SWITCH_IF}"
+				ip addr show "${SWITCH_IF}"
+			fi
+			if_up "${ETH}"
+			echo "################################################################################"
+
 		################################################################################
 		#
 		################################################################################

@@ -27,7 +27,7 @@ usage() {
     exit 1
 }
 
-while getopts "A:a:c:d:e:l:t:p:v:s:r:Rh" o; do
+while getopts "A:a:c:d:e:l:t:p:v:s:r:w:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
     a) AUTONEG="${OPTARG}" ;;

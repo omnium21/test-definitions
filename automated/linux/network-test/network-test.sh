@@ -669,10 +669,6 @@ else
 			rm -f "${filename}" "${smallfilename}"
 			;;
 		"ethtool")
-			# TODO - add params for:
-			# speed
-			# duplex
-			# autoneg
 			test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
 			;;
 		"finished")

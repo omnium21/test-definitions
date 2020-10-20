@@ -545,6 +545,12 @@ case "$CMD" in
 	#
 	################################################################################
 	"configure-interface")
+
+		# Disable networkmanager
+		# TODO - how to save state and restore saved state at the end?
+		systemctl stop NetworkManager.service
+		systemctl daemon-reload
+
 		# Take all interfaces down
 		echo "################################################################################"
 		# TODO: iflist should be auto-generated or able to deal with other boards

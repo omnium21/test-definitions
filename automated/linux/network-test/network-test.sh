@@ -548,8 +548,11 @@ case "$CMD" in
 
 		# Disable networkmanager
 		# TODO - how to save state and restore saved state at the end?
+		systemctl --no-pager -l status NetworkManager.service
 		systemctl stop NetworkManager.service
 		systemctl daemon-reload
+		systemctl --no-pager -l status NetworkManager.service
+		ifconfig -a # DEBUG
 
 		# Take all interfaces down
 		echo "################################################################################"
@@ -563,6 +566,8 @@ case "$CMD" in
 		sleep 2
 		echo "################################################################################"
 
+		ifconfig -a # DEBUG
+
 		# Bring up the interface we want to test
 		echo "################################################################################"
 		echo "Bring ${ETH} up"
@@ -574,9 +579,14 @@ case "$CMD" in
 			ip addr show "${SWITCH_IF}"
 		fi
 		if_up "${ETH}"
+
+		ifconfig -a # DEBUG
+
 		echo "################################################################################"
 		assign_ipaddr ${ETH} ${ipaddr}
 		echo "################################################################################"
+
+		ifconfig -a # DEBUG
 		;;
 
 	################################################################################

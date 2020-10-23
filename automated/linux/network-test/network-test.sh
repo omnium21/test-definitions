@@ -467,7 +467,7 @@ test_link_settings(){
 ################################################################################
 ################################################################################
 
-while getopts "A:a:c:d:e:l:t:p:v:s:r:w:Rh" o; do
+while getopts "A:a:c:d:e:l:m:t:p:v:s:r:w:Rh" o; do
   case "$o" in
     A) AFFINITY="-A ${OPTARG}" ;;
     a) AUTONEG="${OPTARG}" ;;

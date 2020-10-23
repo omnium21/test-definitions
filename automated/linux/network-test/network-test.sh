@@ -21,12 +21,13 @@ ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 CMD="usage"
+MTU="1500"
 
 ################################################################################
 #
 ################################################################################
 usage() {
-    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface>" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface> -m <mtu>" 1>&2
     exit 1
 }
 
@@ -301,16 +302,19 @@ dump_link_settings(){
 	local speed
 	local duplex
 	local autoneg
+	local mtu
 
 	interface="${1}"
 	speed=$(get_link_speed "${interface}")
 	duplex=$(get_link_duplex "${interface}")
 	autoneg=$(get_link_autoneg "${interface}")
+	mtu=$(get_link_mtu "${interface}")
 
 	echo "Current settings for interface ${interface}"
 	echo "  Auto-neg: ${autoneg}"
 	echo "  Speed:    ${speed}"
 	echo "  Duplex:   ${duplex}"
+	echo "  MTU:      ${mtu}"
 }
 
 
@@ -367,27 +371,43 @@ get_link_autoneg(){
 ################################################################################
 #
 ################################################################################
+get_link_mtu(){
+	local interface
+	local mtu
+
+	interface="${1}"
+	mtu=$(ip link show "${interface}" | awk '{print $5}')
+	echo "${mtu}"
+}
+
+################################################################################
+#
+################################################################################
 check_link_settings(){
 	local interface
 	local requested_speed
 	local requested_duplex
 	local requested_autoneg
+	local requested_mtu
 	local actual_speed
 	local actual_duplex
 	local actual_autoneg
+	local actual_mtu
 	local test_string
 
 	interface="${1}"
 	requested_speed="${2}"
 	requested_duplex="${3}"
 	requested_autoneg="${4}"
-	test_string="${5}"
+	requested_mtu="${5}"
+	test_string="${6}"
 
 	dump_link_settings "${interface}"
 
 	actual_speed=$(get_link_speed "${interface}")
 	actual_duplex=$(get_link_duplex "${interface}")
 	actual_autoneg=$(get_link_autoneg "${interface}")
+	actual_mtu=$(get_link_mtu "${interface}")
 
 	[ "${actual_autoneg}" = "${requested_autoneg}" ]
 	check_return "ethernet-${interface}-${test_string}-check-link-autoneg"
@@ -398,6 +418,9 @@ check_link_settings(){
 		[ "${actual_duplex}" = "${requested_duplex}" ]
 		check_return "ethernet-${interface}-${test_string}-check-link-duplex"
 	fi
+
+	[ "${actual_mtu}" = "${requested_mtu}" ]
+	check_return "ethernet-${interface}-${test_string}-check-link-mtu"
 }
 
 
@@ -414,6 +437,7 @@ test_ethtool(){
 	speed="${2}"
 	duplex="${3}"
 	autoneg="${4}"
+	mtu="${5}"
 
 	dump_link_settings "${interface}"
 
@@ -421,6 +445,7 @@ test_ethtool(){
 	echo "  Auto-neg: ${autoneg}"
 	echo "  Speed:    ${speed}"
 	echo "  Duplex:   ${duplex}"
+	echo "  MTU:      ${mtu}"
 
 	if [ "${autoneg}" = "on" ]; then
 		echo "Setting ${interface} to auto-negotiate"
@@ -429,10 +454,11 @@ test_ethtool(){
 		echo "Setting ${interface} to manual negotiation for ${speed}Mbps at ${duplex} duplex"
 		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg "${autoneg}"
 	fi
+	ifconfig "${interface}" mtu "${mtu}"
 	echo ""
 	sleep 10
 	echo ""
-	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "ethtool"
+	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${mtu}" "ethtool"
 }
 
 ################################################################################
@@ -449,6 +475,7 @@ while getopts "A:a:c:d:e:l:t:p:v:s:r:w:Rh" o; do
     d) DUPLEX="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     l) LINKSPEED="${OPTARG}" ;;
+	m) MTU="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
     r) EXPECTED_RESULT="${OPTARG}" ;;
@@ -893,7 +920,7 @@ case "$CMD" in
 	#
 	################################################################################
 	"ethtool")
-		test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}"
+		test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}" "${MTU}"
 		;;
 
 	################################################################################

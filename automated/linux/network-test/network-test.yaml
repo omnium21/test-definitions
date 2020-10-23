@@ -49,6 +49,7 @@ params:
     LINKSPEED: "100"
     DUPLEX: "full"
     AUTONEG: "off"
+    MTU: 1500
 
     SWITCH_IF: ""
 
@@ -57,5 +58,5 @@ params:
 run:
     steps:
         - cd ./automated/linux/network-test
-        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" -w "${SWITCH_IF}" "${AFFINITY}" "${REVERSE}"
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" -m "${MTU}" -w "${SWITCH_IF}" "${AFFINITY}" "${REVERSE}"
         - ../../utils/send-to-lava.sh ./output/result.txt

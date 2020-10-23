@@ -427,7 +427,7 @@ check_link_settings(){
 ################################################################################
 #
 ################################################################################
-test_ethtool(){
+test_link_settings(){
 	local interface
 	local speed
 	local duplex
@@ -458,7 +458,7 @@ test_ethtool(){
 	echo ""
 	sleep 10
 	echo ""
-	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${mtu}" "ethtool"
+	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${mtu}" "link-settings"
 }
 
 ################################################################################
@@ -919,8 +919,8 @@ case "$CMD" in
 	################################################################################
 	#
 	################################################################################
-	"ethtool")
-		test_ethtool "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}" "${MTU}"
+	"link-settings")
+		test_link_settings "${ETH}" "${LINKSPEED}" "${DUPLEX}" "${AUTONEG}" "${MTU}"
 		;;
 
 	################################################################################

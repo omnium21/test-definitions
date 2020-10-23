@@ -45,7 +45,7 @@ params:
     # Set REVERSE="-R" to run tx from the server
     REVERSE: ""
 
-    # Setting for CMD=ethtool
+    # Setting for CMD=link-settings
     LINKSPEED: "100"
     DUPLEX: "full"
     AUTONEG: "off"

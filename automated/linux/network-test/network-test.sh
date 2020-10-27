@@ -610,7 +610,8 @@ case "$CMD" in
 		ifconfig -a # DEBUG
 
 		echo "################################################################################"
-		assign_ipaddr ${ETH} ${ipaddr}
+		# use DHCP
+		assign_ipaddr ${ETH}
 		echo "################################################################################"
 
 		ifconfig -a # DEBUG

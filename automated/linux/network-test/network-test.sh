@@ -603,8 +603,19 @@ case "$CMD" in
 		fi
 		if_up "${ETH}"
 
-		ifconfig -a # DEBUG
-		ip addr show # DEBUG
+		# TODO - handle systemd-networkd vs network manager
+		#        Right now, we're ony handling networkmanager
+
+		# Set the interface as managed by networkmanager, autoconnect will use DHCP to assign an IP address
+		nmcli device set "${ETH}" managed yes autoconnect yes
+
+		# Wait for DHCP to complete
+		sleep 5
+
+		# DEBUG
+		if [ -n "${SWITCH_IF}" ]; then
+			ip addr show "${SWITCH_IF}"
+		fi
 		ifconfig "${ETH}"
 		ip addr show "${ETH}"
 		;;

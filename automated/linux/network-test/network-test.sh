@@ -277,7 +277,7 @@ do_dhcp(){
 	ipaddr=""
 
 	case "$(detect_netd)" in
-		networkmanager)
+		NetworkManager)
 			# Set the interface as managed by networkmanager
 			# autoconnect will use DHCP to assign an IP address
 			nmcli device set "${interface}" managed yes autoconnect yes

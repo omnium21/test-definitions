@@ -472,3 +472,19 @@ actions:
       parameters:
         ETH: lan0
         CMD: finished
+
+
+    #################################
+    # Reset the port status
+    #################################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j21_on
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j22_off

@@ -52,6 +52,7 @@ params:
     MTU: 1500
 
     SWITCH_IF: ""
+    NETD: ""
 
     SKIP_INSTALL: "false"
 

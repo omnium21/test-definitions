@@ -22,12 +22,13 @@ EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 CMD="usage"
 MTU="1500"
+NETD="" # network-manager or systemd-networkd, blank means auto-detect
 
 ################################################################################
 #
 ################################################################################
 usage() {
-    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface> -m <mtu>" 1>&2
+    echo "Usage: $0 [-c command] [-e server ethernet device] [-t time] [-p number] [-v version] [-A cpu affinity] [-R] [-r expected ping result] [-s true|false] -w <switch-interface> -m <mtu> -n <netd>" 1>&2
     exit 1
 }
 
@@ -246,6 +247,71 @@ ping_test() {
 ################################################################################
 #
 ################################################################################
+detect_netd(){
+	local mgr
+
+	if [ "${NETD}" = "" ]; then
+		NETD="unknown"
+		mgr=$(systemctl --no-pager -l status NetworkManager | grep "Active: " | awk '{print $2}')
+		if [ "${mgr}" = "active" ]; then
+			NETD="NetworkManager"
+		else
+			mgr=$(systemctl --no-pager -l status systemd-networkd | grep "Active: " | awk '{print $2}')
+			if [ "${mgr}" = "active" ]; then
+				NETD="systemd-networkd"
+			fi
+		fi
+	fi
+	echo "${NETD}"
+}
+
+################################################################################
+#
+################################################################################
+do_dhcp(){
+	local interface
+	local ipaddr
+	local retries
+
+	interface="${1}"
+	ipaddr=""
+
+	case "$(detect_netd)" in
+		networkmanager)
+			# Set the interface as managed by networkmanager
+			# autoconnect will use DHCP to assign an IP address
+			nmcli device set "${interface}" managed yes autoconnect yes
+			;;
+
+		systemd-networkd)
+			# TODO - check udhcpc vs dhclient
+			udhcpc -i "${interface}"
+			;;
+
+		*)
+			echo "ERROR: network daemon '${NETD}' not supported"
+			exit 1
+			;;
+	esac
+
+	# Wait for DHCP to complete
+	retries=100
+	while [ "${ipaddr}" = "" ]; do
+		ipaddr=$(get_ipaddr "${interface}")
+		retries="$(expr ${retries} - 1)"
+		echo -n "$retries "
+		if [ "${retries}" -lt "1" ]; then
+			echo "ERROR: dhcp failed to assign an IP address"
+			break
+		fi
+		sleep 0.1
+		echo -n "."
+	done
+}
+
+################################################################################
+#
+################################################################################
 assign_ipaddr(){
 	local interface
 	local ipaddr
@@ -256,7 +322,7 @@ assign_ipaddr(){
 	static_ipaddr="${2}"
 
 	if [ -z "${static_ipaddr}" ]; then
-		test_string="udhcpc" # TODO - what about dhclient?
+		test_string="dhcp"
 	else
 		test_string="static-ip"
 	fi
@@ -276,9 +342,8 @@ assign_ipaddr(){
 	fi
 
 	if [ -z "${static_ipaddr}" ]; then
-		echo "Running udhcpc on ${interface}..."
-		udhcpc -i "${interface}"
-		# TODO - wait for IP addr assignment?
+		echo "Running dhcpc on ${interface}..."
+		do_dhcp "${interface}"
 	else
 		echo "Setting a static IP address to ${static_ipaddr}..."
 		ifconfig "${interface}" "${static_ipaddr}"
@@ -475,7 +540,8 @@ while getopts "A:a:c:d:e:l:m:t:p:v:s:r:w:Rh" o; do
     d) DUPLEX="${OPTARG}" ;;
     e) ETH="${OPTARG}" ;;
     l) LINKSPEED="${OPTARG}" ;;
-	m) MTU="${OPTARG}" ;;
+    m) MTU="${OPTARG}" ;;
+    n) NETD="${OPTARG}" ;;
     t) TIME="${OPTARG}" ;;
     p) THREADS="${OPTARG}" ;;
     r) EXPECTED_RESULT="${OPTARG}" ;;
@@ -602,15 +668,7 @@ case "$CMD" in
 			ip addr show "${SWITCH_IF}"
 		fi
 		if_up "${ETH}"
-
-		# TODO - handle systemd-networkd vs network manager
-		#        Right now, we're ony handling networkmanager
-
-		# Set the interface as managed by networkmanager, autoconnect will use DHCP to assign an IP address
-		nmcli device set "${ETH}" managed yes autoconnect yes
-
-		# Wait for DHCP to complete
-		sleep 5
+		assign_ipaddr "${ETH}"
 
 		# DEBUG
 		if [ -n "${SWITCH_IF}" ]; then

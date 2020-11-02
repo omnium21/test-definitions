@@ -573,13 +573,8 @@ case "$CMD" in
 	################################################################################
 	"configure-interface")
 
-		# Disable networkmanager
-		# TODO - how to save state and restore saved state at the end?
-		systemctl --no-pager -l status NetworkManager.service
-		systemctl stop NetworkManager.service
-		systemctl daemon-reload
-		systemctl --no-pager -l status NetworkManager.service
 		ifconfig -a # DEBUG
+		ip addr show # DEBUG
 
 		# Take all interfaces down
 		echo "################################################################################"
@@ -594,6 +589,7 @@ case "$CMD" in
 		echo "################################################################################"
 
 		ifconfig -a # DEBUG
+		ip addr show # DEBUG
 
 		# Bring up the interface we want to test
 		echo "################################################################################"
@@ -608,13 +604,9 @@ case "$CMD" in
 		if_up "${ETH}"
 
 		ifconfig -a # DEBUG
-
-		echo "################################################################################"
-		# use DHCP
-		assign_ipaddr ${ETH}
-		echo "################################################################################"
-
-		ifconfig -a # DEBUG
+		ip addr show # DEBUG
+		ifconfig "${ETH}"
+		ip addr show "${ETH}"
 		;;
 
 	################################################################################

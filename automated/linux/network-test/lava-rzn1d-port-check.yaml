@@ -1,0 +1,266 @@
+device_type: rzn1d
+job_name: LCES2 network port check
+timeouts:
+  job:
+    minutes: 100
+  action:
+    minutes: 70
+  connection:
+    minutes: 20
+priority: medium
+visibility: public
+actions:
+####################
+# Deploy QSPI images
+####################
+- deploy:
+    namespace: dfu-firmware
+    to: tmpfs
+    images:
+      sf_fsbl:
+        image_arg: --alt sf_fsbl --download {sf_fsbl}
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/rzn1d-snarc-fsbl-fip-linaro-rel-2020.09-dunfell-rc2-internal-dirty.spkg
+      sf_trustedfw:
+        image_arg: --alt sf_trustedfw --download {sf_trustedfw}
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/optee/optee-os-linaro-rel-2020.09-dunfell-rc2-internal-dirty.itb
+      sf_uboot0:
+        image_arg: --alt sf_uboot0 --download {sf_uboot0}
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/ubootfitImage-linaro-rel-2020.09-dunfell-rc2-internal-dirty-rzn1d.itb
+      sf_uboot1:
+        image_arg: --alt sf_uboot1 --download {sf_uboot1}
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/ubootfitImage-linaro-rel-2020.09-dunfell-rc2-internal-dirty-rzn1d.itb
+- command:
+    namespace: dfu-firmware
+    name: set_boot_to_nand
+- boot:
+    namespace: dfu-firmware
+    method: dfu
+    timeout:
+      minutes: 10
+- command:
+    namespace: test
+    name: set_boot_to_qspi
+
+
+##################
+# all ports off
+##################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j17_off
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j21_off
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j22_off
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j23_off
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j24_off
+
+
+
+
+###################
+# dip-image-dev.wic
+###################
+- deploy:
+    namespace: test-wic
+    timeout:
+      minutes: 100
+    to: flasher
+    images:
+      image:
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/dip-image-dev-rzn1-snarc-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bz2
+        compression: bz2
+      layout:
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/dip-image-dev-rzn1-snarc-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bmap
+- boot:
+    namespace: test-wic
+    connection-namespace: dfu-firmware
+    timeout:
+      minutes: 10
+    method: u-boot
+    commands:
+    - mmc rescan
+    - fatload mmc 0:1 80008000 zimage-rzn1-snarc.bin
+    - if test -e mmc 0:1 zImage-rzn1d400-snarc-bestla.dtb; then fatload mmc 0:1 80f00000
+      zImage-rzn1d400-snarc-bestla.dtb; else fatload mmc 0:1 80f00000 rzn1d400-snarc-bestla.dtb;
+      fi;
+    - setenv bootargs console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait coherent_pool=2M
+    - bootz 80008000 - 80f00000
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+      password_prompt: 'Password:'
+      password: P@ssword-1
+    prompts:
+    - 'root@snarc-soca9:'
+    - 'root@rzn1-snarc:'
+
+
+##########################
+# Disable networkmanager
+##########################
+- test:
+    namespace: test-wic
+    timeout:
+      minutes: 10
+    interactive:
+    - name: networkmanager
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig eth1 down
+      - command: ifconfig eth0 down
+      - command: ifconfig lan0 down
+      - command: ifconfig lan1 down
+      - command: ifconfig lan2 down
+      - command: sleep 10
+      - command: ip addr show
+
+
+##################
+# J17
+##################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j17_on
+
+- test:
+    namespace: test-wic
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j17
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show eth1
+      - command: ifconfig eth1 up
+      - command: sleep 10
+      - command: nmcli device set eth1 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show eth1
+      - command: ping -I eth1 -c 3 10.0.0.2
+      - command: ping -I eth1 -c 3 github.com
+      - command: ifconfig eth1 down
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j17_off
+
+
+##################
+# J21
+##################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j21_on
+
+- test:
+    namespace: test-wic
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j21
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show eth1
+      - command: ifconfig eth1 up
+      - command: sleep 10
+      - command: nmcli device set eth1 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show eth1
+      - command: ping -I eth1 -c 3 10.0.0.2
+      - command: ping -I eth1 -c 3 github.com
+      - command: ifconfig eth1 down
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j21_off
+
+
+
+##################
+# J22
+##################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j22_on
+
+- test:
+    namespace: test-wic
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j22
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ifconfig eth0
+      - command: ip addr show eth0
+      - command: ifconfig eth0 up
+      - command: ip addr show eth0
+      - command: "#"
+      - command: "#"
+      - command: "#"
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show lan0
+      - command: ifconfig lan0 up
+      - command: sleep 10
+      - command: nmcli device set lan0 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show lan0
+      - command: ping -I lan0 -c 3 10.0.0.2
+      - command: ping -I lan0 -c 3 github.com
+      - command: ifconfig eth0 down
+      - command: ifconfig lan0 down
+
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j22_off
+
+
+##################
+# Restore J21
+##################
+- command:
+    namespace: test-wic
+    role:
+    - client
+    name: j21_on
+

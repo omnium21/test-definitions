@@ -355,6 +355,8 @@ assign_ipaddr(){
 	ipaddr=$(get_ipaddr "${interface}")
 	if [ -z "${ipaddr}" ]; then
 		check_return "ethernet-${interface}-${test_string}-assign-ipaddr"
+	else
+		echo "${ipaddr}" > "${ipaddrstash}"
 	fi
 	ping_test "${interface}" "ethernet-${interface}-${test_string}-assign-ipaddr-ping"
 }

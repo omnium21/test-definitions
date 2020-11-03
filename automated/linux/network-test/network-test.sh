@@ -616,7 +616,7 @@ fi
 
 ipaddr_mandatory=true
 case "${CMD}" in
-	"configure-interface")
+	"configure-interface" | "finished")
 		ipaddr_mandatory=false ;;
 esac
 

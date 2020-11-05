@@ -86,8 +86,6 @@ actions:
     role:
     - daemon
     - dut
-    namespace: test-wic
-    connection-namespace: dfu-firmware
     timeout:
       minutes: 10
     method: u-boot

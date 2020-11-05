@@ -47,32 +47,22 @@ actions:
 ##################
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j17_off
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j21_off
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j22_off
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j23_off
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j24_off
 
 
@@ -117,7 +107,7 @@ actions:
 
 
 ##########################
-# Disable networkmanager
+# Disable network ports
 ##########################
 - test:
     namespace: test-wic
@@ -141,8 +131,6 @@ actions:
 ##################
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j17_on
 
 - test:
@@ -187,8 +175,6 @@ actions:
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j17_off
 
 
@@ -197,8 +183,6 @@ actions:
 ##################
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j21_on
 
 - test:
@@ -243,8 +227,6 @@ actions:
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j21_off
 
 
@@ -254,8 +236,6 @@ actions:
 ##################
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j22_on
 
 - test:
@@ -310,8 +290,6 @@ actions:
 
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j22_off
 
 
@@ -320,6 +298,4 @@ actions:
 ##################
 - command:
     namespace: test-wic
-    role:
-    - client
     name: j21_on

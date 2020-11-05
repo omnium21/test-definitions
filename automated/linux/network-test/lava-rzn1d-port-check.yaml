@@ -158,6 +158,26 @@ actions:
       - command: ip addr show eth1
       - command: ifconfig eth1 up
       - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
       - command: nmcli device set eth1 managed yes autoconnect yes
       - command: sleep 10
       - command: ip addr show eth1
@@ -194,6 +214,26 @@ actions:
       - command: ip addr show eth1
       - command: ifconfig eth1 up
       - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
       - command: nmcli device set eth1 managed yes autoconnect yes
       - command: sleep 10
       - command: ip addr show eth1
@@ -240,6 +280,26 @@ actions:
       - command: ip addr show lan0
       - command: ifconfig lan0 up
       - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
       - command: nmcli device set lan0 managed yes autoconnect yes
       - command: sleep 10
       - command: ip addr show lan0
@@ -263,4 +323,3 @@ actions:
     role:
     - client
     name: j21_on
-

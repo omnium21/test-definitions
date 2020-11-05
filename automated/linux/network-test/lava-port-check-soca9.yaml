@@ -1,0 +1,250 @@
+device_type: soca9
+job_name: SoCA9 network port check
+timeouts:
+  job:
+    minutes: 180
+  action:
+    minutes: 120
+  connection:
+    minutes: 20
+priority: medium
+visibility: public
+actions:
+##################
+# Deploy WIC image
+##################
+- deploy:
+    timeout:
+      minutes: 20
+    to: flasher
+    images:
+      image:
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/soca9-5.4/dip-image-dev-snarc-soca9-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bz2
+        compression: bz2
+      layout:
+        url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/soca9-5.4/dip-image-dev-snarc-soca9-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bmap
+
+
+##################
+# all ports off
+##################
+- command:
+    name: j17_off
+
+- command:
+    name: j21_off
+
+- command:
+    name: j22_off
+
+- command:
+    name: j23_off
+
+- command:
+    name: j24_off
+
+
+
+###################
+# dip-image-dev.wic
+###################
+# We already flashed the SDcard WIC image in the deploy step at the begging of this test run
+- boot:
+    timeout:
+      minutes: 10
+    method: u-boot
+    commands:
+    - run linux_sd
+    auto_login:
+      login_prompt: 'login:'
+      username: root
+    prompts:
+    - 'root@snarc-soca9:'
+    - 'root@rzn1-snarc:'
+    transfer_overlay:
+      download_command: udhcpc -i eth1 -n || udhcpc -i eth0 -n; wget
+      unpack_command: tar --touch -C / -xzf
+
+
+##########################
+# Disable network ports
+##########################
+- test:
+    timeout:
+      minutes: 10
+    interactive:
+    - name: networkmanager
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig eth1 down
+      - command: ifconfig eth0 down
+      - command: ifconfig lan0 down
+      - command: ifconfig lan1 down
+      - command: ifconfig lan2 down
+      - command: sleep 10
+      - command: ip addr show
+
+
+##################
+# J17
+##################
+- command:
+    name: j17_on
+
+- test:
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j17
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show eth1
+      - command: ifconfig eth1 up
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
+      - command: nmcli device set eth1 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show eth1
+      - command: ping -I eth1 -c 3 10.0.0.2
+      - command: ping -I eth1 -c 3 github.com
+      - command: ifconfig eth1 down
+
+- command:
+    name: j17_off
+
+
+##################
+# J21
+##################
+- command:
+    name: j21_on
+
+- test:
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j21
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show eth1
+      - command: ifconfig eth1 up
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
+      - command: nmcli device set eth1 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show eth1
+      - command: ping -I eth1 -c 3 10.0.0.2
+      - command: ping -I eth1 -c 3 github.com
+      - command: ifconfig eth1 down
+
+- command:
+    name: j21_off
+
+
+
+##################
+# J22
+##################
+- command:
+    name: j22_on
+
+- test:
+    timeout:
+      minutes: 10
+    interactive:
+    - name: j22
+      prompts: [root@snarc-soca9, root@rzn1-snarc]
+      script:
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ifconfig eth0
+      - command: ip addr show eth0
+      - command: ifconfig eth0 up
+      - command: ip addr show eth0
+      - command: "#"
+      - command: "#"
+      - command: "#"
+      - command: ifconfig -a
+      - command: ip addr show
+      - command: ip addr show lan0
+      - command: ifconfig lan0 up
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "1 minute..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "2 minutes..."
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: sleep 10
+      - command: echo "3 minutes..."
+      - command: nmcli device set lan0 managed yes autoconnect yes
+      - command: sleep 10
+      - command: ip addr show lan0
+      - command: ping -I lan0 -c 3 10.0.0.2
+      - command: ping -I lan0 -c 3 github.com
+      - command: ifconfig eth0 down
+      - command: ifconfig lan0 down
+
+- command:
+    name: j22_off
+
+
+##################
+# Restore J21
+##################
+- command:
+    name: j21_on

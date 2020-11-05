@@ -13,12 +13,12 @@ visibility: public
 protocols:
   lava-multinode:
     roles:
-      server:
+      daemon:
         device_type: soca9
         count: 1
         timeout:
           minutes: 30
-      client:
+      dut:
         device_type: soca9
         count: 1
         timeout:
@@ -31,6 +31,9 @@ actions:
 # Deploy WIC image
 ##################
 - deploy:
+    role:
+    - daemon
+    - dut
     timeout:
       minutes: 20
     to: flasher
@@ -47,32 +50,32 @@ actions:
 ##################
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j17_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j21_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j22_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j23_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j24_off
 
 ###################
@@ -81,8 +84,10 @@ actions:
 # We already flashed the SDcard WIC image in the deploy step at the begging of this test run
 - boot:
     role:
-    - server
-    - client
+    - daemon
+    - dut
+    namespace: test-wic
+    connection-namespace: dfu-firmware
     timeout:
       minutes: 10
     method: u-boot
@@ -106,12 +111,12 @@ actions:
 #################################
 - command:
     role:
-    - server
-    name: j22_on
+    - daemon
+    name: j21_on
 
 - test:
     role:
-    - server
+    - daemon
     timeout:
       minutes: 300
     definitions:
@@ -126,17 +131,17 @@ actions:
 
 
 #################################
-# Client
+# DUT
 #################################
 
 - command:
     role:
-    - client
+    - dut
     name: j22_on
 
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 30
     definitions:
@@ -295,12 +300,12 @@ actions:
     #################################
 - command:
     role:
-    - client
+    - dut
     name: j22_off
 
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 10
     interactive:
@@ -315,7 +320,7 @@ actions:
     #################################
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -337,12 +342,12 @@ actions:
     #################################
 - command:
     role:
-    - client
+    - dut
     name: j22_on
 
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 10
     interactive:
@@ -357,7 +362,7 @@ actions:
     #################################
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -378,7 +383,7 @@ actions:
 
 - test:
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -452,10 +457,30 @@ actions:
     #################################
 - command:
     role:
-    - client
+    - daemon
+    - dut
+    name: j17_off
+
+- command:
+    role:
+    - daemon
+    - dut
     name: j21_on
 
 - command:
     role:
-    - client
+    - daemon
+    - dut
     name: j22_off
+
+- command:
+    role:
+    - daemon
+    - dut
+    name: j23_off
+
+- command:
+    role:
+    - daemon
+    - dut
+    name: j24_off

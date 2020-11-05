@@ -13,12 +13,12 @@ visibility: public
 protocols:
   lava-multinode:
     roles:
-      server:
+      daemon:
         device_type: rzn1d
         count: 1
         timeout:
           minutes: 30
-      client:
+      dut:
         device_type: rzn1d
         count: 1
         timeout:
@@ -32,8 +32,8 @@ actions:
 ####################
 - deploy:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: dfu-firmware
     to: tmpfs
     images:
@@ -51,22 +51,22 @@ actions:
         url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/ubootfitImage-linaro-rel-2020.09-dunfell-rc2-internal-dirty-rzn1d.itb
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: dfu-firmware
     name: set_boot_to_nand
 - boot:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: dfu-firmware
     method: dfu
     timeout:
       minutes: 10
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: test
     name: set_boot_to_qspi
 
@@ -75,32 +75,32 @@ actions:
 ##################
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j17_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j21_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j22_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j23_off
 
 - command:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     name: j24_off
 
 ###################
@@ -108,8 +108,8 @@ actions:
 ###################
 - deploy:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: test-wic
     timeout:
       minutes: 100
@@ -122,8 +122,8 @@ actions:
         url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/dip-image-dev-rzn1-snarc-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bmap
 - boot:
     role:
-    - server
-    - client
+    - daemon
+    - dut
     namespace: test-wic
     connection-namespace: dfu-firmware
     timeout:
@@ -155,13 +155,13 @@ actions:
 #################################
 - command:
     role:
-    - server
-    name: j22_on
+    - daemon
+    name: j21_on
 
 - test:
     namespace: test-wic
     role:
-    - server
+    - daemon
     timeout:
       minutes: 300
     definitions:
@@ -176,19 +176,19 @@ actions:
 
 
 #################################
-# Client
+# DUT
 #################################
 
 - command:
     namespace: test-wic
     role:
-    - client
+    - dut
     name: j22_on
 
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 30
     definitions:
@@ -348,13 +348,13 @@ actions:
 - command:
     namespace: test-wic
     role:
-    - client
+    - dut
     name: j22_off
 
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 10
     interactive:
@@ -370,7 +370,7 @@ actions:
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -393,13 +393,13 @@ actions:
 - command:
     namespace: test-wic
     role:
-    - client
+    - dut
     name: j22_on
 
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 10
     interactive:
@@ -415,7 +415,7 @@ actions:
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -437,7 +437,7 @@ actions:
 - test:
     namespace: test-wic
     role:
-    - client
+    - dut
     timeout:
       minutes: 300
     definitions:
@@ -510,13 +510,31 @@ actions:
     # Reset the port status
     #################################
 - command:
-    namespace: test-wic
     role:
-    - client
+    - daemon
+    - dut
+    name: j17_off
+
+- command:
+    role:
+    - daemon
+    - dut
     name: j21_on
 
 - command:
-    namespace: test-wic
     role:
-    - client
+    - daemon
+    - dut
     name: j22_off
+
+- command:
+    role:
+    - daemon
+    - dut
+    name: j23_off
+
+- command:
+    role:
+    - daemon
+    - dut
+    name: j24_off

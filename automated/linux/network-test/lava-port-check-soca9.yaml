@@ -114,6 +114,7 @@ actions:
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -122,6 +123,7 @@ actions:
       - command: sleep 10
       - command: echo "1 minute..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -130,6 +132,7 @@ actions:
       - command: sleep 10
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -138,6 +141,7 @@ actions:
       - command: sleep 10
       - command: echo "3 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
       - command: ping -I ${ETH} -c 3 github.com
@@ -175,6 +179,7 @@ actions:
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -183,6 +188,7 @@ actions:
       - command: sleep 10
       - command: echo "1 minute..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -191,6 +197,7 @@ actions:
       - command: sleep 10
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -199,6 +206,7 @@ actions:
       - command: sleep 10
       - command: echo "3 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
       - command: ping -I ${ETH} -c 3 github.com
@@ -257,6 +265,7 @@ actions:
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -265,6 +274,7 @@ actions:
       - command: sleep 10
       - command: echo "1 minute..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -273,6 +283,7 @@ actions:
       - command: sleep 10
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -281,6 +292,7 @@ actions:
       - command: sleep 10
       - command: echo "3 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
       - command: ping -I ${ETH} -c 3 github.com
@@ -321,6 +333,7 @@ actions:
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -329,6 +342,7 @@ actions:
       - command: sleep 10
       - command: echo "1 minute..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -337,6 +351,7 @@ actions:
       - command: sleep 10
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -345,6 +360,7 @@ actions:
       - command: sleep 10
       - command: echo "3 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
       - command: ping -I ${ETH} -c 3 github.com
@@ -385,6 +401,7 @@ actions:
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -393,6 +410,7 @@ actions:
       - command: sleep 10
       - command: echo "1 minute..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -401,6 +419,7 @@ actions:
       - command: sleep 10
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
       - command: sleep 10
@@ -409,6 +428,7 @@ actions:
       - command: sleep 10
       - command: echo "3 minutes..."
       - command: ip addr show ${ETH}
+      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
       - command: ping -I ${ETH} -c 3 github.com

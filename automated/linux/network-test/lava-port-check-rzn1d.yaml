@@ -105,6 +105,30 @@ actions:
     - 'root@snarc-soca9:'
     - 'root@rzn1-snarc:'
 
+##########################
+# Disable yepkit ports
+##########################
+- test:
+    timeout:
+      minutes: 60
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: yepkit-test
+          description: yepkit test
+        run:
+          steps:
+          - git clone https://github.com/Yepkit/ykush
+          - cd ykush
+          - make
+          - bin/ykushcmd
+          - bin/ykushcmd -d a
+          - sleep 3
+      name: yepkit-test
+      path: inline/yepkit-test.yaml
+
 
 ##########################
 # Disable network ports
@@ -176,17 +200,9 @@ actions:
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
       - command: nmcli -c no -t device show ${ETH}
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: echo "3 minutes..."
-      - command: ip addr show ${ETH}
-      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
+      - command: ping -I ${ETH} -c 3 10.128.64.1
       - command: ping -I ${ETH} -c 3 github.com
       - command: ifconfig ${ETH} down
 
@@ -334,17 +350,9 @@ actions:
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
       - command: nmcli -c no -t device show ${ETH}
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: echo "3 minutes..."
-      - command: ip addr show ${ETH}
-      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
+      - command: ping -I ${ETH} -c 3 10.128.64.1
       - command: ping -I ${ETH} -c 3 github.com
       - command: ifconfig ${ETH} down
 
@@ -402,17 +410,9 @@ actions:
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
       - command: nmcli -c no -t device show ${ETH}
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: echo "3 minutes..."
-      - command: ip addr show ${ETH}
-      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
+      - command: ping -I ${ETH} -c 3 10.128.64.1
       - command: ping -I ${ETH} -c 3 github.com
       - command: ifconfig ${ETH} down
 
@@ -470,17 +470,9 @@ actions:
       - command: echo "2 minutes..."
       - command: ip addr show ${ETH}
       - command: nmcli -c no -t device show ${ETH}
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: sleep 10
-      - command: echo "3 minutes..."
-      - command: ip addr show ${ETH}
-      - command: nmcli -c no -t device show ${ETH}
       - command: ping -I ${ETH} -c 3 10.0.0.2
       - command: ping -I ${ETH} -c 3 10.0.33.20
+      - command: ping -I ${ETH} -c 3 10.128.64.1
       - command: ping -I ${ETH} -c 3 github.com
       - command: ifconfig ${ETH} down
 

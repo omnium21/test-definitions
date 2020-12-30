@@ -164,7 +164,7 @@ actions:
     namespace: test-wic
     role:
     - daemon
-    name: j21_on
+    name: j22_on
 
 - test:
     namespace: test-wic
@@ -180,7 +180,8 @@ actions:
       name: daemon
       parameters:
         CMD: daemon
-        ETH: eth1
+        ETH: lan0
+        SWITCH_IF: eth0
 
 
 #################################

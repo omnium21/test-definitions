@@ -31,10 +31,10 @@ actions:
 # Deploy QSPI images
 ####################
 - deploy:
+    namespace: dfu-firmware
     role:
     - daemon
     - dut
-    namespace: dfu-firmware
     to: tmpfs
     images:
       sf_fsbl:
@@ -50,54 +50,59 @@ actions:
         image_arg: --alt sf_uboot1 --download {sf_uboot1}
         url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/ubootfitImage-linaro-rel-2020.09-dunfell-rc2-internal-dirty-rzn1d.itb
 - command:
+    namespace: dfu-firmware
     role:
     - daemon
     - dut
-    namespace: dfu-firmware
     name: set_boot_to_nand
 - boot:
+    namespace: dfu-firmware
     role:
     - daemon
     - dut
-    namespace: dfu-firmware
     method: dfu
     timeout:
       minutes: 10
 - command:
+    namespace: test
     role:
     - daemon
     - dut
-    namespace: test
     name: set_boot_to_qspi
 
 ##################
 # all ports off
 ##################
 - command:
+    namespace: test
     role:
     - daemon
     - dut
     name: j17_off
 
 - command:
+    namespace: test
     role:
     - daemon
     - dut
     name: j21_off
 
 - command:
+    namespace: test
     role:
     - daemon
     - dut
     name: j22_off
 
 - command:
+    namespace: test
     role:
     - daemon
     - dut
     name: j23_off
 
 - command:
+    namespace: test
     role:
     - daemon
     - dut
@@ -107,10 +112,10 @@ actions:
 # dip-image-dev.wic
 ###################
 - deploy:
+    namespace: test-wic
     role:
     - daemon
     - dut
-    namespace: test-wic
     timeout:
       minutes: 100
     to: flasher
@@ -120,11 +125,13 @@ actions:
         compression: bz2
       layout:
         url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/dip-image-dev-rzn1-snarc-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bmap
+
+
 - boot:
+    namespace: test-wic
     role:
     - daemon
     - dut
-    namespace: test-wic
     connection-namespace: dfu-firmware
     timeout:
       minutes: 10
@@ -154,6 +161,7 @@ actions:
 # Daemon
 #################################
 - command:
+    namespace: test-wic
     role:
     - daemon
     name: j21_on

@@ -1,4 +1,4 @@
-job_name: SE soca9 network-test link-settings
+job_name: SE soca9 network-test link-settings lan0
 timeouts:
   job:
     minutes: 1800
@@ -46,7 +46,7 @@ actions:
 
 
 ##################
-# all ports off
+# all ports off - except J21
 ##################
 - command:
     role:
@@ -58,7 +58,7 @@ actions:
     role:
     - daemon
     - dut
-    name: j21_off
+    name: j21_on
 
 - command:
     role:
@@ -103,14 +103,54 @@ actions:
 
 
 
+#############################
+# We're finished with J21 now
+#############################
+- command:
+    role:
+    - daemon
+    - dut
+    name: j21_off
+
+
+
 
 #################################
-# Daemon
+# All nodes use J22
 #################################
 - command:
     role:
     - daemon
+    - dut
     name: j22_on
+
+- test:
+    role:
+    - daemon
+    - dut
+    timeout:
+      minutes: 30
+    definitions:
+
+    #################################
+    #  configure-interface
+    #################################
+    - repository: https://github.com/omnium21/test-definitions.git
+      branch: ethernet
+      from: git
+      path: automated/linux/network-test/network-test.yaml
+      name: configure-interface
+      parameters:
+        CMD: configure-interface
+        ETH: lan0
+        SWITCH_IF: eth0
+        EXPECTED_RESULT: pass
+
+
+
+#################################
+# Daemon
+#################################
 
 - test:
     role:
@@ -133,11 +173,6 @@ actions:
 # DUT
 #################################
 
-- command:
-    role:
-    - dut
-    name: j22_on
-
 - test:
     role:
     - dut
@@ -145,20 +180,6 @@ actions:
       minutes: 30
     definitions:
 
-
-    #################################
-    #  configure-interface
-    #################################
-    - repository: https://github.com/omnium21/test-definitions.git
-      branch: ethernet
-      from: git
-      path: automated/linux/network-test/network-test.yaml
-      name: configure-interface
-      parameters:
-        CMD: configure-interface
-        ETH: lan0
-        SWITCH_IF: eth0
-        EXPECTED_RESULT: pass
 
 
 

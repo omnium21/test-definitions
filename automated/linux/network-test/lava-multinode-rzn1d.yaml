@@ -155,6 +155,33 @@ actions:
       unpack_command: tar --touch -C / -xzf
 
 
+#################################
+# Turn off all Yepkit USB devices
+#################################
+- test:
+    namespace: test-wic
+    role:
+    - daemon
+    - dut
+    timeout:
+      minutes: 60
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: yepkit-down-all
+          description: yepkit test
+        run:
+          steps:
+          - git clone https://github.com/Yepkit/ykush
+          - cd ykush
+          - make
+          - bin/ykushcmd -d a
+          - sleep 3
+      name: yepkit-down-all
+      path: inline/yepkit-test.yaml
+
 
 #############################
 # We're finished with J21 now
@@ -165,8 +192,6 @@ actions:
     - daemon
     - dut
     name: j21_off
-
-
 
 
 #################################

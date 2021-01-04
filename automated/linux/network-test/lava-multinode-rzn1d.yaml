@@ -1,4 +1,4 @@
-job_name: SE rzn1d network-test link-settings
+job_name: SE rzn1d network-test link-settings lan0
 timeouts:
   job:
     minutes: 1800
@@ -71,7 +71,7 @@ actions:
     name: set_boot_to_qspi
 
 ##################
-# all ports off
+# all ports off - except J21
 ##################
 - command:
     namespace: test
@@ -85,7 +85,7 @@ actions:
     role:
     - daemon
     - dut
-    name: j21_off
+    name: j21_on
 
 - command:
     namespace: test
@@ -156,15 +156,57 @@ actions:
 
 
 
+#############################
+# We're finished with J21 now
+#############################
+- command:
+    namespace: test-wic
+    role:
+    - daemon
+    - dut
+    name: j21_off
+
+
+
 
 #################################
-# Daemon
+# All nodes use J22
 #################################
 - command:
     namespace: test-wic
     role:
     - daemon
+    - dut
     name: j22_on
+
+- test:
+    namespace: test-wic
+    role:
+    - daemon
+    - dut
+    timeout:
+      minutes: 30
+    definitions:
+
+    #################################
+    #  configure-interface
+    #################################
+    - repository: https://github.com/omnium21/test-definitions.git
+      branch: ethernet
+      from: git
+      path: automated/linux/network-test/network-test.yaml
+      name: configure-interface
+      parameters:
+        CMD: configure-interface
+        ETH: lan0
+        SWITCH_IF: eth0
+        EXPECTED_RESULT: pass
+
+
+
+#################################
+# Daemon
+#################################
 
 - test:
     namespace: test-wic
@@ -188,12 +230,6 @@ actions:
 # DUT
 #################################
 
-- command:
-    namespace: test-wic
-    role:
-    - dut
-    name: j22_on
-
 - test:
     namespace: test-wic
     role:
@@ -202,20 +238,6 @@ actions:
       minutes: 30
     definitions:
 
-
-    #################################
-    #  configure-interface
-    #################################
-    - repository: https://github.com/omnium21/test-definitions.git
-      branch: ethernet
-      from: git
-      path: automated/linux/network-test/network-test.yaml
-      name: configure-interface
-      parameters:
-        CMD: configure-interface
-        ETH: lan0
-        SWITCH_IF: eth0
-        EXPECTED_RESULT: pass
 
 
 
@@ -519,30 +541,35 @@ actions:
     # Reset the port status
     #################################
 - command:
+    namespace: test-wic
     role:
     - daemon
     - dut
     name: j17_off
 
 - command:
+    namespace: test-wic
     role:
     - daemon
     - dut
     name: j21_on
 
 - command:
+    namespace: test-wic
     role:
     - daemon
     - dut
     name: j22_off
 
 - command:
+    namespace: test-wic
     role:
     - daemon
     - dut
     name: j23_off
 
 - command:
+    namespace: test-wic
     role:
     - daemon
     - dut

@@ -146,7 +146,14 @@ actions:
       - command: nmcli -c no -t device show ${ETH}
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
@@ -203,7 +210,14 @@ actions:
       - command: nmcli -c no -t device show ${ETH}
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
@@ -256,8 +270,17 @@ actions:
       - command: ifconfig ${ETH}
       - command: ip addr show ${ETH}
       - command: ifconfig ${ETH} up
-      - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: sleep 10
+      - command: ""
+      - command: ""
+      - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
 
 
@@ -289,7 +312,14 @@ actions:
       - command: nmcli -c no -t device show ${ETH}
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
@@ -346,7 +376,14 @@ actions:
       - command: nmcli -c no -t device show ${ETH}
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10
@@ -403,7 +440,14 @@ actions:
       - command: nmcli -c no -t device show ${ETH}
       - command: nmcli device set ${ETH} managed yes autoconnect yes
       - command: ifconfig ${ETH} up
+      - command: ""
+      - command: ""
+      - command: sleep 10
+      - command: ""
+      - command: ""
       - command: ip addr show ${ETH}
+      - command: ""
+      - command: ""
       - command: nmcli -c no -t device show ${ETH}
       - command: sleep 10
       - command: sleep 10

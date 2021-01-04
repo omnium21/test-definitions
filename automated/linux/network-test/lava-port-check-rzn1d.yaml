@@ -173,7 +173,7 @@ actions:
 - test:
     namespace: test-wic
     timeout:
-      minutes: 10
+      minutes: 30
     interactive:
     - name: j17
       prompts: [root@snarc-soca9, root@rzn1-snarc]
@@ -233,7 +233,7 @@ actions:
 - test:
     namespace: test-wic
     timeout:
-      minutes: 10
+      minutes: 30
     interactive:
     - name: j21
       prompts: [root@snarc-soca9, root@rzn1-snarc]
@@ -323,7 +323,7 @@ actions:
 - test:
     namespace: test-wic
     timeout:
-      minutes: 10
+      minutes: 30
     interactive:
     - name: j22
       prompts: [root@snarc-soca9, root@rzn1-snarc]
@@ -383,7 +383,7 @@ actions:
 - test:
     namespace: test-wic
     timeout:
-      minutes: 10
+      minutes: 30
     interactive:
     - name: j23
       prompts: [root@snarc-soca9, root@rzn1-snarc]
@@ -443,7 +443,7 @@ actions:
 - test:
     namespace: test-wic
     timeout:
-      minutes: 10
+      minutes: 30
     interactive:
     - name: j24
       prompts: [root@snarc-soca9, root@rzn1-snarc]

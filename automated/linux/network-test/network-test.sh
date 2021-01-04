@@ -773,7 +773,7 @@ case "$CMD" in
 					their_ipaddr=$(grep "ipaddr" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 					msgseq=$(grep "msgseq" /tmp/lava_multi_node_cache.txt | tail -1 | awk -F"=" '{print $NF}')
 					echo "Client has asked us to ssh in and md5sum ${their_filename}"
-					our_sum=$(ssh -o StrictHostKeyChecking=no -o BatchMode=yes root@"${their_ipaddr}" md5sum "${their_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${their_filename}".md5)
+					our_sum=$(ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=1200 -o BatchMode=yes root@"${their_ipaddr}" md5sum "${their_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${their_filename}".md5)
 					echo "Our md5sum is ${our_sum}"
 					lava-send ssh-result md5sum="${our_sum}" msgseq="${msgseq}"
 					;;
@@ -805,7 +805,7 @@ case "$CMD" in
 					our_filename=$(mktemp ~/largefile.XXXXX)
 					dd if=/dev/urandom of="${our_filename}" bs=1M count=1024
 					our_sum=$(md5sum "${our_filename}" | tail -1 | cut -d " " -f 1 | tee -a "${our_filename}".md5)
-					scp -o StrictHostKeyChecking=no -o BatchMode=yes "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
+					scp -o StrictHostKeyChecking=no -o ServerAliveInterval=1200 -o BatchMode=yes "${our_filename}" root@"${their_ipaddr}":"${their_filename}"
 					echo "Our md5sum is ${our_sum}"
 					lava-send scp-result md5sum="${our_sum}" msgseq="${msgseq}"
 					rm -f "${our_filename}"

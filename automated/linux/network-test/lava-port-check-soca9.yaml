@@ -26,13 +26,13 @@ actions:
 
 
 ##################
-# all ports off
+# all ports off - except J21
 ##################
 - command:
     name: j17_off
 
 - command:
-    name: j21_off
+    name: j21_on
 
 - command:
     name: j22_off
@@ -42,7 +42,6 @@ actions:
 
 - command:
     name: j24_off
-
 
 
 ###################
@@ -65,9 +64,10 @@ actions:
       download_command: udhcpc -i eth1 -n || udhcpc -i eth0 -n; wget
       unpack_command: tar --touch -C / -xzf
 
-##########################
-# Disable yepkit ports
-##########################
+
+#################################
+# Turn off all Yepkit USB devices
+#################################
 - test:
     timeout:
       minutes: 60
@@ -76,18 +76,27 @@ actions:
       repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: yepkit-test
+          name: yepkit-down-all
           description: yepkit test
         run:
           steps:
           - git clone https://github.com/Yepkit/ykush
           - cd ykush
           - make
-          - bin/ykushcmd
           - bin/ykushcmd -d a
           - sleep 3
-      name: yepkit-test
+      name: yepkit-down-all
       path: inline/yepkit-test.yaml
+
+
+#############################
+# We're finished with J21 now
+#############################
+- command:
+    role:
+    - daemon
+    - dut
+    name: j21_off
 
 
 ##########################

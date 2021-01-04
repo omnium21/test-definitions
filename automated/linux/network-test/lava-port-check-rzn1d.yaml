@@ -43,7 +43,7 @@ actions:
 
 
 ##################
-# all ports off
+# all ports off - except J21
 ##################
 - command:
     namespace: test-wic
@@ -51,7 +51,7 @@ actions:
 
 - command:
     namespace: test-wic
-    name: j21_off
+    name: j21_on
 
 - command:
     namespace: test-wic
@@ -64,8 +64,6 @@ actions:
 - command:
     namespace: test-wic
     name: j24_off
-
-
 
 
 ###################
@@ -82,6 +80,8 @@ actions:
         compression: bz2
       layout:
         url: https://releases.linaro.org/members/schneider/openembedded/2020.09-dunfell/rzn1d-5.4/dip-image-dev-rzn1-snarc-linaro-rel-2020.09-dunfell-rc2-internal-dirty-130.rootfs.wic.bmap
+
+
 - boot:
     namespace: test-wic
     connection-namespace: dfu-firmware
@@ -99,16 +99,19 @@ actions:
     auto_login:
       login_prompt: 'login:'
       username: root
-      password_prompt: 'Password:'
-      password: P@ssword-1
     prompts:
     - 'root@snarc-soca9:'
     - 'root@rzn1-snarc:'
+    transfer_overlay:
+      download_command: udhcpc -i eth1 -n || udhcpc -i eth0 -n; wget
+      unpack_command: tar --touch -C / -xzf
 
-##########################
-# Disable yepkit ports
-##########################
+
+#################################
+# Turn off all Yepkit USB devices
+#################################
 - test:
+    namespace: test-wic
     timeout:
       minutes: 60
     definitions:
@@ -116,18 +119,28 @@ actions:
       repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: yepkit-test
+          name: yepkit-down-all
           description: yepkit test
         run:
           steps:
           - git clone https://github.com/Yepkit/ykush
           - cd ykush
           - make
-          - bin/ykushcmd
           - bin/ykushcmd -d a
           - sleep 3
-      name: yepkit-test
+      name: yepkit-down-all
       path: inline/yepkit-test.yaml
+
+
+#############################
+# We're finished with J21 now
+#############################
+- command:
+    namespace: test-wic
+    role:
+    - daemon
+    - dut
+    name: j21_off
 
 
 ##########################

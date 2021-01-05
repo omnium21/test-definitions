@@ -13,12 +13,12 @@ visibility: public
 protocols:
   lava-multinode:
     roles:
-      daemon:
+      dut:
         device_type: rzn1d
         count: 1
         timeout:
           minutes: 30
-      dut:
+      daemon:
         device_type: rzn1d
         count: 1
         timeout:

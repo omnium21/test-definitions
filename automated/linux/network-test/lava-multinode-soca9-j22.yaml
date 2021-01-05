@@ -1,4 +1,4 @@
-job_name: SE soca9 network-test link-settings lan0
+job_name: SE soca9 network-test link-settings lan0/J22
 timeouts:
   job:
     minutes: 1800

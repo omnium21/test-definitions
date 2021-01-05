@@ -164,7 +164,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: configure-interface-eth2
+      name: configure-interface-j17
       parameters:
         CMD: configure-interface
         ETH: eth2
@@ -186,7 +186,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: daemon-eth2
+      name: daemon-j17
       parameters:
         CMD: daemon
         ETH: eth2
@@ -213,7 +213,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-default-ping-eth2
+      name: link-settings-default-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -229,7 +229,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-eth2
+      name: link-settings-100-full-j17
       parameters:
         CMD: link-settings
         ETH: eth2
@@ -243,7 +243,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-ping-eth2
+      name: link-settings-100-full-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -258,7 +258,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-half-eth2
+      name: link-settings-100-half-j17
       parameters:
         CMD: link-settings
         ETH: eth2
@@ -272,7 +272,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-half-ping-eth2
+      name: link-settings-100-half-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -287,7 +287,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-2-eth2
+      name: link-settings-100-full-2-j17
       parameters:
         CMD: link-settings
         ETH: eth2
@@ -301,7 +301,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-2-ping-eth2
+      name: link-settings-100-full-2-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -317,7 +317,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-eth2
+      name: link-settings-autoneg-j17
       parameters:
         CMD: link-settings
         ETH: eth2
@@ -329,7 +329,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-ping-eth2
+      name: link-settings-autoneg-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -352,7 +352,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-eth2
+    - name: sleep-j17
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -372,7 +372,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-off-ping-eth2
+      name: link-off-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -394,7 +394,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-eth2
+    - name: sleep-j17
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -414,7 +414,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-on-ping-eth2
+      name: link-on-ping-j17
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -438,7 +438,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-target-to-host-eth2
+      name: scp-target-to-host-j17
       parameters:
         CMD: scp-target-to-host
         ETH: eth2
@@ -453,7 +453,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-host-to-target-eth2
+      name: scp-host-to-target-j17
       parameters:
         CMD: scp-host-to-target
         ETH: eth2
@@ -470,7 +470,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: ssh-host-to-target-eth2
+      name: ssh-host-to-target-j17
       parameters:
         CMD: ssh-host-to-target
         ETH: eth2
@@ -489,7 +489,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: finished-eth2
+      name: finished-j17
       parameters:
         ETH: eth2
         CMD: finished

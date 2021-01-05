@@ -295,7 +295,7 @@ do_dhcp(){
 	esac
 
 	# Wait for DHCP to complete
-	retries=100
+	retries=1000
 	while [ "${ipaddr}" = "" ]; do
 		ipaddr=$(get_ipaddr "${interface}")
 		retries="$(expr ${retries} - 1)"

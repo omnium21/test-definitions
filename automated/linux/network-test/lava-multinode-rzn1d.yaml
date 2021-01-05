@@ -221,7 +221,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: configure-interface
+      name: configure-interface-lan0
       parameters:
         CMD: configure-interface
         ETH: lan0
@@ -245,7 +245,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: daemon
+      name: daemon-lan0
       parameters:
         CMD: daemon
         ETH: lan0
@@ -274,7 +274,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-ping
+      name: link-settings-default-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -290,7 +290,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full
+      name: link-settings-100-full-lan0
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -304,7 +304,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-ping-1
+      name: link-settings-100-full-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -319,7 +319,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-half
+      name: link-settings-100-half-lan0
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -333,7 +333,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-ping-2
+      name: link-settings-100-half-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -348,7 +348,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-2
+      name: link-settings-100-full-2-lan0
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -362,7 +362,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-ping-3
+      name: link-settings-100-full-2-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -378,7 +378,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg
+      name: link-settings-autoneg-lan0
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -390,7 +390,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-ping-4
+      name: link-settings-autoneg-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -415,7 +415,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-2
+    - name: sleep-lan0
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -436,7 +436,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: off-ping-1
+      name: link-off-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -460,7 +460,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-2
+    - name: sleep-lan0
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -481,7 +481,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: on-ping-1
+      name: link-on-ping-lan0
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -506,7 +506,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-1
+      name: scp-target-to-host-lan0
       parameters:
         CMD: scp-target-to-host
         ETH: lan0
@@ -521,7 +521,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-2
+      name: scp-host-to-target-lan0
       parameters:
         CMD: scp-host-to-target
         ETH: lan0
@@ -538,7 +538,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: ssh-1
+      name: ssh-host-to-target-lan0
       parameters:
         CMD: ssh-host-to-target
         ETH: lan0
@@ -557,7 +557,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: finished
+      name: finished-lan0
       parameters:
         ETH: lan0
         CMD: finished

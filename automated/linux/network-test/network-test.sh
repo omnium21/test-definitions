@@ -300,6 +300,14 @@ do_dhcp(){
 		ipaddr=$(get_ipaddr "${interface}")
 		retries="$(expr ${retries} - 1)"
 		echo -n "$retries "
+		case "${retries}" in
+		"200"|"400"|"600"|"800")
+			ifconfig "${interface}" down
+			sleep 5
+			ifconfig "${interface}" up
+			sleep 5
+			;;
+		esac
 		if [ "${retries}" -lt "1" ]; then
 			echo "ERROR: dhcp failed to assign an IP address"
 			break

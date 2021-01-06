@@ -296,6 +296,7 @@ do_dhcp(){
 	esac
 
 	# Wait for DHCP to complete
+	set -x
 	retries=1000
 	while [ "${ipaddr}" = "" ]; do
 		ipaddr=$(get_ipaddr "${interface}")
@@ -303,8 +304,10 @@ do_dhcp(){
 		echo -n "$retries "
 		case "${retries}" in
 		"200"|"400"|"600"|"800")
+			echo "Taking ${interface} down..."
 			ifconfig "${interface}" down
 			sleep 5
+			echo "Bringing ${interface} up..."
 			ifconfig "${interface}" up
 			sleep 5
 			;;
@@ -316,6 +319,7 @@ do_dhcp(){
 		sleep 0.1
 		echo -n "."
 	done
+	set +x
 }
 
 ################################################################################

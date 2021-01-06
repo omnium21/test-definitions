@@ -531,7 +531,11 @@ test_link_settings(){
 	fi
 	ifconfig "${interface}" mtu "${mtu}"
 	echo ""
-	sleep 10
+	sleep 3
+	if_down "${interface}"
+	sleep 3
+	if_up "${interface}"
+	assign_ipaddr "${interface}"
 	echo ""
 	check_link_settings "${interface}" "${speed}" "${duplex}" "${autoneg}" "${mtu}" "link-settings"
 }

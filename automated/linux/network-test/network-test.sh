@@ -281,6 +281,7 @@ do_dhcp(){
 			# Set the interface as managed by networkmanager
 			# autoconnect will use DHCP to assign an IP address
 			nmcli device set "${interface}" managed yes autoconnect yes
+			systemctl daemon-reload
 			;;
 
 		systemd-networkd)

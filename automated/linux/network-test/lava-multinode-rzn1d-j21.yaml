@@ -279,8 +279,6 @@ actions:
         EXPECTED_RESULT: pass
 
 
-
-
     #################################
     # Switch port J21 (eth1) off
     #################################

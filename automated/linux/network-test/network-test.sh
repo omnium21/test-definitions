@@ -310,6 +310,8 @@ do_dhcp(){
 			echo "Bringing ${interface} up..."
 			ifconfig "${interface}" up
 			sleep 5
+			udhcpc -i "${interface}"
+			sleep 5
 			;;
 		esac
 		if [ "${retries}" -lt "1" ]; then

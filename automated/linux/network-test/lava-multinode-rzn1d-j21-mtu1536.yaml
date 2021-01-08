@@ -291,7 +291,7 @@ actions:
       name: link-settings-autoneg-j24
       parameters:
         CMD: link-settings
-        ETH: lan2
+        ETH: eth1
         AUTONEG: "on"
         MTU: 1536
 
@@ -303,7 +303,7 @@ actions:
       name: link-settings-autoneg-ping-j24
       parameters:
         CMD: ping-request
-        ETH: lan2
+        ETH: eth1
         EXPECTED_RESULT: pass
 
 

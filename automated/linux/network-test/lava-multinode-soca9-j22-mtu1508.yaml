@@ -164,7 +164,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: configure-interface-j22
+      name: configure-interface-j22-mtu1508
       parameters:
         CMD: configure-interface
         ETH: lan0
@@ -187,7 +187,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: daemon-j22
+      name: daemon-j22-mtu1508
       parameters:
         CMD: daemon
         ETH: lan0
@@ -215,7 +215,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-default-ping-j22
+      name: link-settings-default-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -231,7 +231,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-j22
+      name: link-settings-100-full-j22-mtu1508
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -245,7 +245,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-ping-j22
+      name: link-settings-100-full-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -260,7 +260,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-half-j22
+      name: link-settings-100-half-j22-mtu1508
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -274,7 +274,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-half-ping-j22
+      name: link-settings-100-half-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -289,7 +289,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-2-j22
+      name: link-settings-100-full-2-j22-mtu1508
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -303,7 +303,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-100-full-2-ping-j22
+      name: link-settings-100-full-2-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -319,7 +319,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-j22
+      name: link-settings-autoneg-j22-mtu1508
       parameters:
         CMD: link-settings
         ETH: lan0
@@ -331,7 +331,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-ping-j22
+      name: link-settings-autoneg-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -354,7 +354,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-j22
+    - name: sleep-j22-mtu1508
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -374,7 +374,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-off-ping-j22
+      name: link-off-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -396,7 +396,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-j22
+    - name: sleep-j22-mtu1508
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -416,7 +416,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-on-ping-j22
+      name: link-on-ping-j22-mtu1508
       parameters:
         CMD: ping-request
         ETH: lan0
@@ -440,7 +440,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-target-to-host-j22
+      name: scp-target-to-host-j22-mtu1508
       parameters:
         CMD: scp-target-to-host
         ETH: lan0
@@ -455,7 +455,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-host-to-target-j22
+      name: scp-host-to-target-j22-mtu1508
       parameters:
         CMD: scp-host-to-target
         ETH: lan0
@@ -472,7 +472,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: ssh-host-to-target-j22
+      name: ssh-host-to-target-j22-mtu1508
       parameters:
         CMD: ssh-host-to-target
         ETH: lan0
@@ -491,7 +491,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: finished-j22
+      name: finished-j22-mtu1508
       parameters:
         ETH: lan0
         CMD: finished

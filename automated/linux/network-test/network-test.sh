@@ -317,6 +317,11 @@ do_dhcp(){
 			sleep 5
 			udhcpc -i "${interface}"
 			sleep 5
+			# Get default Route IP address of a given interface
+			ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+			if [ -z "${ROUTE_ADDR}" ]; then
+				continue;
+			fi
 			;;
 		esac
 		if [ "${retries}" -lt "1" ]; then

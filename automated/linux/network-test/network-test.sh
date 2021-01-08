@@ -239,7 +239,8 @@ ping_test() {
 	PING_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
 
 	if [ -z "${PING_ADDR}" ]; then
-		PING_ADDR=github.com
+		ip addr show "${interface}"
+		PING_ADDR=10.0.0.2
 		echo "WARNING: failed to get the default router, using ${PING_ADDR} instead."
 	fi
 

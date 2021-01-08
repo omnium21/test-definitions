@@ -288,7 +288,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-j24
+      name: link-settings-autoneg-j21
       parameters:
         CMD: link-settings
         ETH: eth1
@@ -300,7 +300,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-ping-j24
+      name: link-settings-autoneg-ping-j21
       parameters:
         CMD: ping-request
         ETH: eth1

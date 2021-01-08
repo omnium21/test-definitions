@@ -236,10 +236,15 @@ ping_test() {
 	check_return "ethernet-${interface}-ping-get-ipaddr"
 
 	# Get default Route IP address of a given interface
-	ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+	PING_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
+
+	if [ -z "${PING_ADDR}" ]; then
+		PING_ADDR=github.com
+		echo "WARNING: failed to get the default router, using ${PING_ADDR} instead."
+	fi
 
 	# Run the test
-	run_test_case "ping -I ${interface} -c 5 ${ROUTE_ADDR}" "${test_string}"
+	run_test_case "ping -I ${interface} -c 5 ${PING_ADDR}" "${test_string}"
 }
 
 
@@ -296,7 +301,6 @@ do_dhcp(){
 	esac
 
 	# Wait for DHCP to complete
-	set -x
 	retries=1000
 	while [ "${ipaddr}" = "" ]; do
 		ipaddr=$(get_ipaddr "${interface}")
@@ -321,7 +325,6 @@ do_dhcp(){
 		sleep 0.1
 		echo -n "."
 	done
-	set +x
 }
 
 ################################################################################

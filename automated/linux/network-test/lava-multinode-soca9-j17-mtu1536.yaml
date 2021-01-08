@@ -164,7 +164,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: configure-interface-j17
+      name: configure-interface-j17-mtu1536
       parameters:
         CMD: configure-interface
         ETH: eth2
@@ -186,7 +186,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: daemon-j17
+      name: daemon-j17-mtu1536
       parameters:
         CMD: daemon
         ETH: eth2
@@ -213,7 +213,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-default-ping-j17
+      name: link-settings-default-ping-j17-mtu1536
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -229,7 +229,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-j17
+      name: link-settings-autoneg-j17-mtu1536
       parameters:
         CMD: link-settings
         ETH: eth2
@@ -241,7 +241,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-settings-autoneg-ping-j17
+      name: link-settings-autoneg-ping-j17-mtu1536
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -264,7 +264,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-j17
+    - name: sleep-j17-mtu1536
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -284,7 +284,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-off-ping-j17
+      name: link-off-ping-j17-mtu1536
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -306,7 +306,7 @@ actions:
     timeout:
       minutes: 10
     interactive:
-    - name: sleep-j17
+    - name: sleep-j17-mtu1536
       prompts: ["root@snarc-soca9", "root@rzn1-snarc"]
       script:
       - command: sleep 5
@@ -326,7 +326,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: link-on-ping-j17
+      name: link-on-ping-j17-mtu1536
       parameters:
         CMD: ping-request
         ETH: eth2
@@ -350,7 +350,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-target-to-host-j17
+      name: scp-target-to-host-j17-mtu1536
       parameters:
         CMD: scp-target-to-host
         ETH: eth2
@@ -365,7 +365,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: scp-host-to-target-j17
+      name: scp-host-to-target-j17-mtu1536
       parameters:
         CMD: scp-host-to-target
         ETH: eth2
@@ -382,7 +382,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: ssh-host-to-target-j17
+      name: ssh-host-to-target-j17-mtu1536
       parameters:
         CMD: ssh-host-to-target
         ETH: eth2
@@ -401,7 +401,7 @@ actions:
       branch: ethernet
       from: git
       path: automated/linux/network-test/network-test.yaml
-      name: finished-j17
+      name: finished-j17-mtu1536
       parameters:
         ETH: eth2
         CMD: finished

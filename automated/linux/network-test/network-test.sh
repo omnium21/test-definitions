@@ -314,12 +314,17 @@ do_dhcp(){
 			sleep 5
 			echo "Bringing ${interface} up..."
 			ifconfig "${interface}" up
-			sleep 5
+			sleep 10
 			udhcpc -i "${interface}"
 			sleep 5
 			# Get default Route IP address of a given interface
 			ROUTE_ADDR=$(ip route list  | grep default | awk '{print $3}' | head -1)
 			if [ -z "${ROUTE_ADDR}" ]; then
+				ipaddr=$(get_ipaddr "${interface}")
+				netmask=$(get_netmask "${interface}")
+				if [ ! -z "${ipaddr}" ]; then
+					ip addr del "${ipaddr}"/"${netmask}" dev "${interface}"
+				fi
 				continue;
 			fi
 			;;

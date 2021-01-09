@@ -1,0 +1,18 @@
+metadata:
+    name: meminfo
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "TPM test. Run the ECDSA tests from https://github.com/tpm2-software/tpm2-tss-engine"
+    maintainer:
+        - ryan.harkin@linaro.org
+    os:
+        - oe
+    scope:
+        - functional
+    devices:
+        - rzn1d
+
+run:
+    steps:
+        - cd ./automated/linux/tpm
+        - ./tpm.sh
+        - ../../utils/send-to-lava.sh ./output/result.txt

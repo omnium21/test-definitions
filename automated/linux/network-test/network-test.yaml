@@ -1,0 +1,63 @@
+metadata:
+    name: ethernet-daemon
+    format: "Lava-Test Test Definition 1.0"
+    description: "iperf3 is a tool for active measurements of the maximum
+                  achievable bandwidth on IP networks."
+    maintainer:
+        - milosz.wasilewski@linaro.org
+    os:
+        - debian
+        - ubuntu
+        - fedora
+        - centos
+        - openembedded
+    scope:
+        - performance
+    environment:
+        - lava-test-shell
+    devices:
+        - hi6220-hikey
+        - apq8016-sbc
+        - mustang
+        - moonshot
+        - thunderX
+        - d03
+        - d05
+        - soca9
+        - rzn1d
+
+params:
+    CMD: "daemon"
+    ETH: "eth0"
+
+    # Settings for CMD=ping-request
+    # Used for ping-request commands to indicate if we expect the ping to pass or fail
+    # This is used when we disable the ethernet port, then check that ping fails
+    EXPECTED_RESULT: "pass"
+    # Time in seconds to transmit for
+
+    # Setting for CMD=iperf3-client
+    TIME: "10"
+    # Number of parallel client streams to run
+    THREADS: "1"
+    # Set affinity of the client to cpu 0 using "-A 0"
+    AFFINITY: ""
+    # Set REVERSE="-R" to run tx from the server
+    REVERSE: ""
+
+    # Setting for CMD=link-settings
+    LINKSPEED: "100"
+    DUPLEX: "full"
+    AUTONEG: "off"
+    MTU: 1500
+
+    SWITCH_IF: ""
+    NETD: ""
+
+    SKIP_INSTALL: "false"
+
+run:
+    steps:
+        - cd ./automated/linux/network-test
+        - ./network-test.sh -c "${CMD}" -s "${SKIP_INSTALL}" -e "${ETH}"  -t "${TIME}" -p "${THREADS}" -r "${EXPECTED_RESULT}" -a "${AUTONEG}" -l "${LINKSPEED}" -d "${DUPLEX}" -m "${MTU}" -w "${SWITCH_IF}" "${AFFINITY}" "${REVERSE}"
+        - ../../utils/send-to-lava.sh ./output/result.txt

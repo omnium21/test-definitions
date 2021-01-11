@@ -21,6 +21,7 @@ ETH="eth0"
 EXPECTED_RESULT="pass"
 IPERF3_SERVER_RUNNING="no"
 CMD="usage"
+AUTONEG="auto"
 MTU="1500"
 NETD="" # network-manager or systemd-networkd, blank means auto-detect
 
@@ -543,12 +544,14 @@ test_link_settings(){
 	echo "  Duplex:   ${duplex}"
 	echo "  MTU:      ${mtu}"
 
-	if [ "${autoneg}" = "on" ]; then
+	if [ "${autoneg}" = "auto" ] || [ "${autoneg}" = "on" ]; then
 		echo "Setting ${interface} to auto-negotiate"
+		autoneg="on"
 		ethtool -s "${interface}" autoneg on
 	else
 		echo "Setting ${interface} to manual negotiation for ${speed}Mbps at ${duplex} duplex"
-		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg "${autoneg}"
+		autoneg="off"
+		ethtool -s "${interface}" speed "${speed}" duplex "${duplex}" autoneg off
 	fi
 	ifconfig "${interface}" mtu "${mtu}"
 	echo ""

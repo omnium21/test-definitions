@@ -48,7 +48,7 @@ params:
     # Setting for CMD=link-settings
     LINKSPEED: "100"
     DUPLEX: "full"
-    AUTONEG: "off"
+    AUTONEG: "auto"
     MTU: 1500
 
     SWITCH_IF: ""

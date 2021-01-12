@@ -53,11 +53,14 @@ tpm_test()
 	echo "test: $file    success_string: ${success_string}"
 	echo "################################################################################"
 
-	wget -q ${url}/${file} || echo "ERROR: wget ${file} failed"
-	if [ -e "${file}" ]; then
+	#wget -q ${url}/${file} || echo "ERROR: wget ${file} failed"
+	testscript="/usr/share/installed-tests/tpm/${file}"
+	if [ -e "${testscript}" ]; then
 		rm -f /tmp/tpm.log || true
-		bash $file 2>&1 | tee /tmp/tpm.log
+		bash ${testscript} 2>&1 | tee /tmp/tpm.log
 		grep -e "${success_string}" /tmp/tpm.log && result=pass
+	else
+		echo "ERROR: ${testscript} does not exist"
 	fi
 	echo "$file $result" | tee -a ${RESULT_FILE}
 }
